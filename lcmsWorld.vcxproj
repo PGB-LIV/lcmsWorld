@@ -489,13 +489,6 @@
   <ItemGroup>
     <Text Include="files\Geometry.txt" />
   </ItemGroup>
-  <ItemGroup>
-    <Image Include="files\LCMSWorld.ico">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Dev|x64'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-    </Image>
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{B4B52D65-B6EE-4A70-8057-5B272BC2D8D3}</ProjectGuid>
     <RootNamespace>lcmsWorld</RootNamespace>
@@ -626,7 +619,7 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>libs\glfw\lib-vc2010-64\glfw3.lib;legacy_stdio_definitions.lib;%(AdditionalDependencies);opengl32.lib;curl\build\lib\x64\libcurld.lib;ws2_32.lib;wldap32.lib;Crypt32.lib;Psapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>legacy_stdio_definitions.lib;%(AdditionalDependencies);opengl32.lib;ws2_32.lib;wldap32.lib;Crypt32.lib;Psapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>

@@ -1377,9 +1377,4 @@
   <ItemGroup>
     <Text Include="files\Geometry.txt" />
   </ItemGroup>
-  <ItemGroup>
-    <Image Include="files\LCMSWorld.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-  </ItemGroup>
 </Project>

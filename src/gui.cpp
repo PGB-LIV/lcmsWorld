@@ -1111,7 +1111,7 @@ void checkScreenShot(Landscape *l)
  	if (takeShot.time > 0)
 	{
 		
-		l->zScale = 5e-7;
+		l->zScale = 5e-7f;
 
 		takeShot.time -= System::frameTime;
 

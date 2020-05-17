@@ -17,7 +17,7 @@ bool Settings::dragMode = false;
 
 bool Settings::showBaseWireframe = false;
  
-ImVec4 Settings::clearColour = ImVec4(120 / 255.0, 131 / 255.0, 144 / 255.0, 1.00f);
+ImVec4 Settings::clearColour = ImVec4(120 / 255.0f, 131 / 255.0f, 144 / 255.0f, 1.00f);
 std::string  Settings::loadPath = ".\\";
 #ifdef _WIN32
 std::string  Settings::lastFilename = ".";

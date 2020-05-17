@@ -1,7 +1,7 @@
  folder: 
 P:
 P:D:\lcmsdata\15
-memory = 15.9535 gb
+memory = 15.9505 gb
  not caching binary data 
 12 cores reported 
 using 6 threads for loading 
