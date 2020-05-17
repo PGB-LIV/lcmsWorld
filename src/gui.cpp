@@ -591,14 +591,14 @@ void gui::infoPanel(ImVec2 menuSize)
 		//for now <i> indicates italics
 		//<c> indicates continuation of previous line
 
-		if (line.starts_with("<i>"))
+		if (startsWith(line,"<i>"))
 		{
 			line = line.substr(3);
 
 			font = 1;
 			ImGui::PushFont(gui::italic);
 		}
-		if (line.starts_with("<c>"))
+		if (startsWith(line,"<c>"))
 		{
 			line = line.substr(3);
 			ImGui::SameLine();

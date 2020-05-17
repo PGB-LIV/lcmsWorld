@@ -1210,7 +1210,7 @@ void Landscape::setMap()
 	setId++;
 	int thisId = setId;
 
-	std::memset(&map[0], 0, mapX*mapY / 8);
+	memset(&map[0], 0, mapX*mapY / 8);
 
 	mzFloat minX = worldMzRange.min;
 	mzFloat rangeX = worldMzRange.max - minX;

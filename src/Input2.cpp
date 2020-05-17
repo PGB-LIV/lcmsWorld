@@ -213,7 +213,7 @@ void Input::computeViewMatrices() {
 	if (getView()->getCamera() == NULL)
 		return;
 
-	if (isnan(position.x))
+	if (std::isnan(position.x))
 	{
 		position = initialPosition;
 	}

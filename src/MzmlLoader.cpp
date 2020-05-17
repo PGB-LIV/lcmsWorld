@@ -3,6 +3,8 @@ using std::string;
 #include <iostream>
 #include <fstream>
 #include "Base64m.h"
+
+#include "Landscape.h"
 #include "Builder.h"
 
 
