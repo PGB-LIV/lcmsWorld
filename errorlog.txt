@@ -1,0 +1,22 @@
+ folder: 
+P:
+P:D:\lcmsdata\15
+memory = 15.9535 gb
+ not caching binary data 
+12 cores reported 
+using 6 threads for loading 
+Setup For Drawing - Compiling Shaders 
+Created shaders 
+Shaders loaded 4
+ vertexAttribute 4294967295
+ vertexUV 0
+GL Handles acquired 0
+texture 16 * 512
+texture 8 * 8
+texture 32 * 32
+texture 28 * 28
+texture 64 * 64
+texture 64 * 64
+texture 128 * 128
+texture 32 * 32
+texture 64 * 64

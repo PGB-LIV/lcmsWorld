@@ -1,0 +1,115 @@
+R"(
+#version 130
+
+in vec2 vertexUV;
+in vec3 vertexPosition_modelspace;
+in vec3 vertexNormal_modelspace;
+in float vertexAttribute;
+
+
+ 
+out vec2 UV;
+out vec3 Position_worldspace;
+// out vec4 gl_Position;
+flat out   vec3 Normal_cameraspace;
+out vec3 EyeDirection_cameraspace;
+out vec3 LightDirection_cameraspace;
+out float Valpha;
+out float vertexAttributeI;
+  
+// Values that stay constant for the whole mesh.
+uniform mat4 MVP;
+uniform mat4 V;
+uniform mat4 M;
+uniform vec3 LightPosition_worldspace;
+uniform vec2 xFilter;
+uniform vec2 yFilter;
+uniform	float LightPower;
+
+uniform int rootFlag;
+
+
+
+
+
+
+
+
+void main(){
+
+vertexAttributeI =  0;
+
+
+	// Output position of the vertex, in clip space : MVP * position
+	vec3 vp = vertexPosition_modelspace;
+
+			if (vp.y  < 0)
+	{
+		
+
+		vp.y = - vp.y;
+		vertexAttributeI =  1;
+
+	}
+ 
+ 
+	if (rootFlag == 1)
+	{
+		vp.y = sqrt(vp.y);
+	}
+	if (rootFlag == 2)
+	{
+		vp.y = log2(vp.y + 1);
+	}
+
+	gl_Position =  MVP * vec4(vp,1);
+	
+	// Position of the vertex, in worldspace : M * position
+	Position_worldspace = (M * vec4(vp,1)).xyz;
+	 
+	// Vector that goes from the vertex to the camera, in camera space.
+	// In camera space, the camera is at the origin (0,0,0).
+	vec3 vertexPosition_cameraspace = ( V * M * vec4(vp,1)).xyz;
+	EyeDirection_cameraspace = vec3(0,0,0) - vertexPosition_cameraspace;
+
+	if (LightPower > 1)
+	{
+	// Vector that goes from the vertex to the light, in camera space. M is ommited because it's identity.
+	vec3 LightPosition_cameraspace = ( V * vec4(LightPosition_worldspace,1)).xyz;
+	LightDirection_cameraspace = LightPosition_cameraspace + EyeDirection_cameraspace;
+	
+	// Normal of the the vertex, in camera space
+	Normal_cameraspace = ( V * M * vec4(vertexNormal_modelspace,0)).xyz; // Only correct if ModelMatrix does not scale the model ! Use its inverse transpose if not.
+	Normal_cameraspace = vec3(0,0,0) - Normal_cameraspace;
+	}
+	// UV of the vertex. No special space for this one.
+	UV = vertexUV;
+
+	 if (UV.x+UV.y == 0)
+		{
+		UV.x = 0.25;
+		//these constants come from landscape viewdata peakheight , makemeseh zOffset , and landscape peakUV)
+		UV.y = .001 + vp.y / 3500 * 0.995f ;
+ 		}
+	 
+
+
+
+	if (rootFlag ==1)
+		{
+	//	UV.y = sqrt(UV.y);
+		}
+
+
+	Valpha = 1.0f;
+	if ((vp.x < xFilter.x) || (vp.x > xFilter.y) || (vp.z < yFilter.x) || (vp.z > yFilter.y) )
+	{
+	Valpha = 0;
+	}
+
+
+ 
+
+}
+
+)";
