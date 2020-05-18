@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 #include "gl3w/gl3w.h" // Include glfw3.h after our OpenGL definitions
-#include "glfw/include/glfw3.h" // Include glfw3.h after our OpenGL definitions
+#include "glfw/include/GLFW/glfw3.h" // Include glfw3.h after our OpenGL definitions
 
 #include "Structs.h"
 #include "GLMesh.h"

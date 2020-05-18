@@ -39,21 +39,21 @@
     <ClCompile Include="src\expat-2.2.0\xmltok_impl.c" />
     <ClCompile Include="src\expat-2.2.0\xmltok_ns.c" />
     <ClCompile Include="src\gl3w\gl3w.c" />
-    <ClCompile Include="src\glfw\context.c" />
-    <ClCompile Include="src\glfw\egl_context.c" />
-    <ClCompile Include="src\glfw\init.c" />
-    <ClCompile Include="src\glfw\input.c" />
-    <ClCompile Include="src\glfw\monitor.c" />
-    <ClCompile Include="src\glfw\osmesa_context.c" />
-    <ClCompile Include="src\glfw\vulkan.c" />
-    <ClCompile Include="src\glfw\wgl_context.c" />
-    <ClCompile Include="src\glfw\win32_init.c" />
-    <ClCompile Include="src\glfw\win32_joystick.c" />
-    <ClCompile Include="src\glfw\win32_monitor.c" />
-    <ClCompile Include="src\glfw\win32_thread.c" />
-    <ClCompile Include="src\glfw\win32_time.c" />
-    <ClCompile Include="src\glfw\win32_window.c" />
-    <ClCompile Include="src\glfw\window.c" />
+    <ClCompile Include="src\glfw\src\context.c" />
+    <ClCompile Include="src\glfw\src\egl_context.c" />
+    <ClCompile Include="src\glfw\src\init.c" />
+    <ClCompile Include="src\glfw\src\input.c" />
+    <ClCompile Include="src\glfw\src\monitor.c" />
+    <ClCompile Include="src\glfw\src\osmesa_context.c" />
+    <ClCompile Include="src\glfw\src\vulkan.c" />
+    <ClCompile Include="src\glfw\src\wgl_context.c" />
+    <ClCompile Include="src\glfw\src\win32_init.c" />
+    <ClCompile Include="src\glfw\src\win32_joystick.c" />
+    <ClCompile Include="src\glfw\src\win32_monitor.c" />
+    <ClCompile Include="src\glfw\src\win32_thread.c" />
+    <ClCompile Include="src\glfw\src\win32_time.c" />
+    <ClCompile Include="src\glfw\src\win32_window.c" />
+    <ClCompile Include="src\glfw\src\window.c" />
     <ClCompile Include="src\gui.cpp" />
     <ClCompile Include="src\LCHttp.cpp" />
     <ClCompile Include="src\Input2.cpp" />
@@ -285,14 +285,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="src\gl3w\KHR\khrplatform.h" />
-    <ClInclude Include="src\glfw\egl_context.h" />
-    <ClInclude Include="src\glfw\glfw_config.h" />
     <ClInclude Include="src\glfw\include\glfw3.h" />
     <ClInclude Include="src\glfw\include\glfw3native.h" />
-    <ClInclude Include="src\glfw\internal.h" />
-    <ClInclude Include="src\glfw\wgl_context.h" />
-    <ClInclude Include="src\glfw\win32_joystick.h" />
-    <ClInclude Include="src\glfw\win32_platform.h" />
+    <ClInclude Include="src\glfw\src\win32_joystick.h" />
+    <ClInclude Include="src\glfw\src\win32_platform.h" />
     <ClInclude Include="src\gui.h" />
     <ClInclude Include="src\LCHttp.h" />
     <ClInclude Include="src\Input2.h" />
@@ -706,7 +702,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>src\libcurl;src\curlinc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB;FINAL;%(PreprocessorDefinitions);CURL_STATICLIB;BUILDING_LIBCURL</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB;FINAL;%(PreprocessorDefinitions);BUILDING_LIBCURL;_GLFW_USE_CONFIG_H</PreprocessorDefinitions>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <ExceptionHandling>Async</ExceptionHandling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>

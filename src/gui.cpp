@@ -2,7 +2,7 @@
 
 
 #include "gl3w/gl3w.h" 
-#include "glfw/include/glfw3.h" // Include glfw3.h after our OpenGL definitions
+#include "glfw/include/GLFW/glfw3.h" // Include glfw3.h after our OpenGL definitions
 
 #include <functional> 
 #include <thread>

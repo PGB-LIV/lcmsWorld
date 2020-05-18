@@ -603,52 +603,7 @@
     <ClCompile Include="src\MemsizeUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\glfw\context.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\glfw\egl_context.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\glfw\init.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\glfw\input.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\glfw\monitor.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\glfw\vulkan.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\glfw\wgl_context.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\glfw\win32_init.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\glfw\win32_joystick.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\glfw\win32_monitor.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\glfw\win32_time.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\glfw\win32_window.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\glfw\window.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Input2.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\glfw\win32_thread.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\glfw\osmesa_context.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\mzParser\BasicChromatogram.cpp">
@@ -712,6 +667,51 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\SafeQueue.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\glfw\src\context.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\glfw\src\egl_context.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\glfw\src\init.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\glfw\src\input.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\glfw\src\monitor.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\glfw\src\osmesa_context.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\glfw\src\vulkan.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\glfw\src\win32_init.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\glfw\src\win32_joystick.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\glfw\src\win32_monitor.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\glfw\src\win32_thread.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\glfw\src\win32_time.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\glfw\src\win32_window.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\glfw\src\window.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\glfw\src\wgl_context.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1337,24 +1337,6 @@
     <ClInclude Include="src\SystemSetup.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\glfw\egl_context.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\glfw\glfw_config.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\glfw\internal.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\glfw\wgl_context.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\glfw\win32_joystick.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\glfw\win32_platform.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\glfw\include\glfw3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1371,6 +1353,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\glfw\src\win32_joystick.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\glfw\src\win32_platform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

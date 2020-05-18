@@ -1,10 +1,10 @@
 
-#define ENABLED
-
-
-#ifdef ENABLED
-
+ 
 #include "LCHttp.h"
+
+#ifdef _WIN32
+
+
 #include <chrono>
 #include <thread>
 #include "Zip.h"
@@ -110,6 +110,7 @@ struct MemoryStruct LCHttp::get_response(std::string url)
 	}
 	return chunk;
 }
+
 
 struct MemoryStruct  LCHttp::get_http(long long offset, size_t size)
 {
@@ -268,6 +269,10 @@ struct MemoryStruct  LCHttp::get_http(long long offset, size_t size)
 }
 
 std::vector<byte> LCHttp::getFromHttp(DataSource d)
+{
+	return std::vector<byte>();
+}
+std::vector<byte> LCHttp::getFileFromHttp(std::stirng url)
 {
 	return std::vector<byte>();
 }

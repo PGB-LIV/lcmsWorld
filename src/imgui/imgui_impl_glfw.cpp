@@ -33,12 +33,12 @@
 
 // GLFW
 #include "../gl3w/gl3w.h"  
-#include "../glfw/include/glfw3.h" // Include glfw3.h after our OpenGL definitions
+#include "../glfw/include/GLFW/glfw3.h" // Include glfw3.h after our OpenGL definitions
 
 #ifdef _WIN32
 #undef APIENTRY
 #define GLFW_EXPOSE_NATIVE_WIN32
-#include "../glfw/include/glfw3native.h" // Include glfw3.h after our OpenGL definitions
+#include "../glfw/include/GLFW/glfw3native.h" // Include glfw3.h after our OpenGL definitions
 #endif
 #define GLFW_HAS_WINDOW_TOPMOST     (GLFW_VERSION_MAJOR * 1000 + GLFW_VERSION_MINOR * 100 >= 3200) // 3.2+ GLFW_FLOATING
 #define GLFW_HAS_WINDOW_HOVERED     (GLFW_VERSION_MAJOR * 1000 + GLFW_VERSION_MINOR * 100 >= 3300) // 3.3+ GLFW_HOVERED

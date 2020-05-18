@@ -611,7 +611,7 @@ MZData* MzmlLoader::loadDataPartial()
 					}
 					loadPos = readSize - linePos;
 
-					std::memcpy(&buffer[0], &buffer[linePos], loadPos);
+					 memcpy(&buffer[0], &buffer[linePos], loadPos);
 
 
 

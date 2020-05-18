@@ -6,7 +6,7 @@
 //just to make a few things faster to access from anywhere; e.g., time stamps
 //don't want to make function calls every time, once per frame is plenty
 #include "gl3w/gl3w.h"  
-#include "glfw/include/glfw3.h" // Include glfw3.h after our OpenGL definitions
+#include "glfw/include/GLFW/glfw3.h" // Include glfw3.h after our OpenGL definitions
 
 class Globals
 {
