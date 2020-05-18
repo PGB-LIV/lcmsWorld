@@ -180,7 +180,14 @@ public:
 				break;
 		}
 	}
+	void scaleAnnotations(double scale_factor)
+	{
+		for (auto a : annotations)
+		{
+			a.lc *= scale_factor;
+		}
 
+	}
 	void setVisible(Annotation* a, bool vis)
 	{
 		if (vis)
@@ -191,7 +198,7 @@ public:
 	}
 	std::set<Annotation*> visibleAnnotations;
 	bool hasAnnotations() { return annotationsLoaded; }
-	void setAnnotationsLoaded() { annotationsLoaded = true; setMap();	}
+	void setAnnotationsLoaded(double scale_factor) { scaleAnnotations(scale_factor); annotationsLoaded = true; setMap(); }
 	Camera* getCamera() { return camera; }
 	 void updateCamera(float time );
 	glm::mat4 getCameraMatrix();

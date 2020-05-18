@@ -158,7 +158,7 @@ bool Render::setup()
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // Required on Mac
 #else
 	// GL 3.0 + GLSL 130
-	const char* glsl_version = "#version 150";
+	const char* glsl_version = "#version 130";
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
@@ -218,21 +218,21 @@ bool Render::setup()
 	const char* geom =
 #include "../files/Geometry.txt"
 
-#ifdef _WIN32
-
-	// Create and compile our GLSL program from the shaders
-	const char* vertex =
-	#include "../files/vertex.txt"
-
-	const char* fragment =
-	#include "../files/fragment.txt"
-#else
-
-	const char* vertex =
+#ifdef __APPLE__
+		const char* vertex =
 #include "../files/macvertex.txt"
 
 		const char* fragment =
 #include "../files/macfragment.txt"
+	// Create and compile our GLSL program from the shaders
+
+#else
+		const char* vertex =
+#include "../files/vertex.txt"
+
+		const char* fragment =
+#include "../files/fragment.txt"
+
 #endif
 
 	programID = CompileShaders(vertex,fragment, geom);

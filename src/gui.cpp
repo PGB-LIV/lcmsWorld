@@ -11,7 +11,7 @@
 #include <locale>
 #include <ostream>
 #include <fstream>
-
+#include <string>
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
@@ -61,6 +61,10 @@ void gui::scrollWheel(GLFWwindow* window, double xoffset, double yoffset)
 #include "../files/OpenSans.h"
 #include "../files/OpenSans_Italic.h"
 
+
+std::string aboutText[] = { "lcmsWorld","Early Prototype version " CUR_VERSION_STRING ,"","This version is only for testing, it is not guaranteed to perform correctly","","(c) University of Liverpool 2020","","please email comments to a.mccabe@liverpool.ac.uk"
+};
+
 void gui::setup(const char* glsl_version)
 {
 	// Setup Dear ImGui binding
@@ -69,7 +73,7 @@ void gui::setup(const char* glsl_version)
 
 	//	ImGui::GetStyle().ScaleAllSizes(2.0f);
 		//	ImGuiStyle::ScaleAllSizes();
-
+ 
 
 	ImGuiIO& io = ImGui::GetIO(); 
 	(void)io;
@@ -1158,8 +1162,6 @@ void checkScreenShot(Landscape *l)
 }
 
 
-std::string aboutText[] = { "lcmsWorld","Early Prototype version 0.23","","This version is only for testing, it is not guaranteed to perform correctly","","(c) University of Liverpool 2020","","please email comments to a.mccabe@liverpool.ac.uk"
-};
 
 std::string curlText[] = {
 	"These notices only apply to the relevant portion of the software, and not to lcmsWorld as a whole.\n\n"

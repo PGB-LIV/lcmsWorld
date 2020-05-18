@@ -129,16 +129,16 @@ Camera::Camera(Landscape* l)
 {
 	status = targeted;
 
-	mzFloat centreMz = (l->worldMzRange.max - l->worldMzRange.min) * 3/ 4 + l->worldMzRange.min;
+	mzFloat centreMz = (l->worldMzRange.max - l->worldMzRange.min) * 2/ 4 + l->worldMzRange.min;
 	lcFloat centreLc = (l->worldLcRange.max + l->worldLcRange.min) / 2;
 
 	target = DataPoint{ centreMz, centreLc, 0 };
 	currentTarget = target;
 	timeToTarget = 0;
-	distance = 57000;
-	aimAngle = 3.141/2;
+	distance = 62000;
+	aimAngle = 0;
 	elevation = 11000;
-	elevationAngle = 0.65;
+	elevationAngle = 0.95;
 
 	owner = l;
 
@@ -262,6 +262,7 @@ void Camera::updateCameraTarget(DataPoint newTarget, int db, int button, bool ne
 	targetTime = 0.25 + (dist / 15000);
 	targetTime = std::min(2.0, targetTime);
 	
+ 
 
 	lastTarget = currentTarget;
 	target = newTarget;
@@ -450,13 +451,18 @@ void Camera::updateCamera(double time)
 
 		double timeDist = 1-(timeToTarget / targetTime);
 
+
 		timeToTarget -= time;
 		if (timeToTarget < 0)
 		{
 			timeToTarget = 0; // set angle andchange to targeted
 			if (status == zoomTargeting)
 			{
-				targetTime = 3.0f;
+				
+
+				targetTime = 1.1f + (distance / 80000) ;
+
+
 				timeToTarget = targetTime;
 				status = zooming;
 				zoomSpeed = 2.5f;

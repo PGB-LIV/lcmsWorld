@@ -20,3 +20,20 @@ texture 64 * 64
 texture 128 * 128
 texture 32 * 32
 texture 64 * 64
+ Load metadata D:\lcmsdata\15\20111219_EXQ5_KiSh_SA_LabelFree_HeLa_Proteome_Control_rep1_pH3.raw.lcms
+ version 0.14
+offset 5425214772
+metaCompressedSize 56664340
+ opening as binary0.14
+prepare landscape56664340
+capping memory at 15962 tiles 
+deserialise landscape56664340
+ Landscape ver = 87654321
+ Landscape range = 1.04423e+10
+ Landscape range = 1.04423e+10
+mz Range 296.916 - 1666.79
+lc Range 0.000557637 - 265.003
+ load cache D:\lcmsdata\15\20111219_EXQ5_KiSh_SA_LabelFree_HeLa_Proteome_Control_rep1_pH3.raw.lcms
+Cache file opened D:\lcmsdata\15\20111219_EXQ5_KiSh_SA_LabelFree_HeLa_Proteome_Control_rep1_pH3.raw.lcms
+ Callbacks set 
+set xscale 58.3995 - 1666.79

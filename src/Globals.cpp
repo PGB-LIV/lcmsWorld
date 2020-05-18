@@ -20,3 +20,5 @@ TimeStamp Globals::currentTime;
  }
  float Globals::mouseSpeed = 1.0f;
  float Globals::wheelSpeed = 1.0f;
+
+  std::array<std::string, 2> Globals::supported_versions = { "0.14","0.24" };

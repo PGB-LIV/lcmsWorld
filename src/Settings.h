@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 #include "glm/glm.hpp"
+
+#define CUR_VERSION_STRING "0.24"
 class Settings
 {
 public:

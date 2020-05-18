@@ -63,7 +63,7 @@ void Annotations::loadCSV(std::string filename, Landscape *l)
 		reportError("Required columns not found");
 		return;
 	}
-
+	lcFloat maxLc = 0;
 	while (std::getline(f, line))
 	{
 		std::vector<std::string> cells;
@@ -116,7 +116,8 @@ void Annotations::loadCSV(std::string filename, Landscape *l)
 			}
 
 
-			lc = lc / 60;
+			maxLc = std::max(lc, maxLc);
+			
 			//	lc = lc / 60;
 			ImVec2 size = ImGui::CalcTextSize(name.c_str());
 		 
@@ -131,7 +132,12 @@ void Annotations::loadCSV(std::string filename, Landscape *l)
 
 	}
 	l->setVisible(0);
-	l->setAnnotationsLoaded();
+	double scale_factor = 1 / 60;
+	if (maxLc <= 60)
+		scale_factor = 1;
+	l->setAnnotationsLoaded(scale_factor);
+
+
 
 	f.close();
 }
@@ -184,6 +190,7 @@ void Annotations::loadText(std::string filename, Landscape *l)
 	}
 
 	int numAnnotations = 0;
+	lcFloat maxLc = 0;
 
 	while (std::getline(f, line))
 	{
@@ -237,8 +244,8 @@ void Annotations::loadText(std::string filename, Landscape *l)
 				text = text.substr(0, point) + "\n" + text.substr(point);
 			}
 
-
-			lc = lc / 60;
+			maxLc = std::max(lc, maxLc);
+		//	lc = lc / 60;
 			//	lc = lc / 60;
 			ImVec2 size = ImGui::CalcTextSize(name.c_str());
 			Annotation a = { mz, lc, intensity, score, text,ptm,accession,"", size.x,size.y, 0 };
@@ -252,7 +259,10 @@ void Annotations::loadText(std::string filename, Landscape *l)
 
 	}
 	l->setVisible(0);
-	l->setAnnotationsLoaded();
+	double scale_factor = 1/60;
+	if (maxLc <= 60)
+		scale_factor = 1;
+	l->setAnnotationsLoaded(scale_factor);
 
 	f.close();
 }

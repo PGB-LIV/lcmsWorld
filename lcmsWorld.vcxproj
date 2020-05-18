@@ -590,7 +590,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions);CURL_STATICLIB;BUILDING_LIBCURL</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions);CURL_STATICLIB;BUILDING_LIBCURL;_GLFW_USE_CONFIG_H</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src\libcurl;src\curlinc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
@@ -611,7 +611,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>false</SDLCheck>
       <AdditionalIncludeDirectories>src\libcurl;libs\glfw\include;src\curlinc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions);CURL_STATICLIB;BUILDING_LIBCURL</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions);CURL_STATICLIB;BUILDING_LIBCURL;_GLFW_USE_CONFIG_H</PreprocessorDefinitions>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
@@ -637,7 +637,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB;FINAL;%(PreprocessorDefinitions);CURL_STATICLIB;BUILDING_LIBCURL</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB;FINAL;%(PreprocessorDefinitions);CURL_STATICLIB;BUILDING_LIBCURL;_GLFW_USE_CONFIG_H</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src\libcurl;src\curlinc;libs\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <DebugInformationFormat>None</DebugInformationFormat>
@@ -674,7 +674,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions);CURL_STATICLIB;BUILDING_LIBCURL</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions);CURL_STATICLIB;BUILDING_LIBCURL;_GLFW_USE_CONFIG_H</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src\libcurl;src\curlinc;libs\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAsManaged>false</CompileAsManaged>
       <WholeProgramOptimization>false</WholeProgramOptimization>
@@ -702,7 +702,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>src\libcurl;src\curlinc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB;FINAL;%(PreprocessorDefinitions);BUILDING_LIBCURL;_GLFW_USE_CONFIG_H</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB;FINAL;%(PreprocessorDefinitions);BUILDING_LIBCURL;_GLFW_USE_CONFIG_H;_GLFW_USE_CONFIG_H</PreprocessorDefinitions>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <ExceptionHandling>Async</ExceptionHandling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -757,7 +757,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>src\libcurl;libs\glfw\include;src\curlinc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions);CURL_STATICLIB;BUILDING_LIBCURL;BUILDING_LIBCURL</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions);CURL_STATICLIB;BUILDING_LIBCURL;BUILDING_LIBCURL;_GLFW_USE_CONFIG_H</PreprocessorDefinitions>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <ExceptionHandling>Async</ExceptionHandling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>

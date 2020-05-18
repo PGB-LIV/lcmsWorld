@@ -660,9 +660,11 @@ int numTileMeshesSet = 0;
 
 void Tile::setMesh(Mesh* m) 
 {
+	lastLoaded = Globals::getCurrentTime();
+
 	// mesh is currently deleted when GLMesh is created
 	//so no need to delete old one here
-
+	 
 	numTileMeshesSet++;
 	if (mesh != m)
 	{

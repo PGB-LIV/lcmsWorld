@@ -455,6 +455,24 @@ void loadBMP_custom_data_ARGB(const unsigned char* imageData, GLFWimage &dest) {
 
 int cmain(int  argc, char ** argv)
 {
+	std::set_terminate([]() {
+		std::exception_ptr eptr;
+ 
+		
+		eptr = std::current_exception(); // capture
+
+		std::cout << "Unhandled exception\n";
+		try
+		{
+			std::rethrow_exception(eptr);
+		}
+		catch (const std::exception& e)
+		{
+			std::cout << e.what() << std::endl;
+		}
+		std::abort(); 
+		
+		});
 
 	std::cout << sizeof(size_t)*8 << " bit version.\n";
 
@@ -465,9 +483,7 @@ int cmain(int  argc, char ** argv)
 	 
 #endif
  
-	std::thread t1(LCHttp::start);
-	t1.detach();
-	concurrent_start();
+
 
 	Settings::setup(argc, argv);
 	Settings::loadSettings();
@@ -476,11 +492,17 @@ int cmain(int  argc, char ** argv)
 	if (Render::setup() == false)
 	{
 		std::cerr << "Fatal Error setting up rendering system\n lcmsWorld needs an OpenGL 3+ compatible graphics card.\n";
-		exitApp();
+#if _WIN32
+		MessageBox(nullptr, TEXT("Fatal Error setting up the rendering system.\nlcmsWorld needs an OpenGL 3+\
+ compatible graphics card.\n\nThis may not be available on remote desktops or virtual machines."), TEXT("Error"), MB_OK);
+#endif
+		// exitApp();
 		return 1;
 	}
 
-
+	std::thread t1(LCHttp::start);
+	t1.detach();
+	concurrent_start();
 	
 	GLFWimage iconImage[2];
 	loadBMP_custom_data_ARGB(lcms32, iconImage[0]);

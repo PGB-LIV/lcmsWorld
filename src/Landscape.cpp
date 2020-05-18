@@ -980,12 +980,14 @@ void Landscape::manageQueue()
 	if (loadedDataTiles.size() < 5)
 		return;
 
-	return;
+ 
 
 	std::vector<Tile*> notReady;
 
-	if (loadedDataTiles.size() > tilesInRam)
+
+	if (loadedDataTiles.size() > tilesInRam) // tilesInRam)
 	{
+ 
 		std::sort(loadedDataTiles.begin(), loadedDataTiles.end(), Tile::compareTilePtrReverse);
 	 
 		int numToClear = 90;
@@ -993,6 +995,17 @@ void Landscape::manageQueue()
 		{
 			
 			Tile* next = loadedDataTiles.back();
+
+			if ((Globals::currentTime.time - next->lastLoaded.time) < 5e6)
+			{
+				numToClear++;
+
+				notReady.push_back(next);
+				loadedDataTiles.pop_back();
+				continue;
+
+			}
+
 			if (next->unLoad() == false)
 			{
 				numToClear++;
@@ -1004,8 +1017,8 @@ void Landscape::manageQueue()
 			loadedDataTiles.pop_back();
 
 		}
-		for (auto t : notReady)
-			loadedDataTiles.push_back(t);
+	//	for (auto t : notReady)
+	//		loadedDataTiles.push_back(t);
 
 	}
 

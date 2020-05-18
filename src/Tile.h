@@ -213,8 +213,13 @@ public:
 		return (vala > valb);
 	*/
 
+
+
 		if (a->lastVisible.time != b->lastVisible.time)
 		return (a->lastVisible.time > b->lastVisible.time);
+		
+		return (a->screenArea > b->screenArea);
+
 
 		if (a->LOD != b->LOD)
 			return (a->LOD < b->LOD);
@@ -246,6 +251,7 @@ public:
 	Landscape* owner = NULL;
 	Tile * parent = NULL;
 	TimeStamp childTime = { 0 };
+	TimeStamp lastLoaded = { 0 };
 
 private:
 	signalFloat maxSignal;
@@ -276,8 +282,12 @@ private:
  
 
 		lastVisible = Globals::getCurrentTime();
-		if (parent!=NULL)
-			parent->onScreenNow();
+		auto p = parent;
+
+		while (p != NULL) {
+			p->onScreenNow();
+			p = p->parent;
+		}
 	}
 
 	bool dataLoaded = false;

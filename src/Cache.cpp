@@ -546,7 +546,6 @@ void Cache::saveMetaData(Landscape *l, std::string inputFileName, std::string ur
  
 Landscape* Cache::loadMetaData(std::string fileName)
 {
- 	std::array<std::string, 2> supported_versions = { "0.14" };
 
 	fileName = convertFilename(fileName);
 	std::cout << " Load metadata " << fileName << "\n";
@@ -571,7 +570,7 @@ Landscape* Cache::loadMetaData(std::string fileName)
 
 	}
 	bool supported = false;
-	for (const std::string &allv : supported_versions)
+	for (const std::string &allv : Globals::supported_versions)
 		if (ver == allv)
 			supported = true;
 

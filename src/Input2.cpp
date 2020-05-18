@@ -299,13 +299,24 @@ void Input::touch_callback(GLFWwindow* window, int button, int action, double x,
 }
 
 void Input::mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+ 
+{
+	if (Settings::showInfoPanel)
+	{
+		double xpos, ypos;
+		glfwGetCursorPos(Globals::window, &xpos, &ypos);
+ 		double cx = xpos;
+ 		if (cx > Settings::windowWidth - gui::infoWidth)
+			return;
 
-{//if it's a touch screen, last cursor may not be anywhere near click...
+	}
+
 
  	resetClick();
-
+	//if it's a touch screen, last cursor may not be anywhere near click...
 	//this should do something else, like cause the click to happen on the next frame
-	//handlecursor is unreliable at this point, lack of z-buffer
+	//handlecursor is a little unreliable at this point, due to incomeplete z-buffer
+
 	if (Globals::currentTime.time - lastTouchTime.time > 0.3 * 1000)
 		handleCursor(getView());
 
@@ -425,6 +436,7 @@ void Input::mouseDragged(int buttonState, double mx, double my, double xp, doubl
 	if (Settings::disableCamera)
 		return;
 
+
 	//disable click if was being dragged
 
 	if (mx*mx + my * my > .001)
@@ -463,7 +475,7 @@ void Input::mouseDragged(int buttonState, double mx, double my, double xp, doubl
 		if (ys < 0)
 			if (ys > -mn)
 				ys = -mn;
-		ys = ys * 4.25;
+		ys = ys * 3.25;
 
 		
 		getView()->getCamera()->dragRotate(mx / (ys), System::frameTime);
@@ -858,7 +870,7 @@ void Input::showNearest(DataPoint cursorPoint)
 		float part = seconds - (int)seconds;
 		part = part * 10;
 
-		infolc << "RT = " << (int)mins << "'" << std::setfill('0') << std::setw(2) << (int)(seconds) << "." << (int)part; "\"";
+		infolc << "RT = " << (int)mins << " min " << std::setfill('0') << std::setw(2) << (int)(seconds) << "." << (int)part; "\"";
 
 		getView()->addInfo(infolc.str());
 

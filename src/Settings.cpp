@@ -33,7 +33,7 @@ float Settings::xScale_slider = 0;
 float Settings::yScale_slider = 0;
 float Settings::zScale_slider = 0;
 //updating the version number will invalidate the settings file
-std::string Settings::version = "0.14";
+std::string Settings::version = CUR_VERSION_STRING;
 
 float Settings::wheelSpeed = 50;
 float Settings::mouseSpeed = 50;
@@ -134,8 +134,12 @@ void Settings::loadSettings()
 
 	settings >> version;
 
+	bool supported = false;
+	for (const std::string& allv : Globals::supported_versions)
+		if (version == allv)
+			supported = true;
 
-	if (version != Settings::version)
+	if (!supported)
 		return;
 
 	std::getline(settings, lastFilename);

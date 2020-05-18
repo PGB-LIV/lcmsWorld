@@ -80,6 +80,7 @@
 #include "../gl3w/gl3w.h" // Include glfw3.h after our OpenGL definitions
 
 #endif
+#include <iostream>
 
 // OpenGL Data
 static char         g_GlslVersionString[32] = "";
@@ -478,6 +479,7 @@ bool    ImGui_ImplOpenGL3_CreateDeviceObjects()
     g_VertHandle = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(g_VertHandle, 2, vertex_shader_with_version, NULL);
     glCompileShader(g_VertHandle);
+
     CheckShader(g_VertHandle, "vertex shader");
 
     const GLchar* fragment_shader_with_version[2] = { g_GlslVersionString, fragment_shader };

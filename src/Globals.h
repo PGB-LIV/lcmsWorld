@@ -1,7 +1,7 @@
 #pragma once
 #include "Structs.h"
 #include <chrono>
-
+#include <array>
 //possibly should be called 'system'
 //just to make a few things faster to access from anywhere; e.g., time stamps
 //don't want to make function calls every time, once per frame is plenty
@@ -12,7 +12,7 @@ class Globals
 {
 public:
 	static GLFWwindow* window;
-
+	static std::array<std::string, 2> supported_versions; 
 	static TimeStamp currentTime;
 	static std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
 
