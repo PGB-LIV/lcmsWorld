@@ -263,6 +263,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
+    <ClInclude Include="resource1.h" />
     <ClInclude Include="src\Annotations.h" />
     <ClInclude Include="src\Builder.h" />
     <ClInclude Include="src\Cache.h" />
@@ -485,6 +486,22 @@
   <ItemGroup>
     <Text Include="files\Geometry.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\RawFileReader\RawFileReaderLicense.doc" />
+    <None Include="..\..\..\RawFileReader\RawFileReaderLicense.pdf" />
+    <None Include="..\..\..\RawMS1\RawMS1Reader.exe" />
+    <None Include="..\..\..\RawMS1\ThermoFisher.CommonCore.Data.dll" />
+    <None Include="..\..\..\RawMS1\ThermoFisher.CommonCore.RawFileReader.dll" />
+    <None Include="RawReader\RawMS1Reader.exe" />
+    <None Include="RawReader\ThermoFisher.CommonCore.Data.dll" />
+    <None Include="RawReader\ThermoFisher.CommonCore.RawFileReader.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="lcmsWorld1.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="files\LCMSWorld.ico" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{B4B52D65-B6EE-4A70-8057-5B272BC2D8D3}</ProjectGuid>
     <RootNamespace>lcmsWorld</RootNamespace>
@@ -676,7 +693,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions);CURL_STATICLIB;BUILDING_LIBCURL;_GLFW_USE_CONFIG_H</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src\libcurl;src\curlinc;libs\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <CompileAsManaged>false</CompileAsManaged>
+      <CompileAsManaged>true</CompileAsManaged>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
@@ -758,9 +775,8 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>src\libcurl;libs\glfw\include;src\curlinc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions);CURL_STATICLIB;BUILDING_LIBCURL;BUILDING_LIBCURL;_GLFW_USE_CONFIG_H</PreprocessorDefinitions>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <ExceptionHandling>Async</ExceptionHandling>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <CompileAsManaged>false</CompileAsManaged>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
@@ -770,6 +786,8 @@
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <UseFullPaths>false</UseFullPaths>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>false</EnableCOMDATFolding>

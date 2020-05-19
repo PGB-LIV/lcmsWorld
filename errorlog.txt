@@ -1,6 +1,6 @@
  folder: 
 P:
-P:D:\lcmsdata\15
+P:D:\lcmsdata
 memory = 15.9505 gb
  not caching binary data 
 12 cores reported 
@@ -20,20 +20,29 @@ texture 64 * 64
 texture 128 * 128
 texture 32 * 32
 texture 64 * 64
- Load metadata D:\lcmsdata\15\20111219_EXQ5_KiSh_SA_LabelFree_HeLa_Proteome_Control_rep1_pH3.raw.lcms
- version 0.14
-offset 5425214772
-metaCompressedSize 56664340
- opening as binary0.14
-prepare landscape56664340
-capping memory at 15962 tiles 
-deserialise landscape56664340
- Landscape ver = 87654321
- Landscape range = 1.04423e+10
- Landscape range = 1.04423e+10
-mz Range 296.916 - 1666.79
-lc Range 0.000557637 - 265.003
- load cache D:\lcmsdata\15\20111219_EXQ5_KiSh_SA_LabelFree_HeLa_Proteome_Control_rep1_pH3.raw.lcms
-Cache file opened D:\lcmsdata\15\20111219_EXQ5_KiSh_SA_LabelFree_HeLa_Proteome_Control_rep1_pH3.raw.lcms
- Callbacks set 
-set xscale 58.3995 - 1666.79
+ popup Licenses  These notices only apply to the relevant portion of the software, and not to lcmsWorld as a whole.
+
+ImGui 
+__________
+
+Copyright (c) 2014-2019 Omar Cornut  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the 'Software'), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:  The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. 
+__________
+
+RawFileReader reading tool.
+__________
+
+Copyright 2016 by Thermo Fisher Scientific, Inc.
+All rights reserved.
+
+
+libCurl 
+__________
+
+COPYRIGHT AND PERMISSION NOTICE
+
+Copyright(c) 1996 - 2019, Daniel Stenberg, daniel@haxx.se, and many contributors, see the THANKS file.
+All rights reserved.
+Permission to use, copy, modify, and distribute this software for any purpose with or without fee is hereby granted, provided that the above copyright notice and this permission notice appear in all copies.
+
+
+

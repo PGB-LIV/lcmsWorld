@@ -932,9 +932,7 @@ void  gui::viewMenu(glm::mat4 view)
 
 std::string helpText[] = { "lcmsWorld","","A 3d viewer for mass spectrometry data", "",  "   ","Instructions:",
 "Use the File Menu to load an mzml file",
-#ifdef _WIN32
-"To load .raw files you must have installed MSFileReader from Thermo","",
-#endif
+ 
 "Hold the left mouse button and use the mouse to rotate around the target",
 "Hold the right mouse button and use the mouse to move the target around",
 "Click on the Rotate or Drag button to switch the functionality of the mouse buttons",
@@ -1165,18 +1163,7 @@ void checkScreenShot(Landscape *l)
 
 std::string curlText[] = {
 	"These notices only apply to the relevant portion of the software, and not to lcmsWorld as a whole.\n\n"
-	"libCurl \n"
-	"__________\n"
-	"\n"
-
-"COPYRIGHT AND PERMISSION NOTICE\n"
-"\n"
-"Copyright(c) 1996 - 2019, Daniel Stenberg, daniel@haxx.se, and many contributors, see the THANKS file."
-"\n"
-"All rights reserved."
-"\n"
-"Permission to use, copy, modify, and distribute this software for any purpose with or without fee is hereby granted, provided that the above copyright notice and this permission notice appear in all copies."
-"\n\n\n"
+	
 "ImGui \n"
 "__________\n"
 "\n"
@@ -1190,9 +1177,28 @@ std::string curlText[] = {
 "furnished to do so, subject to the following conditions: "
 " "
 "The above copyright notice and this permission notice shall be included in all "
-"copies or substantial portions of the Software. "
- 
+"copies or substantial portions of the Software. \n"
+ " \n"
+"\n"
+ "RawFileReader reading tool.\n"
+	"__________\n"
+"\n"
+	"Copyright 2016 by Thermo Fisher Scientific, Inc.\n"
+	"All rights reserved.\n"
+	"\n"
+	"\n"
+	"libCurl \n"
+	"__________\n"
+	"\n"
 
+"COPYRIGHT AND PERMISSION NOTICE\n"
+"\n"
+"Copyright(c) 1996 - 2019, Daniel Stenberg, daniel@haxx.se, and many contributors, see the THANKS file."
+"\n"
+"All rights reserved."
+"\n"
+"Permission to use, copy, modify, and distribute this software for any purpose with or without fee is hereby granted, provided that the above copyright notice and this permission notice appear in all copies."
+"\n\n\n"
 };
 
 void gui::aboutMenu()

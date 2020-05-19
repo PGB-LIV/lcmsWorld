@@ -457,8 +457,7 @@ int cmain(int  argc, char ** argv)
 {
 	std::set_terminate([]() {
 		std::exception_ptr eptr;
- 
-		
+
 		eptr = std::current_exception(); // capture
 
 		std::cout << "Unhandled exception\n";

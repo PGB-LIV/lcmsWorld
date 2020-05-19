@@ -1361,8 +1361,31 @@
     <ClInclude Include="src\glfw\src\win32_platform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="resource1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="files\Geometry.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\RawMS1\RawMS1Reader.exe" />
+    <None Include="..\..\..\RawMS1\ThermoFisher.CommonCore.RawFileReader.dll" />
+    <None Include="..\..\..\RawMS1\ThermoFisher.CommonCore.Data.dll" />
+    <None Include="RawReader\RawMS1Reader.exe" />
+    <None Include="RawReader\ThermoFisher.CommonCore.Data.dll" />
+    <None Include="RawReader\ThermoFisher.CommonCore.RawFileReader.dll" />
+    <None Include="..\..\..\RawFileReader\RawFileReaderLicense.doc" />
+    <None Include="..\..\..\RawFileReader\RawFileReaderLicense.pdf" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="lcmsWorld1.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="files\LCMSWorld.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
