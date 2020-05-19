@@ -485,7 +485,6 @@
     <Text Include="files\Geometry.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\RawFileReader\RawFileReaderLicense.doc" />
     <None Include="..\..\..\RawFileReader\RawFileReaderLicense.pdf" />
     <None Include="..\..\..\RawMS1\RawMS1Reader.exe" />
     <None Include="..\..\..\RawMS1\ThermoFisher.CommonCore.Data.dll" />

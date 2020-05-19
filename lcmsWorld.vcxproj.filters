@@ -1369,7 +1369,6 @@
     <None Include="RawReader\RawMS1Reader.exe" />
     <None Include="RawReader\ThermoFisher.CommonCore.Data.dll" />
     <None Include="RawReader\ThermoFisher.CommonCore.RawFileReader.dll" />
-    <None Include="..\..\..\RawFileReader\RawFileReaderLicense.doc" />
     <None Include="..\..\..\RawFileReader\RawFileReaderLicense.pdf" />
     <None Include="RawReader\RawFileReaderLicense.pdf" />
   </ItemGroup>

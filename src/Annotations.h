@@ -4,7 +4,8 @@
 class Annotations
 {
 public:
-	
+	static void loadTextBased(std::string filename, char delim, Landscape* l);
+
 	static void  loadCSVA(std::string filename,  Landscape *l);
 	static void  loadTextA(std::string filename, Landscape *l);
 

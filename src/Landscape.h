@@ -182,9 +182,11 @@ public:
 	}
 	void scaleAnnotations(double scale_factor)
 	{
-		for (auto a : annotations)
+		for (auto &a : annotations)
 		{
+ 
 			a.lc *= (lcFloat) scale_factor;
+ 
 		}
 
 	}

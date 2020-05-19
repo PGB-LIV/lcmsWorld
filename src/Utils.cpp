@@ -15,6 +15,8 @@
 #else
 #include <unistd.h>
 #endif
+#include <regex>
+#include "Structs.h"
 
 int Utils::getNumberOfCores() {
 #ifdef WIN32
@@ -50,13 +52,19 @@ Utils::~Utils()
 {
 }
 
-std::string ReplaceAll(std::string str, const std::string& from, const std::string& to) {
-	size_t start_pos = 0;
-	while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
-		str.replace(start_pos, from.length(), to);
-		start_pos += to.length(); // Handles case where 'to' is a substring of 'from'
+std::string ReplaceAll(std::string str, const std::string& from, const std::string& to) 
+{
+
+	std::regex re("("+from+")");
+	std::string l = str;
+	std::string l1 = "";
+	while (l != l1)
+	{
+		l1 = l;
+		l = std::regex_replace(l, re, to);
 	}
-	return str;
+
+	return l;
 }
 
 std::string tolower(std::string a)
@@ -72,7 +80,16 @@ std::string toupper(std::string a)
 	return af;
 }
  
- 
+std::vector<std::string> csplit(const std::string& input, const std::string& regexs) {
+	// passing -1 as the submatch index parameter performs splitting
+	std::regex re(regexs);
+	std::sregex_token_iterator
+		first{ input.begin(), input.end(), re, -1 },
+		last;
+	return { first, last };
+}
+
+
 std::vector<std::string> Utils::split(const std::string& s, char delimiter)
 {
 	std::vector<std::string> tokens;
@@ -82,15 +99,21 @@ std::vector<std::string> Utils::split(const std::string& s, char delimiter)
 	 
 		
 		std::stringstream ss;
+	
+		std::string l = s;
 
-		std::string l = ReplaceAll(s, "\t\t", "\t0\t");
+ //the below code doesn't work with whitespaces
  
+		if (delimiter == '\t')
+			return(csplit(s,std::string(1,delimiter)));
+
+
 		ss << l;
 		int col = 0;
 		while (ss >> std::ws) {
 			std::string csvElement;
 
-			if (ss.peek() == '"') {
+			if (ss.peek() == '"')  {
 				ss >> std::quoted(csvElement);
 				std::string discard;
 				std::getline(ss, discard, delimiter);

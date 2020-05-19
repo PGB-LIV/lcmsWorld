@@ -335,17 +335,34 @@ void checkAutoLoad()
 
 void exitApp()
 {
+	Settings::saveSettings();
+
+#ifdef _WIN32
 	Cache::processQueue = false;
 
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
 
+
  	glfwDestroyWindow(Globals::window);
 	glfwTerminate();
-	Settings::saveSettings();
+
 	concurrent_end();
 	LCHttp::finish();
+#else
+	Cache::processQueue = false;
+
+//	ImGui_ImplOpenGL3_Shutdown();
+//	ImGui_ImplGlfw_Shutdown();
+//	ImGui::DestroyContext();
+
+
+	glfwDestroyWindow(Globals::window);
+	glfwTerminate();
+ 
+
+#endif
 }
 
 
@@ -455,6 +472,17 @@ void loadBMP_custom_data_ARGB(const unsigned char* imageData, GLFWimage &dest) {
 
 int cmain(int  argc, char ** argv)
 {
+#ifdef _WIN32
+
+#ifdef FINAL
+	AllocConsole();
+
+	ShowWindow(GetConsoleWindow(), SW_HIDE);
+#endif
+#endif
+	 
+
+
 	std::set_terminate([]() {
 		std::exception_ptr eptr;
 
@@ -484,6 +512,7 @@ int cmain(int  argc, char ** argv)
  
 
 
+
 	Settings::setup(argc, argv);
 	Settings::loadSettings();
 
@@ -491,7 +520,7 @@ int cmain(int  argc, char ** argv)
 	if (Render::setup() == false)
 	{
 		std::cerr << "Fatal Error setting up rendering system\n lcmsWorld needs an OpenGL 3+ compatible graphics card.\n";
-#if _WIN32
+#ifdef _WIN32
 		MessageBox(nullptr, TEXT("Fatal Error setting up the rendering system.\nlcmsWorld needs an OpenGL 3+\
  compatible graphics card.\n\nThis may not be available on remote desktops or virtual machines."), TEXT("Error"), MB_OK);
 #endif
@@ -563,10 +592,10 @@ int cmain(int  argc, char ** argv)
 		
 	}
 
-
+ 
 	// Cleanup
 	exitApp();
-
+ 
 
 	return 0;
 }
