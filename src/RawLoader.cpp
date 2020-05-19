@@ -123,24 +123,61 @@ MZData* RawLoader::loadDataPartial()
 			std::string cmd = fe + " " + fileName;
 
 #ifdef _WIN32
-			child = _popen(cmd.c_str(), "r");
+			try
+			{
+				child = _popen(cmd.c_str(), "r");
+			}
+			catch (...)
+
+
+			{
+
+				new Error(Error::ErrorType::file, "lcmsWorld was not able to start the RawFileReader\nThis may require installing .Net Framework");
+				return NULL;
+			}
 
 #else
-			child = popen(cmd.c_str(), "r");
+			try
+			{
+				child = popen(cmd.c_str(), "r");
+			}
+			catch (...)
+
+
+			{
+
+				new Error(Error::ErrorType::file, "lcmsWorld was not able to start the RawFileReader\nThis may require installing Mono");				return NULL;
+				return NULL;
+
+			}
 #endif
 
 
 
-			fgets(buffer, sizeof(buffer), child);
+			
 			//get the size
 
 
 
-			size = atoi(buffer);
+			try
+			{
+				fgets(buffer, sizeof(buffer), child);
+				size = atoi(buffer);
 
-			std::cout << " init size " << size << "\n";
+				std::cout << " init size " << size << "\n";
+			}
+			catch (...)
+			{
+#ifdef _WIN32
+				new Error(Error::ErrorType::file, "lcmsWorld was not able to use the RawFileReader\nThis may require installing .Net Framework");
+#else
+				new Error(Error::ErrorType::file, "lcmsWorld was not able to use the RawFileReader\nThis may require installing Mono.");
+//				new Error(Error::ErrorType::file, "lcmsWorld was not able to use the RawFileReader\nThis may require installing Mono \n(e.g. sudo apt install mono-compliete.");				return NULL;
 
+#endif
 
+				return NULL;
+			}
 
 
 
@@ -205,7 +242,7 @@ MZData* RawLoader::loadDataPartial()
 				lastScan = curScan;
 
 				fgets(buffer, sizeof(buffer), child);
-				lcTime = atof(buffer);
+				lcTime = (lcFloat) atof(buffer);
 
 
 
@@ -247,7 +284,7 @@ MZData* RawLoader::loadDataPartial()
 						{
 							std::cout << " Error in m/z out of order " << val << " < " << last << "\n";
 						}
-						last = val;
+						last = (mzFloat) val;
 						mzData.push_back((mzFloat)val);
 						np = ptr + 1;
 					}

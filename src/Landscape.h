@@ -184,7 +184,7 @@ public:
 	{
 		for (auto a : annotations)
 		{
-			a.lc *= scale_factor;
+			a.lc *= (lcFloat) scale_factor;
 		}
 
 	}

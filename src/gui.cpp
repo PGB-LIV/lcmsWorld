@@ -130,11 +130,8 @@ int gui::infoWidth = 180;
 ImFont* gui::italic;
 // const char * identFilters = ".csv\0\0";
 const char * identFilters = ".csv\0.txt\0\0";
-#ifdef _WIN32
+
 const char * lcmsFilters = ".lcms\0.mzml\0.raw\0\0";
-#else
-const char * lcmsFilters = ".lcms\0.mzml\0\0";
-#endif
  
 void gui::setSliderValues()
 {

@@ -12,7 +12,7 @@ class Globals
 {
 public:
 	static GLFWwindow* window;
-	static std::array<std::string, 2> supported_versions; 
+	static std::array<std::string, 3> supported_versions; 
 	static TimeStamp currentTime;
 	static std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
 

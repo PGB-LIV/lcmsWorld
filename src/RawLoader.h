@@ -1,8 +1,8 @@
 #pragma once
 
-#ifdef _WIN32
+ 
 #define USE_RAW_READER
-#endif
+ 
 
 
 
@@ -13,9 +13,7 @@
 #include "MZLoader.h"
 #include "MZLoaderHandle.h"
 
-#include "RawReader.h"
-#include "Spectrum.h"
-
+ 
 class RawLoader :
 	public MZLoader
 {
@@ -31,7 +29,7 @@ public:
 
 private:
 	MZLoaderHandle fileHandle;
-	std::vector<MSToolkit::MSSpectrumType> filter;
+ 
 
 
 
@@ -39,7 +37,7 @@ private:
 	 size_t size = 0;
 	 size_t readScans = 0;
 	 MZScan * lineCopy = NULL;
-	 MSToolkit::RAWReader rawHandle;
+ 
 	 int status = 0;
 };
 

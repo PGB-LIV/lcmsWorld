@@ -102,9 +102,6 @@
     <ClCompile Include="src\Spectrum.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\RawReader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\RawLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -818,9 +815,6 @@
     <ClInclude Include="src\Error.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\RawReader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Spectrum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1377,6 +1371,7 @@
     <None Include="RawReader\ThermoFisher.CommonCore.RawFileReader.dll" />
     <None Include="..\..\..\RawFileReader\RawFileReaderLicense.doc" />
     <None Include="..\..\..\RawFileReader\RawFileReaderLicense.pdf" />
+    <None Include="RawReader\RawFileReaderLicense.pdf" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="lcmsWorld1.rc">

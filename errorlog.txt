@@ -20,29 +20,16 @@ texture 64 * 64
 texture 128 * 128
 texture 32 * 32
 texture 64 * 64
- popup Licenses  These notices only apply to the relevant portion of the software, and not to lcmsWorld as a whole.
-
-ImGui 
-__________
-
-Copyright (c) 2014-2019 Omar Cornut  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the 'Software'), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:  The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. 
-__________
-
-RawFileReader reading tool.
-__________
-
-Copyright 2016 by Thermo Fisher Scientific, Inc.
-All rights reserved.
-
-
-libCurl 
-__________
-
-COPYRIGHT AND PERMISSION NOTICE
-
-Copyright(c) 1996 - 2019, Daniel Stenberg, daniel@haxx.se, and many contributors, see the THANKS file.
-All rights reserved.
-Permission to use, copy, modify, and distribute this software for any purpose with or without fee is hereby granted, provided that the above copyright notice and this permission notice appear in all copies.
-
-
-
+ Load metadata D:\lcmsdata\VH_110517_Digest_3_1.raw.lcms
+ load :D:\lcmsdata\VH_110517_Digest_3_1.raw:
+capping memory at 15962 tiles 
+ load cache D:\lcmsdata\VH_110517_Digest_3_1.raw
+Cache file opened D:\lcmsdata\VH_110517_Digest_3_1.raw.lcms
+opened D:\lcmsdata\VH_110517_Digest_3_1.raw  1329103669
+ init size 68531
+660 returning buffer 
+result = 000001E9F1356750 level 1 lines = 660
+ copy line across chunk boundary 
+660 returning buffer 
+result = 000001E9F1356E50 level 1 lines = 1319
+ copy line across chunk boundary 

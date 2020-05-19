@@ -2,6 +2,8 @@
  
 #include "LCHttp.h"
 
+// Curl did not build on Linux
+// But it's not actively supported yet anyway, so will leave it out for now
 #ifdef _WIN32
 
 
@@ -272,7 +274,7 @@ std::vector<byte> LCHttp::getFromHttp(DataSource d)
 {
 	return std::vector<byte>();
 }
-std::vector<byte> LCHttp::getFileFromHttp(std::stirng url)
+std::vector<byte> LCHttp::getFileFromHttp(std::string url)
 {
 	return std::vector<byte>();
 }

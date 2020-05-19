@@ -235,7 +235,6 @@
     <ClCompile Include="src\mzParser\saxmzxmlhandler.cpp" />
     <ClCompile Include="src\MZScan.cpp" />
     <ClCompile Include="src\RawLoader.cpp" />
-    <ClCompile Include="src\RawReader.cpp" />
     <ClCompile Include="src\Render.cpp" />
     <ClCompile Include="src\SampleLoader.cpp" />
     <ClCompile Include="src\Settings.cpp" />
@@ -458,7 +457,6 @@
     <ClInclude Include="src\MzmlLoader2.h" />
     <ClInclude Include="src\MZScan.h" />
     <ClInclude Include="src\RawLoader.h" />
-    <ClInclude Include="src\RawReader.h" />
     <ClInclude Include="src\Render.h" />
     <ClInclude Include="src\SampleLoader.h" />
     <ClInclude Include="src\Settings.h" />
@@ -492,6 +490,7 @@
     <None Include="..\..\..\RawMS1\RawMS1Reader.exe" />
     <None Include="..\..\..\RawMS1\ThermoFisher.CommonCore.Data.dll" />
     <None Include="..\..\..\RawMS1\ThermoFisher.CommonCore.RawFileReader.dll" />
+    <None Include="RawReader\RawFileReaderLicense.pdf" />
     <None Include="RawReader\RawMS1Reader.exe" />
     <None Include="RawReader\ThermoFisher.CommonCore.Data.dll" />
     <None Include="RawReader\ThermoFisher.CommonCore.RawFileReader.dll" />
