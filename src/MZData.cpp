@@ -921,6 +921,7 @@ std::vector<MZData*> MZData::new_split(int xsize, int ysize)
 					}
 
 					//small amount of tile overlap should be ok...
+					if (xpos > 0)
 					if ((xpos < mz.size()) && (mz[xpos] - mz[xpos-1] < 0.5) )
 					{
 						signal_vals.push_back(intensity[xpos]);

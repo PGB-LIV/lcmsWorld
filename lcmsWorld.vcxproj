@@ -244,6 +244,7 @@
     <ClCompile Include="src\texture.cpp" />
     <ClCompile Include="src\Tile.cpp" />
     <ClCompile Include="src\Utils.cpp" />
+    <ClCompile Include="src\Zip.cpp" />
     <ClCompile Include="src\zlib\adler32.c" />
     <ClCompile Include="src\zlib\compress.c" />
     <ClCompile Include="src\zlib\crc32.c" />

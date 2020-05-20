@@ -129,7 +129,7 @@ void gui::setup(const char* glsl_version)
 int gui::infoWidth = 180;
 ImFont* gui::italic;
 // const char * identFilters = ".csv\0\0";
-const char * identFilters = ".csv\0.txt\0\0";
+const char * identFilters = ".csv\0.txt\0.mzid\0.mzid.gz\0\0";
 
 const char * lcmsFilters = ".lcms\0.mzml\0.raw\0\0";
  
@@ -632,7 +632,7 @@ void gui::fileOpenMenu()
 {
 
 	if (getView() == NULL)
-		if (ImGui::Button("Load lc/ms File"))
+		if (ImGui::Button("Load LC-MS File"))
 		{
 			if (timesRun++  ==0)
 				ImGuiFileDialog::Instance()->clear(lcmsFilters);
@@ -648,7 +648,7 @@ void gui::fileOpenMenu()
 	{
 		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 		ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
-		if (ImGui::Button("Load lc/ms File"))
+		if (ImGui::Button("Load LC-MS File"))
 		{
 
 		}

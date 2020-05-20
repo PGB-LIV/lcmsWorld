@@ -130,7 +130,14 @@ bool fileOpen(std::string filePathName)
 	{
 		Settings::lastAnnotationFilename = filePathName;
 
-		Annotations::loadMZTab(filePathName, getView());
+		Annotations::loadMZID(filePathName, getView());
+		return true;
+	}
+	if (endsWith(loadFile, ".gz"))
+	{
+		Settings::lastAnnotationFilename = filePathName;
+
+		Annotations::loadMZID(filePathName, getView());
 		return true;
 	}
 	if (endsWith(loadFile, ".csv"))
@@ -472,15 +479,18 @@ void loadBMP_custom_data_ARGB(const unsigned char* imageData, GLFWimage &dest) {
 
 int cmain(int  argc, char ** argv)
 {
-#ifdef _WIN32
+
 
 #ifdef FINAL
+#ifdef _WIN32
 	AllocConsole();
-
 	ShowWindow(GetConsoleWindow(), SW_HIDE);
 #endif
+	std::ofstream cout("errorlog.txt");
+	std::cout.rdbuf(cout.rdbuf());
+
 #endif
-	 
+ 
 
 
 	std::set_terminate([]() {
@@ -501,16 +511,10 @@ int cmain(int  argc, char ** argv)
 		
 		});
 
-	std::cout << sizeof(size_t)*8 << " bit version.\n";
 
-#ifdef FINAL
-	std::ofstream cout("errorlog.txt");
-	std::cout.rdbuf(cout.rdbuf());
-#else
-	 
-#endif
- 
 
+
+	std::cout << sizeof(size_t) * 8 << " bit version.\n";
 
 
 	Settings::setup(argc, argv);

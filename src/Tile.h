@@ -218,16 +218,17 @@ public:
 		if (a->lastVisible.time != b->lastVisible.time)
 		return (a->lastVisible.time > b->lastVisible.time);
 		
+		if (a->screenArea != b->screenArea)
 		return (a->screenArea > b->screenArea);
 
 
 		if (a->LOD != b->LOD)
 			return (a->LOD < b->LOD);
 
-		if (a->screenLocation == b->screenLocation)
-			return (a->lastVisible.time > b->lastVisible.time);
+		if (a->screenLocation!= b->screenLocation)
+			return (a->screenLocation < b->screenLocation);
 
-		return (a->screenArea > b->screenArea);
+		return (a->id < b->id);
 
 		
 	
@@ -243,7 +244,10 @@ public:
 //		if (a->LOD != b->LOD)
 //		return (a->LOD > b->LOD);
 
+		if (a->screenLocation * (a->LOD + 1) != b->screenLocation * (b->LOD + 1))
 		return (a->screenLocation*(a->LOD+1) > b->screenLocation * (b->LOD+1));
+
+		return (a->id < b->id);
 		//	return screenArea * LOD > rhs.screenArea*rhs.LOD;
 		///
 	}

@@ -10,6 +10,7 @@
 #include "Camera.h"
 #include "SystemSetup.h"
 #include "Render.h"
+#include <list>
 
 const static int TILES_PER_GB = 750;
 const static int MIN_TILES = 4000;
@@ -100,28 +101,39 @@ void Landscape::checkReBuild()
 		//todo - don't rebuild the wireframe, just the quads
 		// Render::rebuildWireframe();
 	}
+	std::lock_guard<std::mutex> guard(rebuildLock);
 
-	rebuildLock.lock();
 
-	for (auto tile : rebuildQueue)
-	{
-		if (tile->drawStatus == DrawStatus::ready)
+	std::list<Tile*> remove;
+
+	
+	
+		for (auto tile : rebuildQueue)
 		{
-			tile->clearMesh(true);
-			rebuildQueue.erase(tile);
+			if (tile->drawStatus == DrawStatus::ready)
+			{
+				tile->clearMesh(true);
+				remove.push_back(tile);
+			}
+			if (tile->drawStatus == DrawStatus::noData)
+				remove.push_back(tile);
+
 		}
-		if (tile->drawStatus == DrawStatus::noData)
+	
+		for (auto tile : remove)
+		{
 			rebuildQueue.erase(tile);
- 
-	}
-	rebuildLock.unlock();
+
+		}
+
+	
 }
 
 void Landscape::reBuild()
 {
- 
+	std::lock_guard<std::mutex> guard(rebuildLock);
 
-	rebuildLock.lock();
+
 	Render::rebuildWireframe();
 
 	for (auto tile : tileList)
@@ -144,7 +156,6 @@ void Landscape::reBuild()
 #endif
 
 	}
-	rebuildLock.unlock();
 
 }
 void Landscape::reMake(Tile* tile)

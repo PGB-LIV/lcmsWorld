@@ -423,9 +423,19 @@ MZData* MzmlLoader::loadData()
 	Range<lcFloat> lcRange;
 	int getLod = 0;
 	result = new MZData();
+	MZData* value = NULL;
+	try
+	{
+		value = loadDataPartial();
 
-	MZData* value = loadDataPartial();
+	}
+	catch  (...)
+	{
+		Builder::error = Builder::errorType::exception;
 
+		return NULL;
+
+	}
 	result->setRange();
 	result->setJagged(true);
 

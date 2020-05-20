@@ -1,6 +1,26 @@
+64 bit version.
  folder: 
 P:
 P:D:\lcmsdata
+.mzid  .gz 
+.raw  .gz 
+.lcms  .gz 
+.csv  .gz 
+.csv  .gz 
+.csv  .gz 
+.txt  .gz 
+.mzid  .gz 
+.mzid  .gz 
+.csv  .gz 
+.csv  .gz 
+.gz  .gz 
+.gz  .gz 
+.txt  .gz 
+.txt  .gz 
+.raw  .gz 
+.lcms  .gz 
+.raw  .gz 
+.raw  .gz 
 memory = 15.9505 gb
  not caching binary data 
 12 cores reported 
@@ -20,21 +40,59 @@ texture 64 * 64
 texture 128 * 128
 texture 32 * 32
 texture 64 * 64
- Load metadata D:\lcmsdata\VH_110517_Digest_3_1.raw.lcms
+.mzid  .gz 
+.raw  .gz 
+.lcms  .gz 
+.csv  .gz 
+.csv  .gz 
+.csv  .gz 
+.txt  .gz 
+.mzid  .gz 
+.mzid  .gz 
+.csv  .gz 
+.csv  .gz 
+.gz  .gz 
+.gz  .gz 
+.txt  .gz 
+.txt  .gz 
+.raw  .gz 
+.lcms  .gz 
+.raw  .gz 
+.raw  .gz 
+ load :D:\lcmsdata\36090_161_act5_GFP_IR_Go_Chapman_DROSO_28022017_BR1.raw.lcms:
+ Load metadata D:\lcmsdata\36090_161_act5_GFP_IR_Go_Chapman_DROSO_28022017_BR1.raw.lcms
  version 0.25
-offset 473593656
-metaCompressedSize 3240224
+offset 190158968
+metaCompressedSize 1418572
  opening as binary0.25
-prepare landscape3240224
+prepare landscape1418572
 capping memory at 15962 tiles 
-deserialise landscape3240224
+deserialise landscape1418572
  Landscape ver = 87654321
- Landscape range = 1.97358e+09
- Landscape range = 1.97358e+09
-mz Range 349.898 - 2000.04
-lc Range 0.00443401 - 115.003
- load cache D:\lcmsdata\VH_110517_Digest_3_1.raw.lcms
-Cache file opened D:\lcmsdata\VH_110517_Digest_3_1.raw.lcms
+ Landscape range = 8.68643e+08
+ Landscape range = 8.68643e+08
+mz Range 399.907 - 2000.08
+lc Range 0.00327167 - 129.987
+ load cache D:\lcmsdata\36090_161_act5_GFP_IR_Go_Chapman_DROSO_28022017_BR1.raw.lcms
+Cache file opened D:\lcmsdata\36090_161_act5_GFP_IR_Go_Chapman_DROSO_28022017_BR1.raw.lcms
  Callbacks set 
-set xscale 48.4806 - 2000.04
- load :D:\lcmsdata\VH1_msgf.txt:
+set xscale 49.9944 - 2000.08
+.mzid  .gz 
+.raw  .gz 
+.lcms  .gz 
+.csv  .gz 
+.csv  .gz 
+.csv  .gz 
+.txt  .gz 
+.mzid  .gz 
+.mzid  .gz 
+.csv  .gz 
+.csv  .gz 
+.gz  .gz 
+.gz  .gz 
+.txt  .gz 
+.txt  .gz 
+.raw  .gz 
+.lcms  .gz 
+.raw  .gz 
+.raw  .gz 

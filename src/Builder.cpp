@@ -346,11 +346,13 @@ void Builder::makeLandscape(std::string filename)
 
 
 
-	if (error == nonSeqMzml)
+	if (error != none)
 	{
-		std::string error = "The mzml file was not sequential\nPlease try converting it with ProteoWizard.";
+		std::string error_string = "The mzml file was not sequential\nPlease try converting it with ProteoWizard.";
+		if (error==exception)
+			error_string = "The mzml file could not be read.";
 
-		new Error(Error::ErrorType::file, error);
+		new Error(Error::ErrorType::file, error_string);
 		delete loader;
 		delete System::primary;
 		System::primary = NULL;
@@ -359,19 +361,23 @@ void Builder::makeLandscape(std::string filename)
 		Cache::closeCache();
 		return;
 	}
+
+
+
+
 	if (System::primary->getTiles().size() == 0)
 	{
-		std::string error = "No lc/ms data was found in the .mzml file.";
+		std::string error = "No LC-MS data was found in the .mzml file.";
 		
 		if (Settings::experimentalMzml == false)
 		{
-			error = "No lc/ms data was found in the .mzml file. ";
+			error = "No LC-MS data was found in the .mzml file. ";
 			if (sax_error_type==1)
-				error = "No lc/ms data was found in the .mzml file. For non-indexed files, \nplease try enabling the experimental mzml reader in the advanced settings\nor convert the file to indexed.";
+				error = "No LC-MS data was found in the .mzml file. For non-indexed files, \nplease try enabling the experimental mzml reader in the advanced settings\nor convert the file to indexed.";
 		}
 
 		if (endsWith(loadFile, ".raw"))
-			error = "No lc/ms data was found in the .raw file.";
+			error = "No LC-MS data was found in the .raw file.";
 
 		new Error(Error::ErrorType::file, error);
 		delete loader;

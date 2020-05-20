@@ -195,7 +195,20 @@ void ImGuiFileDialog::ScanDir(std::string vPath)
 
  
 				if (lpt != std::string::npos)
+				{
 					infos.ext = infos.fileName.substr(lpt);
+
+
+					if (infos.ext == ".gz")
+					{
+						//stupid special case with two dots
+						if (endsWith(infos.fileName,".mzid.gz") )
+							infos.ext = ".mzid.gz";
+
+						
+					}
+					
+				}
 			}
 			
 			if (infos.fileName != base)
@@ -436,6 +449,7 @@ bool ImGuiFileDialog::FileDialog(const char* vName,  const char* vFilters, std::
 		 show = false;
 		if (infos.type == 'f' && m_CurrentFilterExt.size() > 0 && stricmp(infos.ext.c_str(), m_CurrentFilterExt.c_str()))
 		{
+			 
 			show = false;
 		}
 		if (show == true)

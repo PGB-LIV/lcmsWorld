@@ -711,6 +711,9 @@
     <ClCompile Include="src\glfw\src\wgl_context.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Zip.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\imgui\imgui_internal.h">

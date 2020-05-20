@@ -14,7 +14,7 @@ class Builder
 	static void setCallbacks(Landscape *l);
 
 public:
-	enum errorType { none, nonSeqMzml };
+	enum errorType { none, nonSeqMzml, exception };
 	
 	static int useThreads;
 	static errorType error;

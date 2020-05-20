@@ -70,6 +70,7 @@ SignalMz MZLoader::insertZeros(const std::vector<mzFloat> &mz, const std::vector
 
 
 				//don't insert a new one behind the last one
+				if (i > 0)
 				if (curSig > 100)
 					if (predMz > curMz)
 						if (predMz > mz[i - 1])

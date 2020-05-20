@@ -233,6 +233,10 @@ MZData* RawLoader::loadDataPartial()
 				fgets(buffer, sizeof(buffer), child);
 
 				curScan = atoi(buffer);
+				if (curScan < 0 )
+
+					break;
+
 				if (curScan < lastScan)
 				{
 
@@ -246,7 +250,7 @@ MZData* RawLoader::loadDataPartial()
 
 
 
-				if (lcTime < 0)
+				if (  lcTime < 0)
 
 					break;
 
