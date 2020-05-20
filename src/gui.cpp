@@ -62,7 +62,9 @@ void gui::scrollWheel(GLFWwindow* window, double xoffset, double yoffset)
 #include "../files/OpenSans_Italic.h"
 
 
-std::string aboutText[] = { "lcmsWorld","Early Prototype version " CUR_VERSION_STRING ,"","This version is only for testing, it is not guaranteed to perform correctly","","(c) University of Liverpool 2020","","please email comments to a.mccabe@liverpool.ac.uk"
+std::string aboutText[] = { "lcmsWorld","Early Prototype version " CUR_VERSION_STRING ,"","This version is only for testing, it is not guaranteed to perform correctly","","(c) University of Liverpool 2020","",
+"For any issues, please go to the github page",
+"github.com/PGB-LIV/lcmsWorld"
 };
 
 void gui::setup(const char* glsl_version)
@@ -1319,6 +1321,8 @@ void gui::guiLoop(glm::mat4 view)
 		gui::displayError(e);
 	}
 
+
+#if 0  // time-restricted demo
 	std::tm timeinfo = std::tm();
 	timeinfo.tm_year = 120;   // year: 2020
 	timeinfo.tm_mon = 6;      // month: january
@@ -1341,6 +1345,7 @@ void gui::guiLoop(glm::mat4 view)
 		ImGui::End();
 		return;
 	}
+#endif
 
 
 #if 1

@@ -17,12 +17,9 @@
 
 #include "rapidxml.hpp"
 
-std::map<std::string, int> sequenceTypes;
+ 
 using namespace rapidxml;
-int numPeptides = 0;
-int numPE = 0;
-int numDB = 0;
-int numS = 0;
+ 
 
 
 std::map<std::string, std::string> peptideSequences;
@@ -80,8 +77,7 @@ void parsePeptide(xml_node<>* node)
 	peptideSequences[id] = sequence;
 	peptideMods[id] = modText;
 	// std::cout << modText << " modTest \n";
-	numPeptides++;
-
+ 
 }
 void parsePeptideEvidence(xml_node<>* node)
 {
@@ -96,8 +92,7 @@ void parsePeptideEvidence(xml_node<>* node)
 	auto id = idn->value();
 	auto dBSequence_ref = dBSequence_refn->value();
 	peptideEvidence[id] = dBSequence_ref;
-	numPE++;
-
+ 
 }
 void parseDBSequence(xml_node<>* node)
 {
@@ -121,16 +116,14 @@ void parseDBSequence(xml_node<>* node)
 	dbSequence[id] = accession;
  
 
-	numDB++;
-
+ 
 }
  
 
 
 void parseSpectrum(xml_node<>* node)
 {
-	numS++;
-
+ 
 	std::string RT = "";
 
 	//check cvparams for RT
@@ -282,23 +275,7 @@ void parseNextLevel(xml_node<>* node)
 	}
 
 }
-
-void printLevel(xml_node<>* node)
-{
-	std::cout << " children of " << node->name() << "\n";
-	xml_node<>* child = node->first_node();
-
-	while (child != 0)
-	{
-		std::string name = child->name();
-		std::cout << name << " \n";
-		child = child->next_sibling();
-	}
-
-
-	std::cout <<  " \n";
-}
-
+ 
 void Annotations::loadMZIDFromBuffer(char* buffer, Landscape* l)
 {
 //	try
@@ -316,9 +293,7 @@ void Annotations::loadMZIDFromBuffer(char* buffer, Landscape* l)
 		node = root->first_node("DataCollection");
 		node = node->first_node("AnalysisData");
 		node = node->first_node("SpectrumIdentificationList");
-
-
-
+ 
 		parseNextLevel(node);
 
 
@@ -333,8 +308,8 @@ void Annotations::loadMZIDFromBuffer(char* buffer, Landscape* l)
 		{
 
 			auto id = pair.first;
-			mzFloat mz = std::stod(peptide_mz[id]);
-			lcFloat lc = (lcFloat)std::stod(pair.second);
+			mzFloat mz = (mzFloat) std::stod(peptide_mz[id]);
+			lcFloat lc = (lcFloat) std::stod(pair.second);
 
 			signalFloat intensity = 0;
 
@@ -359,7 +334,7 @@ void Annotations::loadMZIDFromBuffer(char* buffer, Landscape* l)
 				name = text.substr(0, point);
 				text = text.substr(0, point) + "\n" + text.substr(point);
 			}
-			double score = std::stod(peptide_score[id]);
+			float score = std::stof(peptide_score[id]);
 
 			ImVec2 size = ImGui::CalcTextSize(name.c_str());
 			Annotation a = { mz, lc, intensity, score, text,ptm,accession,"", size.x,size.y, 0 };
@@ -438,7 +413,15 @@ void Annotations::loadMZID_bg(std::string filename, Landscape* l)
 //		new Error(Error::ErrorType::file, "There was a problem loading this file.");
 //	}
 
-
+	  peptideSequences.clear();
+	  peptideMods.clear();
+	  peptideEvidence.clear();
+	  dbSequence.clear();
+	  peptide_RT.clear();
+	  peptide_mz.clear();
+	  peptide_score.clear();
+	  peptide_peptideEvidence.clear();
+ 
 }
 
  

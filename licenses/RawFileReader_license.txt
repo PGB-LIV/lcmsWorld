@@ -1,0 +1,1 @@
+See license file in RawReader folder.

@@ -13,7 +13,7 @@ using std::string;
 #include <string_view>
  #include "Zip.h"
 #include "Globals.h"
-#include "../mzParser/mzParser.h"
+
 
 long long MzmlLoader::getFileSize()
 {

@@ -133,7 +133,7 @@ bool fileOpen(std::string filePathName)
 		Annotations::loadMZID(filePathName, getView());
 		return true;
 	}
-	if (endsWith(loadFile, ".gz"))
+	if (endsWith(loadFile, "mzid.gz"))
 	{
 		Settings::lastAnnotationFilename = filePathName;
 
