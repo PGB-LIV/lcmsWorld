@@ -14,8 +14,8 @@ Download / clone the whole folder structure, and open the lcmsWorld project file
 Compile & Run.  The Debug build is painfully slow for loading.
 (Alternatively, use cmake as below, but this was only tested with the Microsoft Visual C++ compiler)
 
-Linux
-With cmake / gnu c
+Linux (Tested on Ubuntu 18.04LTS/20.04LTS)
+With cmake / gcc (and  xorg-dev installed)
 Download / clone the whole folder structure.
 Open a terminal in the lcmsWorld folder and run the following:-
 cmake .
