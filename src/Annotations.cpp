@@ -16,6 +16,7 @@
 #include "Zip.h"
 
 #include "rapidxml.hpp"
+#include <list>
 
  
 using namespace rapidxml;
@@ -23,6 +24,7 @@ using namespace rapidxml;
 
 
 std::map<std::string, std::string> peptideSequences;
+std::map<std::string, std::string> rawPeptideSequences;
 std::map<std::string, std::string> peptideMods;
 std::map<std::string, std::string> peptideEvidence;
 std::map<std::string, std::string> dbSequence;
@@ -56,9 +58,26 @@ void parsePeptide(xml_node<>* node)
 	std::string sequence = seq->value();
 
 	auto mod = node->first_node("Modification");
+
+
+ 
+	std::vector<std::string> modws;
+	std::vector<int> modps;
 	std::string modText = "";
 	while (mod != NULL)
 	{
+		std::cout << mod->value();
+
+		std::string modw = "";
+		std::string modp = "";
+ 
+		if (mod->first_attribute("monoisotopicMassDelta")!= NULL)
+			modw = mod->first_attribute("monoisotopicMassDelta")->value();
+
+		if (mod->first_attribute("location")!= NULL)
+			modp = mod->first_attribute("location")->value();
+
+
 		auto cv = mod->first_node("cvParam");
 		if (cv == NULL)
 			continue;
@@ -68,13 +87,40 @@ void parsePeptide(xml_node<>* node)
 		std::string modname = moda->value();
 		ltrim(modname);
 		rtrim(modname);
+		modws.push_back(modw);
+		modps.push_back(stoi(modp));
+
 		if (modText.length() > 0)
 			modText += " ";
 		modText += modname;
 		mod = mod->next_sibling();
 	}
 
-	peptideSequences[id] = sequence;
+	auto modSequence = sequence;
+	for (int j = 0; j < modps.size(); j++)
+	{
+		
+		int mini = 0;
+		for (int i = 0; i < modps.size(); i++)
+		{
+			if (modps[i] > modps[mini])
+				mini = i;
+		}
+		std::string w = modws[mini];
+
+		if (w.find_first_of('.') != std::string::npos)
+		if (w.length() > 4)
+			w = w.substr(0, 4);
+
+		int p = modps[mini];
+		if ((p >=0) && (p <= sequence.length() ))
+		modSequence = modSequence.substr(0, p) + "(" + w + ")" + modSequence.substr( p);
+		modps[mini] = -1;
+
+	}
+ 
+	rawPeptideSequences[id] = sequence;
+	peptideSequences[id] = modSequence;
 	peptideMods[id] = modText;
 	// std::cout << modText << " modTest \n";
  
@@ -82,7 +128,7 @@ void parsePeptide(xml_node<>* node)
 void parsePeptideEvidence(xml_node<>* node)
 {
 	//	<PeptideEvidence id = "gi|392920101|gn|mec-9:179382|_PEP_1" peptide_ref = "PEP_1" dBSequence_ref = "DBSeq_gi|392920101|gn|mec-9:179382|" pre = "K" post = "E" isDecoy = "false" / >
-	auto idn = node->first_attribute("peptide_ref");
+	auto idn = node->first_attribute("id");
 	auto dBSequence_refn = node->first_attribute("dBSequence_ref");
 	if ((idn == NULL) || (dBSequence_refn == NULL) )
 	{
@@ -91,6 +137,17 @@ void parsePeptideEvidence(xml_node<>* node)
 	}
 	auto id = idn->value();
 	auto dBSequence_ref = dBSequence_refn->value();
+
+	bool checkDecoy = true;
+	if (checkDecoy)
+	{
+		auto decoya = node->first_attribute("isDecoy");
+		if (decoya != NULL)
+			if (tolower(decoya->value()) == "true")
+				return;
+		
+	}
+	//std::cout << "ppe " << id << "   " << dBSequence_ref << "\n";
 	peptideEvidence[id] = dBSequence_ref;
  
 }
@@ -104,16 +161,28 @@ void parseDBSequence(xml_node<>* node)
     </DBSequence>
 	*/
 	auto idn = node->first_attribute("id");
-	
-	auto accession_node = node->first_attribute("accession");
-	if ((idn == NULL) || (accession_node == NULL))
+	auto cvNode = node->first_node("cvParam");
+	std::string desc = "";
+	while (cvNode != NULL)
 	{
-		std::cout << " DBSequence without id,accession in .mzid file, ignoring \n";
-		return;
+		if (cvNode->first_attribute("accession") != NULL)
+		{
+			std::string type = cvNode->first_attribute("accession")->value();
+			if (type == "MS:1001088" )
+			{
+				desc = cvNode->first_attribute("value")->value();
+			}
+		}
+		cvNode = cvNode->next_sibling();
+
 	}
+
+	
 	auto id = idn->value();
-	auto accession = accession_node->value();
-	dbSequence[id] = accession;
+	
+
+//	std::cout << "db id, dex " << id << " , " << desc << "\n";
+	dbSequence[id] = desc;
  
 
  
@@ -205,7 +274,14 @@ sequenceTypes[name] = sequenceTypes[name] + 1;
 		cv = cv->next_sibling();
 	}
 
-
+	bool check_threshold = true;
+	if (check_threshold)
+	{
+		auto thresh_a = node->first_attribute("passThreshold");
+		if (thresh_a != NULL)
+			if (thresh_a->value() == "false")
+				return;
+	}
 
 	auto mz = node->first_attribute("experimentalMassToCharge");
 	if (mz == NULL)		return;
@@ -252,6 +328,7 @@ void parseNextLevel(xml_node<>* node)
 			std::string name = child->name();
 			if (name == "Peptide")
 			{
+		 
 				parsePeptide(child);
 			}
 			if (name == "PeptideEvidence")
@@ -278,6 +355,7 @@ void parseNextLevel(xml_node<>* node)
  
 void Annotations::loadMZIDFromBuffer(char* buffer, Landscape* l)
 {
+ 
 //	try
 	{
 		xml_document<> doc;    // character type defaults to char
@@ -286,7 +364,7 @@ void Annotations::loadMZIDFromBuffer(char* buffer, Landscape* l)
 
 		xml_node<>* root = doc.first_node("MzIdentML");
 
-
+		std::cout << root->first_attribute("id")->value() << "\n";
 		xml_node<>* node = root->first_node("SequenceCollection");
 		parseNextLevel(node);
 
@@ -316,9 +394,28 @@ void Annotations::loadMZIDFromBuffer(char* buffer, Landscape* l)
 			auto seq = peptideSequences[id];
 			auto ptm = peptideMods[id];
 
-			auto accession = peptide_peptideEvidence[id];
+			auto ev_id = peptide_peptideEvidence[id];
+			
+			
+			//it's a decoy, or no evidence found
+			if (peptideEvidence.find(ev_id) == peptideEvidence.end())
+			{
+				// std::cout << "decoy " << seq << "\n";
+				continue;
+			}
 
 
+
+			auto dbref = peptideEvidence[ev_id];
+			
+
+			auto desc = dbSequence[dbref];
+
+			
+
+			auto accession = desc;
+			
+	
 			auto evv = dbSequence[accession];
 
 
@@ -337,7 +434,9 @@ void Annotations::loadMZIDFromBuffer(char* buffer, Landscape* l)
 			float score = std::stof(peptide_score[id]);
 
 			ImVec2 size = ImGui::CalcTextSize(name.c_str());
-			Annotation a = { mz, lc, intensity, score, text,ptm,accession,"", size.x,size.y, 0 };
+			
+			Annotation a = { mz, lc, intensity, score, rawPeptideSequences[id] ,ptm,accession,text, size.x,size.y, 0 };
+			
 			l->addAnnotation(a);
 
 		}
@@ -397,12 +496,13 @@ void Annotations::loadMZID_bg(std::string filename, Landscape* l)
 
 			char* zipBuffer = (char*) malloc(decodeSize+1);
 		 
-				int length = Zip::UncompressGzipData((BYTE*) buffer, size, (BYTE*) &zipBuffer[0], decodeSize);
-				 
+			int length = Zip::UncompressGzipData( (byte*) buffer, size, (byte*) &zipBuffer[0], decodeSize);
+				
+
 		 
-				free(buffer);
-				buffer = zipBuffer;
-				buffer[decodeSize] = 0;
+			free(buffer);
+			buffer = zipBuffer;
+			buffer[decodeSize] = 0;
 		}
 		loadMZIDFromBuffer(buffer, l);
 		free(buffer);
@@ -414,6 +514,7 @@ void Annotations::loadMZID_bg(std::string filename, Landscape* l)
 //	}
 
 	  peptideSequences.clear();
+	  rawPeptideSequences.clear();
 	  peptideMods.clear();
 	  peptideEvidence.clear();
 	  dbSequence.clear();

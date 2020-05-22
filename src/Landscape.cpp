@@ -77,11 +77,12 @@ static std::mutex annotationsLock;
 
 void Landscape::addAnnotation(Annotation a) {
 	
-
-	if (a.shortText.length() < 50)
+	if (a.shortText.length() < 1)
 		a.shortText = a.text;
-	else
-		a.shortText = a.text.substr(0, 49);
+
+	if (a.shortText.length() > 60)
+		a.shortText = a.shortText.substr(0, 60);
+
 
 	annotationsLock.lock();
 	annotations.push_back(a);
@@ -404,6 +405,8 @@ void Landscape::addMarkers()
 	}
 }
 
+
+//Cube data
 static const GLfloat g_vertex_buffer_data[] = {
 
 
@@ -482,22 +485,22 @@ void Landscape::add3dMarker(float tx, float ty, float tz, int type, std::string 
 {
 	
 
-	tz += cubeSize / Settings::scale.z;
+	tz += 0;
 	for (int i = 0; i < sizeof(g_vertex_buffer_data) / sizeof(g_vertex_buffer_data[0]); i += 3)
 	{
 		float x, y, z;
 		if (g_vertex_buffer_data[i+0] < 0)
-			x = tx - cubeSize / Settings::scale.x;
+			x = tx ;
 		else
 			x = tx + cubeSize / Settings::scale.x;
 
 		if (g_vertex_buffer_data[i + 1] < 0)
-			y = ty - cubeSize / Settings::scale.y;
+			y = ty; //  -cubeSize / Settings::scale.y / 2;
 		else
 			y = ty + cubeSize / Settings::scale.y;
 
 		if (g_vertex_buffer_data[i + 2] < 0)
-			z = tz - cubeSize / Settings::scale.z;
+			z = tz  ;
 		else
 			z = tz + cubeSize / Settings::scale.z;
 
@@ -545,6 +548,7 @@ void Landscape::drawCubes()
 	if (cubeMesh != NULL)
  		Render::drawCubeMesh(cubeMesh,0);
 	
+
 	cubeMarkers.clear();
 	vertex_vec.clear();
 	uv_vec.clear();
@@ -593,7 +597,10 @@ void Landscape::addMarker(float tx, float ty, float tz, int i, std::string text,
 
 		
 		if (cubeSize > 0)
+		{
 			add3dMarker(mid.x, mid.z, mid.y, i, text, width, height, cubeSize);
+			add3dMarker(mid.x, mid.z, mid.y, i, text, width, height, 10);
+		}
 
 		auto m = transformMatrix * mid;
 		m = m / (m.w);
@@ -988,6 +995,7 @@ void Landscape::dataLoaded(Tile* tile)
 
 void Landscape::manageQueue()
 {
+
 	if (loadedDataTiles.size() < 5)
 		return;
 
@@ -1004,6 +1012,8 @@ void Landscape::manageQueue()
 		int numToClear = 90;
  		while (loadedDataTiles.size() > tilesInRam - numToClear)
 		{
+
+	 
 			
 			Tile* next = loadedDataTiles.back();
 
@@ -1096,33 +1106,73 @@ inline bool Landscape::canDraw(Tile *tile)
 		return;
 	
  
-
-	bool all_drawn = true;
-	int cnt = 0;
-	int cd = 0;
- 
-	for (Tile* tile : draw_tiles)
+	if (1)
 	{
-		int ds = (int)tile->drawStatus;
-		cnt++;
+		bool all_drawn = true;
+		int cnt = 0;
+		int cd = 0;
 
-
-//		drawCallback(tile);
-//		continue;
-
-		if (canDraw(tile))
+		for (Tile* tile : draw_tiles)
 		{
-			cd++;
-			draw(tile);
+			int ds = (int)tile->drawStatus;
+			cnt++;
+
+
+			//		drawCallback(tile);
+			//		continue;
+
+			if (canDraw(tile))
+			{
+				cd++;
+				draw(tile);
+			}
+
+
 		}
 
-	 
+		Render::drawDeferred();
+		Render::drawTarget();
+		manageQueue();
+		drawCubes();
+
 	}
 
-	Render::drawDeferred();
-	Render::drawTarget();
-	manageQueue();
-	drawCubes();
+	static GLMesh* targetMesh = NULL;
+
+
+	//this regenerates the meshes list every frame
+
+ 
+
+	if ((targetMesh == NULL) )
+	{
+
+//		
+	 	static const GLfloat g_vertex_buffer_data[] = { 0,0,0,  0,0,1,  1,0,0 , 0,0,1,   1,0,0,  1,0,1 };
+
+		std::vector<glm::vec3> vertex_vec;
+		std::vector<glm::vec2> uv_vec;
+		
+		for (int i = 0; i < sizeof(g_vertex_buffer_data) / sizeof(g_vertex_buffer_data[0]); i += 3)
+		{
+			float x, y, z;
+			x = (g_vertex_buffer_data[i + 0]-.5 ) * -200;
+			y = (g_vertex_buffer_data[i + 1] ) * 200;
+			z = (g_vertex_buffer_data[i + 2] - .5) * 200;
+			vertex_vec.push_back(glm::vec3(x, y, z));
+			uv_vec.push_back(glm::vec2(-g_vertex_buffer_data[i + 0], -g_vertex_buffer_data[ i + 2]));
+		}
+
+
+		Mesh* newMesh = new Mesh(vertex_vec, uv_vec);
+		targetMesh = new GLMesh(newMesh, false);
+
+		delete newMesh;
+	}
+
+	if (targetMesh != NULL)
+		Render::drawCubeMeshDirection(targetMesh, 0);
+
 
 }
 

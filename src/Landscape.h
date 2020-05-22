@@ -13,6 +13,8 @@
 #include <deque>
 #include <set>
 #include <map>
+#include <chrono>
+#include <thread>
 class Tile;
 class Camera;
 #define zOffset .001f
@@ -251,6 +253,8 @@ private:
 	std::vector<Tile*> loadedDataTiles;
 
 	void manageQueue();
+
+
 	std::vector<byte> serialiseTiles(Tile* tile);
 
 	glm::mat4 transformMatrix;

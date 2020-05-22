@@ -65,11 +65,15 @@ int Cache::make_tiles = 0;
 int Cache::made_tiles = 0;
 
 
-std::mutex Cache::makemtx;
-std::condition_variable Cache::makecv;
-std::queue<Tile*> Cache::makeQueue;
 std::mutex Cache::makeQueueLock;
+std::condition_variable Cache::makecv;
+
+
+std::queue<Tile*> Cache::makeQueue;
+
 bool Cache::cancelling = false;
+bool Cache::loadQueueEnded = false;
+bool Cache::makeQueueEnded = false;
 
 
 void Cache::insertHeaderSpace(std::fstream &outFile)
@@ -285,6 +289,7 @@ DataSource Cache::putData(const std::vector<byte> & data)
 void Cache::processLoadQueue()
 {
 	std::unique_lock<std::mutex> lck(loadmtx);
+	loadQueueEnded = false;
 
 	while (processQueue)
 	{
@@ -353,6 +358,8 @@ void Cache::processLoadQueue()
 		}
 
 	}
+	loadQueueEnded = true;
+
 }
 
 void Cache::loadDataFromCache(Tile* tile)
@@ -364,26 +371,38 @@ void Cache::loadDataFromCache(Tile* tile)
 	loadQueue.push_back(tile);
 	loadQueueLock.unlock();
 	// notify loadqueue lock 
-	loadcv.notify_all();
+	  loadcv.notify_all();
 	return;
 }
 
 
 void Cache::closeCache()
 {
-	cancelling = true;
-	makemtx.lock();
+	// At the moment, only called when closing program
+	// hence just need to stop threads and close file
+	// In future, will need to close down nicely
+	
+	processQueue = false;
+
+	int count = 0;
+	while (!Cache::loadQueueEnded && !Cache::makeQueueEnded)
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+		// 1 second is more than long enough
+		if (++count > 100)
+		{
+			std::cout << "Not waiting for cache queue to end \n";
+			break;
+		}
+	}
+
+
+ 
 	std::queue<Tile *>().swap(makeQueue);
-	makemtx.unlock();
-
 	loadQueue.clear();
-
-	cacheLock.lock();
-	cacheFile.close();
 	cachePosition = 0;
-	cacheLock.unlock();
-
-
+	cacheFile.close();
 }
 
 void Cache::processmakeQueueFG()
@@ -408,14 +427,15 @@ void Cache::processmakeQueueFG()
 
 void Cache::processmakeQueue()
 {
-	std::unique_lock<std::mutex> lck(makemtx);
+	makeQueueEnded = false;
 
 	while (processQueue)
 	{
 		if (makeQueue.empty())
 		{
-			//wait until gets notified
-			makecv.wait(lck);
+			//should really wait until gets notified
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
 
 		}
 		else
@@ -432,6 +452,8 @@ void Cache::processmakeQueue()
 		}
 
 	}
+
+	makeQueueEnded = true;
 }
 
 
@@ -442,8 +464,8 @@ void Cache::makeMeshStandard(Tile* tile)
 	makeQueueLock.lock();
 	makeQueue.push(tile);
 	makeQueueLock.unlock();
-	// notify loadqueue lock
-	makecv.notify_all();
+	// should notify loadqueue lock
+ 
 }
 
 

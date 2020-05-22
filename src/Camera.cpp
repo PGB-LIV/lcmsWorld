@@ -433,13 +433,21 @@ void Camera::updateCamera(double time)
 
 		currentPos = target_p + direction;
 
+		auto di = direction;
+ 
+		//	di.y = 60000;
+
+		unitDirection = glm::normalize(di);
+		
+
+
  		GlobalViewMatrix = glm::lookAt(
 			target_p + direction,           // Camera is here
 			target_p, // and looks here : at the same position, plus "direction"
 			up                  // Head is up (set to 0,-1,0 to look upside-down)
 		);
 
-
+	 
 
 	}
 
@@ -509,6 +517,11 @@ void Camera::updateCamera(double time)
 			up                  // Head is up (set to 0,-1,0 to look upside-down)
 		);
 
+		glm::vec3 direction = currentPos - target_p;
+
+		
+		unitDirection = glm::normalize(direction);
+
 
 		double tx = target_p.x - currentPos.x;
 		double ty =  target_p.z - currentPos.z;
@@ -540,5 +553,20 @@ void Camera::updateCamera(double time)
 	//	distance /= cos(elevationAngle);
 
 	}
+
+	glm::vec3 up(0, 1, 0);
+	glm::vec3 zero(0, 0, 0);
+
+
+ 
+	GlobalDirectionMatrix = glm::lookAt(
+
+		unitDirection* 1000.0f, // and looks here : at the same position, plus "direction"
+		zero,           // Camera is here
+		up                  // Head is up (set to 0,-1,0 to look upside-down)
+	);
+
+//	GlobalViewMatrix = GlobalDirectionMatrix;
+
 
 }

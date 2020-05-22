@@ -189,6 +189,9 @@ void Input::update()
 		status = 1;
 	}
  
+
+
+
 	mouseDragged(bs, mxt*deltaTime, myt*deltaTime ,.5,.75, status);
 	gui::setSliderValues();
 
@@ -223,6 +226,14 @@ void Input::computeViewMatrices() {
 	// Get mouse position
 	double xpos, ypos;
 	glfwGetCursorPos(Globals::window, &xpos, &ypos);
+
+	double wd = Settings::windowWidth ;
+	if (Settings::showInfoPanel)
+		wd -= gui::infoWidth;
+	
+	if ((xpos < 0 ) ||  (xpos > wd)
+		|| ((ypos < 0) || (ypos > Settings::windowHeight) ) )
+			mouse_button_state = 0;
 
 
 	auto vp = getView()->getViewport();
@@ -684,9 +695,9 @@ void Input::handleCursor(Landscape* l)
 
 		{
 
-			int col = 1;
+			int col = 2;
 			if (checkMouseNearTarget(l) < clickZoomDistance)
-				col = 1;
+				col = 2;
 
 			if (mouse_button_state == 0)
 				getView()->addMarker(cursor.mz, cursor.lc, cursor.signal, col, "x", 8, 26, 0);

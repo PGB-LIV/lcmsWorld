@@ -38,6 +38,8 @@ public:
 	static std::string cacheFileEnding;
 	static std::fstream cacheFile;
 	static bool makeMetaFile;
+	static bool loadQueueEnded;
+	static bool makeQueueEnded;
 
 
 	static void insertHeaderSpace(std::fstream &outFile);

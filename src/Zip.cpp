@@ -14,13 +14,13 @@ using std::string;
 		int n16kBlocks = (nLenSrc + 16383) / 16384; // round up any fraction of a block
 		return (nLenSrc + 6 + (n16kBlocks * 5));
 	}
- int Zip::CompressData(const BYTE* abSrc, int nLenSrc, BYTE* abDst, int nLenDst)
+ int Zip::CompressData(const byte* abSrc, int nLenSrc, byte* abDst, int nLenDst)
 	{
 		z_stream zInfo = { 0 };
 		zInfo.total_in = zInfo.avail_in = nLenSrc;
 		zInfo.total_out = zInfo.avail_out = nLenDst;
 		zInfo.next_in = (BYTE*)abSrc;
-		zInfo.next_out = abDst;
+		zInfo.next_out = (BYTE*)abDst;
 
 		int nErr, nRet = -1;
 		nErr = deflateInit(&zInfo, Z_DEFAULT_COMPRESSION); // zlib function
@@ -35,14 +35,14 @@ using std::string;
 	}
 
 
- int Zip::UncompressGzipData(const BYTE* abSrc, size_t nLenSrc, BYTE* abDst, size_t nLenDst)
+ int Zip::UncompressGzipData(const byte* abSrc, size_t nLenSrc, byte* abDst, size_t nLenDst)
 	{
 
 		z_stream zInfo = { 0 };
 		zInfo.total_in = zInfo.avail_in = nLenSrc;
 		zInfo.total_out = zInfo.avail_out = nLenDst;
 		zInfo.next_in = (BYTE*)abSrc;
-		zInfo.next_out = abDst;
+		zInfo.next_out = (BYTE*)abDst;
 
 		int nErr, nRet = -1;
 		nErr = inflateInit2(&zInfo, 16 + MAX_WBITS);               // zlib function
@@ -60,13 +60,13 @@ using std::string;
 
 	}
 
- int Zip::UncompressData(const BYTE* abSrc, size_t nLenSrc, BYTE* abDst, size_t nLenDst)
+ int Zip::UncompressData(const byte* abSrc, size_t nLenSrc, byte* abDst, size_t nLenDst)
 	{
 		z_stream zInfo = { 0 };
 		zInfo.total_in = zInfo.avail_in = nLenSrc;
 		zInfo.total_out = zInfo.avail_out = nLenDst;
 		zInfo.next_in = (BYTE*)abSrc;
-		zInfo.next_out = abDst;
+		zInfo.next_out = (BYTE*)abDst;
 
 		int nErr, nRet = -1;
 		nErr = inflateInit(&zInfo);               // zlib function

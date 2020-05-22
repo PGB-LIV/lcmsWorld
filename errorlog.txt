@@ -19,5 +19,27 @@ texture 28 * 28
 texture 64 * 64
 texture 64 * 64
 texture 128 * 128
+texture 256 * 256
+texture 256 * 256
 texture 32 * 32
 texture 64 * 64
+ Load metadata D:\lcmsdata\VH_110517_Digest_3_1.raw.lcms
+ version 0.25
+offset 473593656
+metaCompressedSize 3240224
+ opening as binary0.25
+prepare landscape3240224
+capping memory at 15962 tiles 
+deserialise landscape3240224
+ Landscape ver = 87654321
+ Landscape range = 1.97358e+09
+ Landscape range = 1.97358e+09
+mz Range 349.898 - 2000.04
+lc Range 0.00443401 - 115.003
+ load cache D:\lcmsdata\VH_110517_Digest_3_1.raw.lcms
+Cache file opened D:\lcmsdata\VH_110517_Digest_3_1.raw.lcms
+ Callbacks set 
+set xscale 48.4806 - 2000.04
+18606939 read bytes for mzid D:\lcmsdata\VH_110517_Digest_3_1.peptide_shaker.mzid.gz
+ Uncompress from 18606939 to 185966370
+PeptideShaker v1.16.45

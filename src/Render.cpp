@@ -76,6 +76,9 @@ GLuint Render::FolderTexture;
 GLuint Render::LcmsTexture;
 GLuint Render::CsvTexture;
 GLuint CentreTexture;
+ 
+GLuint ArrowTexture;
+GLuint ArrowTextTexture;
 
 // texture handles
 GLuint Render::TextureID;
@@ -118,6 +121,10 @@ static void glfw_error_callback(int error, const char* description)
 #include "../files/csv.h"
 #include "../files/centre.h"
 
+#include "../files/arrowText.h"
+
+#include "../files/arrow.h"
+
 void  Render::loadTextures()
 {
 	//create textures from RAM
@@ -133,6 +140,10 @@ void  Render::loadTextures()
 	LcmsTexture = loadBMP_custom_data(lcms);
 	CsvTexture = loadBMP_custom_data(csv);
 	CentreTexture = loadBMPA_custom_data(centre);
+ 
+	ArrowTexture = loadBMPA_custom_data(arrow);
+	ArrowTextTexture = loadBMPA_custom_data(arrowText);
+	
 	
 }
 
@@ -304,6 +315,13 @@ bool Render::setup()
 		glBindVertexArray(0);
 
 		glfwFocusWindow(Globals::window);
+
+
+
+
+
+
+
 
 		return true;
 
@@ -561,8 +579,75 @@ void Render::drawMesh(GLDraw *drawObject, bool wireFrame)
 
 }
 
+void  Render::drawCubeMeshDirection(GLMesh* cube, int type)
+{
+	
+	auto matrix = System::primary->getCamera()->getDirectionMatrix();
+	float zScale = Settings::scale.z;
+	if (Settings::axisMarker == 0)
+		return;
 
 
+	auto 	sm = glm::scale(glm::vec3(Settings::scale.x, zScale, Settings::scale.y));
+
+
+	
+	auto translate = glm::translate(glm::vec3(-.85, .75, 0));
+
+
+	//	matrix *= glm::translate(glm::vec3(100, 0, 0));
+	matrix = translate * GlobalProjectionMatrix * matrix * ModelMatrix ; // *sm
+	
+	matrix = glm::rotate(matrix, -0.60f, glm::vec3(-1.0, 0.0, 0.0));
+
+
+  	glUniformMatrix4fv(Render::getMatrixID(), 1, GL_FALSE, &matrix[0][0]);
+	//glUniformMatrix4fv(Render::getMatrixID(), 1, GL_FALSE, &Render::MVP[0][0]);
+
+
+	glUniform1f(ZFilterID, -1);
+	glUniform1f(zHighlightFilterID, -1);
+
+	glDisable(GL_CULL_FACE);
+
+	glDisable(GL_DEPTH_TEST);
+
+	glBlendEquation(GL_FUNC_ADD);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glEnable(GL_BLEND);
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	glm::vec3 lightPos = glm::vec3(0, -1e9, 00);
+	glUniform3f(LightID, lightPos.x, lightPos.y, lightPos.z);
+
+
+	//glEnable(GL_POLYGON_OFFSET_LINE);
+	//glPolygonOffset(0, -100000);
+
+	glBindTexture(GL_TEXTURE_2D, ArrowTexture);
+ //	glBindTexture(GL_TEXTURE_2D, cubeTexture2);
+
+
+	glUniform1f(AlphaID, 0.63f);
+
+
+
+	auto drawObject = cube->getDrawObject();
+	glBindVertexArray(drawObject->vao);
+
+	glDrawArrays(GL_TRIANGLES, 0, drawObject->size);
+	glBindTexture(GL_TEXTURE_2D, ArrowTextTexture);
+	glDrawArrays(GL_TRIANGLES, 0, drawObject->size);
+//	drawMesh(drawObject, false);
+	glDisable(GL_POLYGON_OFFSET_LINE);
+
+	  glUniformMatrix4fv(Render::getMatrixID(), 1, GL_FALSE, &Render::MVP[0][0]);
+ 
+}
+
+ 
 
 void Render::rebuildWireframe()
 {
@@ -650,7 +735,7 @@ void Render::readyTiles(Landscape *l)
 	if (Settings::flatLighting)
 		glUniform1f(LightPowerID, 0.0f);
 	else
-		glUniform1f(LightPowerID, 115.0f);
+		glUniform1f(LightPowerID, 91.0f);
 
 
 
@@ -659,11 +744,7 @@ void Render::readyTiles(Landscape *l)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glEnable(GL_BLEND);
-
-	//various bits are currently wrong way round
-	// e.g. - sides of full detail
-	// and those added to get to 0
-	//todo - sort these out so I can back face cull
+ 
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -672,9 +753,7 @@ void Render::readyTiles(Landscape *l)
 	if (Settings::flatLighting)
 		ambientLevel = flatAmbientLevel;
 
-	//	glBindTexture(GL_TEXTURE_2D, Texture);
-		// Set our "myTextureSampler" sampler to user Texture Unit 0
-		//glUniform1i(TextureID, 0);
+ 
 	glUniform1f(ambientID, ambientLevel);
 
 }
@@ -896,7 +975,9 @@ void Render::drawDeferred()
  
 	wireBuffer.clear();
 
-
+ 
+	 
+ 
 
 }
 

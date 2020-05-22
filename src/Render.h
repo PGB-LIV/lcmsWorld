@@ -62,7 +62,8 @@ class Render
 
 public:
 	static void drawTarget();
-
+	static GLuint getMatrixID() { return MatrixID; }
+	static void  drawCubeMeshDirection(GLMesh* cube, int type);
 
 	// Get a handle for our buffers
 	static GLuint vertexPosition_modelspaceID;

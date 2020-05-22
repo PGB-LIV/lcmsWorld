@@ -80,4 +80,6 @@ public:
 	static bool remoteCamera;
 	static float wheelSpeed;
 	static float mouseSpeed;
+	static int axisMarker;
+	
 };

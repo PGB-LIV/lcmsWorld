@@ -18,7 +18,9 @@
 #define NOMINMAX
 
 #include "Globals.h"
+#ifdef _WIN32
 #include <filesystem>
+#endif
 
 
 size_t RawLoader::getFileSize()
@@ -105,11 +107,12 @@ MZData* RawLoader::loadDataPartial()
 
 			std::string exe = "RawReader/RawMS1Reader.exe";
 
-			auto fullExe = std::filesystem::absolute(exe.c_str());
+#ifdef _WIN32
+			exe = std::filesystem::absolute(exe.c_str()).string();
+#endif
 
-			std::string fe = fullExe.string();
 
-			std::ifstream f(fe.c_str());
+			std::ifstream f(exe.c_str());
 			if (!f.good())
 			{
 
@@ -120,12 +123,17 @@ MZData* RawLoader::loadDataPartial()
 
 
 
-			std::string cmd = fe + " " + fileName;
+			std::string cmd = exe + " " + fileName;
 
-#ifdef _WIN32
+
 			try
 			{
+#ifdef _WIN32
 				child = _popen(cmd.c_str(), "r");
+#else
+				child = popen(cmd.c_str(), "r");
+#endif
+
 			}
 			catch (...)
 
@@ -135,22 +143,6 @@ MZData* RawLoader::loadDataPartial()
 				new Error(Error::ErrorType::file, "lcmsWorld was not able to start the RawFileReader\nThis may require installing .Net Framework");
 				return NULL;
 			}
-
-#else
-			try
-			{
-				child = popen(cmd.c_str(), "r");
-			}
-			catch (...)
-
-
-			{
-
-				new Error(Error::ErrorType::file, "lcmsWorld was not able to start the RawFileReader\nThis may require installing Mono");				return NULL;
-				return NULL;
-
-			}
-#endif
 
 
 
@@ -172,8 +164,6 @@ MZData* RawLoader::loadDataPartial()
 				new Error(Error::ErrorType::file, "lcmsWorld was not able to use the RawFileReader\nThis may require installing .Net Framework");
 #else
 				new Error(Error::ErrorType::file, "lcmsWorld was not able to use the RawFileReader\nThis may require installing Mono.");
-//				new Error(Error::ErrorType::file, "lcmsWorld was not able to use the RawFileReader\nThis may require installing Mono \n(e.g. sudo apt install mono-compliete.");				return NULL;
-
 #endif
 
 				return NULL;

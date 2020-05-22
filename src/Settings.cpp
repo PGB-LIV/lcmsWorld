@@ -70,6 +70,7 @@ bool Settings::enableRemoteControl = false;
 bool Settings::remoteCamera = false;
 std::string Settings::autoLoadFile;
 bool Settings::expertMode = false;
+int Settings::axisMarker = 1;
 
 void Settings::setup(int  argc, char ** argv)
 {
@@ -201,7 +202,8 @@ void Settings::loadSettings()
 	settings >> expertMode;
 	settings >> wheelSpeed;
 	settings >> mouseSpeed;
-
+	settings >> axisMarker;
+	
 	setMouse();
 
 	settings.close();
@@ -281,6 +283,7 @@ void Settings::saveSettings()
 	settings << expertMode << "\n";
 	settings << wheelSpeed << "\n";
 	settings << mouseSpeed << "\n";
+	settings << axisMarker << "\n";
 
 	
 	settings.close();

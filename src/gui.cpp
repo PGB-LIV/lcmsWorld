@@ -128,7 +128,7 @@ void gui::setup(const char* glsl_version)
  
 
 }
-int gui::infoWidth = 180;
+int gui::infoWidth = 240;
 ImFont* gui::italic;
 // const char * identFilters = ".csv\0\0";
 const char * identFilters = ".csv\0.txt\0.mzid\0.mzid.gz\0\0";
@@ -863,6 +863,9 @@ void  gui::viewMenu(glm::mat4 view)
 	{
 		ImGui::SliderFloat("Amount of detail", &Settings::detail, 1.0f, 10.0f, "%.1f");
 
+		// it's stored as an int, because I intend to add different positions
+		ImGui::Checkbox("Show Axis Marker", (bool*)&Settings::axisMarker);
+
 		if (ImGui::Checkbox(buttonText, &Settings::showBaseWireframe))
 		{
 
@@ -1498,7 +1501,9 @@ void gui::labels()
 
 		static bool vis = true;
 		ImGui::Begin("Labels", &vis, ImGuiWindowFlags_NoInputs);                         
-		ImColor labelCols[] = { ImColor(250, 250, 250, 255) ,ImColor(160, 255, 160, 255) ,ImColor(240, 240, 240, 255) ,ImColor(255, 230, 230, 255) };
+//		ImColor labelCols[] = { ImColor(250, 250, 250, 255) ,ImColor(160, 255, 160, 255) ,ImColor(240, 240, 240, 255) ,ImColor(255, 230, 230, 255) };
+		ImColor labelCols[] = { ImColor(250, 250, 250, 255) ,ImColor(160, 255, 160, 255) ,ImColor(255,255,255, 255) ,ImColor(255, 255, 255, 255) };
+
 		for (int i = 0; i < 4; i++)
 		{
 			auto labels = getView()->getLabels(i);
@@ -1508,7 +1513,9 @@ void gui::labels()
 			{
 				std::string text = label.text;
 
-	 		ImGui::GetWindowDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize(), ImVec2((float)label.x, (float)label.y), labelCols[i], text.c_str(), 0, 0.0f, 0);
+	 	 	ImGui::GetWindowDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize(), ImVec2((float)label.x, (float)label.y), labelCols[i], text.c_str(), 0, 0.0f, 0);
+			
+
 			}
 		}
 		if (getView() != NULL)

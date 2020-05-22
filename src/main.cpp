@@ -11,7 +11,6 @@
 #define NOMINMAX
 #include "gl3w/gl3w.h" // Include glfw3.h after our OpenGL definitions
 #include "glfw/include/GLFW/glfw3.h" // Include glfw3.h after our OpenGL definitions
-#include <filesystem>
 #include <functional> 
 #include <thread>
 #include <algorithm> 
@@ -27,6 +26,10 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 #include "imgui/imgui_internal.h"
+#ifdef _WIN32
+//support for filesystem is a bit patchy
+#include <filesystem>
+#endif
 
  
 #include "ConcurrentMap.h"
@@ -342,10 +345,12 @@ void checkAutoLoad()
 
 void exitApp()
 {
+	Cache::closeCache();
+	
 	Settings::saveSettings();
-
-#ifdef _WIN32
-	Cache::processQueue = false;
+	concurrent_end();
+ 
+	
 
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
@@ -355,21 +360,11 @@ void exitApp()
  	glfwDestroyWindow(Globals::window);
 	glfwTerminate();
 
-	concurrent_end();
+
 	LCHttp::finish();
-#else
-	Cache::processQueue = false;
-
-//	ImGui_ImplOpenGL3_Shutdown();
-//	ImGui_ImplGlfw_Shutdown();
-//	ImGui::DestroyContext();
 
 
-	glfwDestroyWindow(Globals::window);
-	glfwTerminate();
- 
-
-#endif
+	exit(0);
 }
 
 

@@ -16,6 +16,10 @@ public:
 	glm::mat4 getViewMatrix() {
 		return GlobalViewMatrix;
 	}
+	glm::mat4 getDirectionMatrix() {
+		return GlobalDirectionMatrix;
+	}
+ 
 	void dragZoom(double z, double time);
 	void dragRotate(double z, double time);
 	void wheelMove(double mouse_wheel_pos, double time);
@@ -31,12 +35,13 @@ public:
 private:
 	enum statusType { free, targeted, targeting, zooming, zoomTargeting };
 	glm::mat4 GlobalViewMatrix;
-
+	glm::mat4 GlobalDirectionMatrix;
+	
 	Landscape* owner = NULL;
 	statusType status = statusType::free;
 	double elevation = 0;
-
- 
+	glm::vec3 unitDirection = { 0,0,0 };
+	
 	glm::vec3 currentPos = { 0,0,0 };
 	glm::vec3 position = { 0,0,0 };
 	double aimAngle =0 ;
