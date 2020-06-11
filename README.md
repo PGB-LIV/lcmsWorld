@@ -28,11 +28,23 @@ As for Linux, but hasn't been tested for a long time, and is unlikely to work wi
 Usage Notes:
 Camera controls are listed in the 'help' section.
 RawFileReader from Thermo is used to load .raw files.  This is a 64-bit only .Net application.
-  You may need to install .Net Framework 4.7 (Windows) or Mono (Mac / Linux) to use this.
-A few different text-based identification formats are supported, just make sure it has columns for peptide,m/z,rt
+You may need to install .Net Framework 4.7 (Windows) or Mono (Mac / Linux) to use this.
+
+Identification files in .csv or tab-separated text formats are supported: the column names supported are listed below.
+The accepted alternative names are separated by commas
+* - required
+
+* m/z							
+* rt,retention time						
+* intensity							
+  peptide,sequence,modified sequence					
+  ptm							
+  accession,protein accession						
+  -10lgp,score,local confidence(%)					
+							
 
 To do:
-See Issues (there will be lots, very little error checking is performed)
+See Issues (there will be lots, little error checking is performed)
 Test on various other input files.
 Make a sensible menu system.
 Better loading of identifications.
