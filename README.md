@@ -31,16 +31,15 @@ RawFileReader from Thermo is used to load .raw files.  This is a 64-bit only .Ne
 You may need to install .Net Framework 4.7 (Windows) or Mono (Mac / Linux) to use this.
 
 Identification files in .csv or tab-separated text formats are supported: the column names supported are listed below.
-The accepted alternative names are separated by commas
-* - required
+The accepted alternative names are separated by commas.
 
-* m/z							
-* rt,retention time						
-* intensity							
-  peptide,sequence,modified sequence					
-  ptm							
-  accession,protein accession						
-  -10lgp,score,local confidence(%)					
+m/z  (required)  
+rt, retention time  (required)  
+intensity  (required)  
+peptide, sequence, modified sequence  
+ptm  			
+accession, protein accession  
+-10lgp, score, local confidence(%)  
 							
 
 To do:
