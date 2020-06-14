@@ -21,23 +21,28 @@ Compile & Run.  The Debug build is painfully slow for loading.
 
 (Alternatively, use cmake as below, but this was only tested with the Microsoft Visual C++ compiler)
 
-### Linux (Tested on Ubuntu 18.04LTS/20.04LTS)
+### Linux
 
-With cmake / gcc (and  xorg-dev installed)
+To compile this project for Linux, you need to install ```cmake``` and ```xorg-dev```. If you're running Debian/Ubuntu you
+can do this by running the following command:
 
-Download / clone the whole folder structure.
+```
+sudo apt install cmake xorg-dev
+```
+
+Download / clone the whole folder structure:
 
 ```
 git clone https://github.com/tonyatliv/lcmsWorld
 ```
 
-Open a terminal in the lcmsWorld folder and run the following:-
+Open a terminal in the lcmsWorld folder and run the following to compile a binary:
 
 ```
 cmake . && cmake --build . --config Release
 ```
 
-And you should generate a  program that can be executed from the terminal:
+Once completed, you should now have a lcmsWorld binary in the root of the project folder. Run it using:
 
 ```
 ./lcmsWorld
@@ -53,8 +58,8 @@ As for Linux, but hasn't been tested for a long time, and is unlikely to work wi
 - RawFileReader from Thermo is used to load .raw files.  This is a 64-bit only .NET application.
 - You may need to install .NET Framework 4.7 on Windows to use this.
 
-Identification files in ```.csv``` or tab-separated text formats are supported. The column names supported are listed below:
-The accepted alternative names are separated by commas.
+Identification files in ```.csv``` or tab-separated text formats are supported. The column names 
+supported are listed below (The accepted alternative names are separated by commas):
 
 - m/z  (required)  
 - rt, retention time  (required)  
