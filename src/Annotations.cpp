@@ -10,7 +10,6 @@
 #include <thread>
 #include "SampleLoader.h"
 #include "Error.h"
-
 #include "Structs.h"
 #include "SystemSetup.h"
 #include "Zip.h"
@@ -34,6 +33,9 @@ std::map<std::string, std::string> peptide_RT;
 std::map<std::string, std::string> peptide_mz;
 std::map<std::string, std::string> peptide_score;
 std::map<std::string, std::string> peptide_peptideEvidence;
+
+std::mutex annotationLoadLock;
+std::string Annotations::filename;
 
 void parsePeptide(xml_node<>* node)
 {
@@ -318,9 +320,7 @@ void parseNextLevel(xml_node<>* node)
 	while (node != 0) {
 
 		xml_node<>* child = node->first_node();
-
-
-		std::string name = child->name();
+ 
 
 
 		while (child != 0)
@@ -436,7 +436,9 @@ void Annotations::loadMZIDFromBuffer(char* buffer, Landscape* l)
 			ImVec2 size = ImGui::CalcTextSize(name.c_str());
 			
 			Annotation a = { mz, lc, intensity, score, rawPeptideSequences[id] ,ptm,accession,text, size.x,size.y, 0 };
-			
+			if (Globals::closing)
+				return;
+
 			l->addAnnotation(a);
 
 		}
@@ -528,6 +530,10 @@ void Annotations::loadMZID_bg(std::string filename, Landscape* l)
  
 void Annotations::loadMZID(std::string filename, Landscape* l)
 {
+
+	std::lock_guard<std::mutex> lock(annotationLoadLock);
+	l->clearAnnotations();
+	Annotations::filename = filename;
 	std::thread t1(Annotations::loadMZID_bg, filename, l);
 
 	t1.detach();
@@ -537,7 +543,7 @@ void Annotations::loadMZID(std::string filename, Landscape* l)
 void Annotations::loadTextBased(std::string filename, char delim, Landscape* l)
 {
 	std::fstream f;
-
+	Annotations::filename = filename;
 	filename = convertFilename(filename);
 	f.open(filename, std::ios::in);
 
@@ -617,6 +623,9 @@ void Annotations::loadTextBased(std::string filename, char delim, Landscape* l)
 		{
 			std::vector<std::string> cells;
 			cells = Utils::split(line, delim);
+
+			if (Globals::closing)
+				return;
 
 			if (cells.size() < 3)
 				continue;
@@ -739,7 +748,8 @@ void Annotations::loadText(std::string filename, Landscape* l)
 
 void  Annotations::loadCSVA(std::string filename, Landscape* l)
 {
-
+	std::lock_guard<std::mutex> lock(annotationLoadLock);
+	l->clearAnnotations();
 	std::thread t1(Annotations::loadCSV, filename, l);
 
 	t1.detach();
@@ -748,7 +758,8 @@ void  Annotations::loadCSVA(std::string filename, Landscape* l)
 
 void  Annotations::loadTextA(std::string filename, Landscape* l)
 {
-
+	std::lock_guard<std::mutex> lock(annotationLoadLock);
+	l->clearAnnotations();
 	std::thread t1(Annotations::loadText, filename, l);
 
 	t1.detach();
@@ -757,6 +768,8 @@ void  Annotations::loadTextA(std::string filename, Landscape* l)
 
 void Annotations::loadMZTab(std::string filename, Landscape* l)
 {
+	std::lock_guard<std::mutex> lock(annotationLoadLock);
+	l->clearAnnotations();
 	std::fstream f;
 
 	filename = convertFilename(filename);
