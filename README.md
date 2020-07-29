@@ -11,6 +11,24 @@ Roughly the same amount of hard disk space as the .raw, .mzml being viewed.
 For large files, preferably loaded from fast hard disk - the viewable .lcms file is created on the same disk, and 
 data is streamed from it during use.
 
+## Using lcmsWorld:
+
+For Microsoft Windows, go to the [releases](https://github.com/PGB-LIV/lcmsWorld/releases/) page and download the lcmsWorld .zip file from the 
+latest version.
+Copy the folder from inside the downloaded zip file to a hard disk, and double-click on lcmsWorld.exe to start the program.  
+When lcmsWorld starts, you should select the 'File' menu, 'Load LC-MS' file, and change the file filter to either .raw or .mzml.  
+The first time you load a file, lcmsWorld automatically converts this file and creates a corresponding .lcms file.  
+In future, you can load this .lcms file to start viewing instantly.
+	
+Some example .raw files can be found at http://pgb.liv.ac.uk/lcmsWorld/testfiles  
+You can also download identification files, which can be loaded via the lcmsWorld 'File' menu, and then viewed via
+the 'Annotations' menu.  
+Hold the left mouse button to rotate the viewpoint, and use the mouse wheel to zoom in and out.  
+Hold the right mouse button to drag the viewpoint around.  
+There are also some basic instructions in the 'Help' menu.
+
+For linux or MacOS, you will currently need to download the source and build an lcmsWorld executable file yourself - see below.
+
 ## Build Instructions:
 
 ### MS Visual Studio 2019 (Community Edition)
