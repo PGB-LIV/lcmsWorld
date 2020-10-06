@@ -4,6 +4,8 @@
 class Annotations
 {
 public:
+	static std::string filename;
+
 	static void loadTextBased(std::string filename, char delim, Landscape* l);
 	static void loadMZID(std::string filename, Landscape* l);
 	static void loadMZID_bg(std::string filename, Landscape* l);

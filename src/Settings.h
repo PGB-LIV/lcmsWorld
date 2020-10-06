@@ -82,4 +82,6 @@ public:
 	static float mouseSpeed;
 	static int axisMarker;
 	
+	static std::string lastCameraString;
+
 };

@@ -72,7 +72,12 @@ void set_index()
 
 inline std::vector<BYTE> base64_decode_mem(std::string_view const & encoded_string)
 {
-	return base64_decode_mem(encoded_string, 0, (int) encoded_string.size());
+	std::vector<BYTE> ret2;
+	return ret2;
+
+	//return base64_decode_mem(encoded_string, 0, (int) encoded_string.size());
+
+
 }
 
 //it may be slightly faster to not have to make  a substring - just use sthe start and endPos

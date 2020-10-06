@@ -88,7 +88,7 @@ public:
 
  
 
-	DrawStatus getChildrenStatus();
+//	DrawStatus getChildrenStatus();
 	const std::vector< Tile*> &getChildren() { return children; };
 
 	//we are originally going to restore the childIds
@@ -120,6 +120,14 @@ public:
 	inline void beingDrawn()
 	{
 		lastDrawn = Globals::getCurrentTime();
+		auto p = parent;
+		while (p != NULL) {
+//			if (p->id < 2)
+//				std::cout << " set p " << p->id << "\n";
+			p->beingDrawn();
+			p = p->parent;
+		}
+
 	}
 	inline bool isDrawnOnScreen()
 	{
@@ -170,6 +178,8 @@ public:
 			return d;
 		if (isBeingDrawn() == false)
 			return d;
+		if (!hasMzData)
+			return d;
 
  		auto res = mzdata->findClosest(s);
 		d.reserve(res.size());
@@ -201,39 +211,33 @@ public:
 	}
 
 
- 
+	double cachePriority;
 
+	void storePriority()
+	{
+		cachePriority = lastDrawn.time + id/1000; // +screenArea; //  + screenArea + LOD / 10 + id / 100;
+	}
+
+ 
 	static bool compareTilePtrReverse(Tile* a, Tile* b) {
 
+ 
 
-		/*
-		auto vala = a->lastVisible.time * a->LOD;
-		auto valb = b->lastVisible.time * b->LOD;
-
-		return (vala > valb);
-	*/
-
-
-
-		if (a->lastVisible.time != b->lastVisible.time)
-		return (a->lastVisible.time > b->lastVisible.time);
-		
-		if (a->screenArea != b->screenArea)
-		return (a->screenArea > b->screenArea);
-
-
-		if (a->LOD != b->LOD)
-			return (a->LOD < b->LOD);
-
-		if (a->screenLocation!= b->screenLocation)
-			return (a->screenLocation < b->screenLocation);
-
-		return (a->id < b->id);
+		return (a->cachePriority > b->cachePriority);
 
 		
 	
 	}
 	
+	float cacheLocation;
+	void storeLocation()
+	{
+
+		cacheLocation = screenLocation;
+
+ 
+
+	}
 
 	//beware that this may change - may need to cache values
 	static bool compareTilePtr(Tile* a, Tile* b) {
@@ -244,8 +248,8 @@ public:
 //		if (a->LOD != b->LOD)
 //		return (a->LOD > b->LOD);
 
-		if (a->screenLocation * (a->LOD + 1) != b->screenLocation * (b->LOD + 1))
-		return (a->screenLocation*(a->LOD+1) > b->screenLocation * (b->LOD+1));
+		if (a->cacheLocation * (a->LOD + 1) != b->cacheLocation * (b->LOD + 1))
+		return (a->cacheLocation *(a->LOD+1) > b->cacheLocation * (b->LOD+1));
 
 		return (a->id < b->id);
 		//	return screenArea * LOD > rhs.screenArea*rhs.LOD;
@@ -256,14 +260,18 @@ public:
 	Tile * parent = NULL;
 	TimeStamp childTime = { 0 };
 	TimeStamp lastLoaded = { 0 };
+	TimeStamp lastVisible = { 0 };
+
+	// a tile may be visible, but too large/small to be drawn itself - this is when it was actually drawn
+	TimeStamp lastDrawn = { 0 };
 
 private:
 	signalFloat maxSignal;
 	float screenLocation = 20;
 	//when it was last on or near the screen somewhere - whether drawn or not
 
-	TimeStamp lastVisible = { 0 };
-
+	
+	bool hasMzData = false;
 
 	float screenArea = -1;
 	float lastScreenArea = -2;
@@ -286,9 +294,18 @@ private:
  
 
 		lastVisible = Globals::getCurrentTime();
+		
+
+		//temporary - pass it back up the tree so that parents are not unloaded
+		//this should not be apermanent chage
+		
+		  return;
 		auto p = parent;
 
 		while (p != NULL) {
+			if (p->id < 2)
+				
+			std::cout << " set p " << p->id << "\n";
 			p->onScreenNow();
 			p = p->parent;
 		}
@@ -310,8 +327,6 @@ private:
 	GLMesh* wglMesh = NULL;
 	std::vector<int> childIds;
 
-	// a tile may be visible, but too large/small to be drawn itself - this is when it was actually drawn
-	TimeStamp lastDrawn = { 0 };
  
 
 

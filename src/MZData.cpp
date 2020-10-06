@@ -702,6 +702,8 @@ std::vector<DataPoint>  MZData::findClosest(DataPoint s)
 {
 	std::vector<DataPoint> found;
 
+	//may be called while scan is loading?
+//	return found;
 
 	//should maybe find a way of signalling that nothing was found
 	//s.signal  < 0 ?

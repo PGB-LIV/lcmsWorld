@@ -574,7 +574,8 @@ MZData* MzmlLoader::loadDataPartial()
 				if (readBytes + readSize > size)
 					readSize = (int)(size - readBytes);
 
-			
+				if (Globals::closing)
+					return NULL;
 
 				if (filePtr->read(buffer + loadPos, readSize))
 				{

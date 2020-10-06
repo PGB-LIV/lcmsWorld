@@ -433,6 +433,8 @@ void Input::mouseWheelFriction(double deltaTime)
 
 	double wheel_friction = -mouse_wheel_pos * deltaTime * 3;
 	mouse_wheel_pos += wheel_friction;
+	if (abs(mouse_wheel_pos) < .4)
+		mouse_wheel_pos = 0;
 
 }
 void Input::mouseDragged(int buttonState, double mx, double my, double xp, double yp, int status)
@@ -620,6 +622,9 @@ void Input::handleCursor(Landscape* l)
 	float maxZ = .9999999999f;
 	float minZ = .6f;
 
+ 
+	// if we aren't really sure how far away the cursor is in z distance 
+	// we adjust it until we get to a point which is feasible
 	int lp = 0;
 	do
 	{
@@ -667,8 +672,7 @@ void Input::handleCursor(Landscape* l)
 
 		//move closer to the camera if getting a -ve signal position
 
-
-	} while (blankCursor && ((cursorPoint.signal < 0) || (cursorPoint.signal > 100)) && (lp < 16));
+ 	} while (blankCursor && ((cursorPoint.signal < 0) || (cursorPoint.signal > 100)) && (lp < 32));
 
 	
 	auto cursor = getView()->findDataPoint(posX, posY, posZ);
@@ -703,7 +707,8 @@ void Input::handleCursor(Landscape* l)
 				getView()->addMarker(cursor.mz, cursor.lc, cursor.signal, col, "x", 8, 26, 0);
 	 
 		//	ImGui::Text("");
-	 
+			getView()->addInfo("<b>Cursor Information");
+			
 			getView()->addInfo("<i>m/z");
 			getView()->addInfo("<c>= " + std::to_string(cursor.mz));
 
@@ -811,7 +816,11 @@ void Input::showNearest(DataPoint cursorPoint)
 {
 
 	// Settings::showNearest
-	static Annotation last;
+	//static Annotation last = { -1,-1,0,0,"","","","",0,0,0,false };
+	static Annotation last = { -1 };
+
+
+
 
 	Annotation a = getView()->getClosestAnnotation(cursorPoint);
 	// -ve is a signal that nothing was found nearby
@@ -861,8 +870,12 @@ void Input::showNearest(DataPoint cursorPoint)
 
 		getView()->addMarker((float)a.mz, (float)a.lc, 0, 1, text, a.width, a.height, Settings::cubeSize);
 
+
 		getView()->addInfo("");
+		getView()->addInfo("<b>Annotation Information");
+		
 		getView()->addInfo("Closest Annotation");
+		if (a.text.length() > 0)
 		getView()->addInfo(a.text);
 
 		if (a.accession.size() > 0)

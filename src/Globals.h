@@ -36,6 +36,8 @@ public:
 			
 	}
 
+	static bool closing;
+
 	static inline TimeStamp getCurrentTime()
 	{
 		return currentTime;
@@ -46,4 +48,7 @@ public:
 	static void setFileStatus(std::string filename);
 	static float mouseSpeed;
 	static float wheelSpeed;
+
+	static int windowWidthActive;
+	static double windowScale;
 };

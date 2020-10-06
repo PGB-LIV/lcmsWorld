@@ -11,6 +11,15 @@
 #include "SystemSetup.h"
 #include "Render.h"
 #include <list>
+#include <sstream>
+#include <iomanip>
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtx/transform.hpp" // after <glm/glm.hpp>
+
+//This is temporary, as there is a problem with the load queue
+
+#define DISABLE_UNLOADING
 
 const static int TILES_PER_GB = 750;
 const static int MIN_TILES = 4000;
@@ -35,6 +44,12 @@ Landscape::Landscape()
 	viewData = { 3500,80000,30000 };
  
 	tilesInRam = (int) (MIN_TILES + (System::systemMemory )*TILES_PER_GB);
+	tilesInRam = std::min(tilesInRam, TILES_PER_GB * 4);
+
+	/// <summary>
+#ifdef DISABLE_UNLOADING
+	tilesInRam = 2 << 30;
+#endif
  	std::cout << "capping memory at " << tilesInRam << " tiles \n";
 	Range<mzFloat> t1;
 	t1.min = mzFloat_max;
@@ -77,16 +92,18 @@ static std::mutex annotationsLock;
 
 void Landscape::addAnnotation(Annotation a) {
 	
+
 	if (a.shortText.length() < 1)
 		a.shortText = a.text;
 
 	if (a.shortText.length() > 60)
 		a.shortText = a.shortText.substr(0, 60);
 
+	std::lock_guard<std::mutex> guard(annotationsLock);
 
-	annotationsLock.lock();
+
 	annotations.push_back(a);
-	annotationsLock.unlock();
+
 }
 
 
@@ -313,12 +330,13 @@ Annotation Landscape::getClosestAnnotation(DataPoint cursor)
 	float mzSearch = 2.0f;
 	float lcSearch = 5.0f;
 
-	annotationsLock.lock();
+	std::lock_guard<std::mutex> guard(annotationsLock);
+
 
 	closest.mz = -10;
 	if (annotations.size() == 0)
 	{
-		annotationsLock.unlock();
+ 
 		return closest;
 	}
 
@@ -354,7 +372,7 @@ Annotation Landscape::getClosestAnnotation(DataPoint cursor)
 		low++;
 	}
  
-	annotationsLock.unlock();
+ 
 	return closest;
 }
  
@@ -362,6 +380,7 @@ void  Landscape::drawAnnotations()
 {
 	int max_annotations = 999;
 
+	std::lock_guard<std::mutex> guard(annotationsLock);
 
 	int i = 0;
 	for (auto ap : visibleAnnotations)
@@ -373,36 +392,215 @@ void  Landscape::drawAnnotations()
 			break;
 	}
 }
-void Landscape::addMarkers()
+
+
+glm::vec2  Landscape::get2d(float tx, float ty, float tz)
+{
+	glm::vec4  mid = transform({ tx,ty,tz });
+
+	glm::vec2 ret = glm::vec2(-100, -100);
+
+	auto m = transformMatrix * mid;
+	m = m / (m.w);
+
+	if (m.z < 1)
+		if (m.z > 0.0001)
+			if (std::abs(m.x) < 1.1)
+				if (std::abs(m.y) < 1.1)
+				{
+					int label_x = (int)(((m.x + 1) * viewport.x / 2)  );
+
+
+					int label_y = (int)(((-m.y + 1) * viewport.y / 2)  );
+					ret = glm::vec2(label_x, label_y);
+
+				}
+	return ret;
+
+}
+
+
+DataPoint get3dPos(glm::vec3 cursor3d, Landscape*l)
+{
+float posX, posY, posZ;
+
+float maxZ = .9999999999f;
+float minZ = .6f;
+DataPoint cursorPoint;
+auto vp = l->getViewport();
+
+int lp = 0;
+
+
+do
 {
 
 
-	int xs = 20;
-	int ys = 20;
+
+	glm::vec4 vp4 = glm::vec4(0.0, 0.0, (GLdouble)vp.x, (GLdouble)vp.y);
+	float zScale = Settings::scale.z;
+
+
+	auto 	sm = glm::scale(glm::vec3(Settings::scale.x, zScale, Settings::scale.y));
+
+	auto xyz = glm::unProject(cursor3d, sm, Render::ProjectionMatrix * Render::ViewMatrix, vp4);
+
+	posX = xyz.x;
+	posY = xyz.z;
+	posX /= l->xScale;
+	posX += (l->worldMzRange.min + l->worldMzRange.max) / 2;
+
+	posY /= l->yScale;
+	posY += (l->worldLcRange.min + l->worldLcRange.max) / 2;
+
+	posZ = xyz.y;
+	posZ /= l->zScale;
+	posZ += (l->worldLcRange.min + l->worldLcRange.max) / 2;
+
+
+	cursorPoint.mz = posX;
+	cursorPoint.lc = posY;
+	cursorPoint.signal = posZ;
+
+
+	if (cursorPoint.signal < 0)
+	{
+		maxZ = cursor3d.z;
+		cursor3d.z = (cursor3d.z + minZ) / 2;
+	}
+
+	else
+	{
+		minZ = cursor3d.z;
+		cursor3d.z = (cursor3d.z + maxZ) / 2;
+	}
+
+	//move closer to the camera if getting a -ve signal position
+	lp++;
+
+ } while ( ((cursorPoint.signal < 0) || (cursorPoint.signal > 100)) && (lp < 32));
+
+
+return cursorPoint;
+
+
+}
+void Landscape::addMarkers()
+{
+
+	Camera* c =getCamera();
+	auto centre_mz = c->currentTarget.mz;
+	auto centre_lc = c->currentTarget.lc;
+
+	auto dist = c->distance;
+
+	//how many there are depends on how far from the camera
+	int xs = (int) ((worldMzRange.max - worldMzRange.min) / dist * 400.0) * 2 ;
+
+	int ys = (int)((worldLcRange.max - worldLcRange.min) / dist * 1500.0) * 2;
+	auto xscale = (worldMzRange.max - worldMzRange.min);
+
+	bool fixX = false;
+	bool fixY = false;
+	// don't show more detail than necessay; 1 m/z, and 1/10 RT
+	if (xs > xscale*2)
+	{
+		xs = (int) xscale*2; // xs = (int)((worldMzRange.max - worldMzRange.min) / dist * 400.0) * 2 + 1;
+		fixX = true;
+
+	}
+	auto yscale = (worldLcRange.max - worldLcRange.min);
+
+	if (ys > (yscale * 10))
+	{
+		ys = (int)yscale * 10;
+		fixY = true;
+	}
+
+	//don't draw too close  together (possible due to perspective)
+	float screen_gap = 20;
+	//move it slightly so that it doesn't cover the centre of the screen
+	glm::vec3 screenpos = glm::vec3(Globals::windowWidthActive *2/5, Settings::windowHeight *3/ 5,1/100000);
+	auto data = get3dPos(screenpos, this);
+	
+
+	centre_lc = data.lc;
+	centre_mz = data.mz;
+	// std::cout << xs << "  " << xscale * 2 << "  " << (xs == xscale * 2) << "\n";
+
+	glm::vec2 last_pos = glm::vec2(-100, -100);
 	for (int x = 0; x < xs; x++)
 	{
-		auto xscale = (worldMzRange.max - worldMzRange.min);
-		auto xstart = worldMzRange.min;
+		auto xstart = (int) worldMzRange.min;
 		float xpos = (float) ( xstart + (xscale*x) / xs);
-		for (int y = 0; y < ys; y++)
+		
+		//if it's in full detail - put them on exactly the right spot
+		if (fixX)
 		{
-			auto yscale = (worldLcRange.max - worldLcRange.min);
-			auto ystart = worldLcRange.min;
-			float ypos = (float) (ystart + (yscale*y) / ys);
 			
-			if ((y & 1)==0)
-			{
-				addMarker(xpos, ypos, 0, 1, std::to_string((int)xpos),30,15);
-			}
-			else
-			{
-				
-				addMarker(xpos, ypos, 0, 0, std::to_string((int)ypos), 30, 15);
-			}
-
+			xpos = (double(int(2 * xpos + .5))) / 2;
 
 		}
+		float ypos = centre_lc;;
+
+		auto screen = get2d(xpos, ypos, 0);
+		if (glm::distance(screen,last_pos) < screen_gap)
+			continue;
+		last_pos = screen;
+		
+		
+		 		std::string text = std::to_string((int)(xpos + .49));
+				if (fixX)
+				{
+				 	if (xpos - (int)xpos > .25)
+						text += ".5";
+				}
+
+
+		addMarker(xpos, ypos, 0, 1, text, 30, 15);
+
 	}
+
+
+	last_pos = glm::vec2(-100, -100);
+	for (int y = 0; y < ys; y++)
+	{
+		auto ystart = (int) worldLcRange.min;
+		float ypos = (float)(ystart + (yscale * y) / ys);
+		float xpos = centre_mz;
+ 
+		if (fixY)
+		{
+			
+			ypos = (double(int(10*ypos + .5)))/10;
+			
+		}
+		auto screen = get2d(xpos, ypos, 0);
+		
+		if (glm::distance(screen, last_pos) < screen_gap)
+			continue;
+
+		last_pos = screen;
+
+		float yd = (float)(ystart + (yscale * 1) / ys);
+		std::stringstream stream;
+		int dp = 0;
+		if (yd < 1)
+			dp = 1;
+ 
+		stream << std::fixed << std::setprecision(dp) << ypos;
+		std::string label = stream.str();
+
+	 
+		
+		addMarker(xpos, ypos, 0, 0, label , 30, 15);
+ 
+
+
+	}
+
+
+
 }
 
 
@@ -506,15 +704,24 @@ void Landscape::add3dMarker(float tx, float ty, float tz, int type, std::string 
 
 
 		vertex_vec.push_back(glm::vec3(x, z, y));
-		float dir = 0.25f;
+		//yellow (type 2)
+		float u = 0.25f;
+		float v = 0.25f;
 		
-			
+			 //red
 		if (type == 1)
-			dir = 0.75f;
+		{
+			u = 0.75f;
+			v = 0.75f;
+		}
  
+		if (type == 3)
+		{
+		 	v = 0.75f;
+		}
+	 
 
-
-		uv_vec.push_back(glm::vec2(dir, dir));
+		uv_vec.push_back(glm::vec2(u, v));
 
 	}
 
@@ -588,8 +795,45 @@ std::vector<Annotation> &Landscape::getAnnotations() {
 	return annotations;
 }
 
+void Landscape::setInfo()
+{
+	addInfo("<b>File Information");
+
+	addInfo("<i>m/z");
+	addInfo("<c>range:");
+	std::string mzr = std::to_string(worldMzRange.min) + " - " + std::to_string(worldMzRange.max);
+
+		addInfo(mzr);
+		addInfo("RT range:");
+		addInfo(std::to_string(worldLcRange.min) + " - " + std::to_string(worldLcRange.max));
 
 
+		std::ostringstream streamObj;
+		// Set Fixed -Point Notation
+		streamObj << std::scientific << std::setprecision(2) << worldSignalRange.max;
+
+		
+ 
+	addInfo("Max. Intensity : " + streamObj.str());
+	
+	std::ostringstream streamObj2;
+	streamObj2.imbue(std::locale(""));
+
+	streamObj2   << numDataPoints;
+
+	addInfo("Num. points : " + streamObj2.str());
+	if (annotations.size() > 0)
+	{
+		std::ostringstream streamObj2;
+		streamObj2.imbue(std::locale(""));
+
+		streamObj2 << annotations.size();
+		addInfo("Num. annotations : "   +streamObj2.str());
+	}
+
+	addInfo("");
+
+}
 void Landscape::addMarker(float tx, float ty, float tz, int i, std::string text, float width, float height, float cubeSize)
 {
 	
@@ -599,7 +843,7 @@ void Landscape::addMarker(float tx, float ty, float tz, int i, std::string text,
 		if (cubeSize > 0)
 		{
 			add3dMarker(mid.x, mid.z, mid.y, i, text, width, height, cubeSize);
-			add3dMarker(mid.x, mid.z, mid.y, i, text, width, height, 10);
+			add3dMarker(mid.x, mid.z, mid.y, 3, text, width, height, 10);
 		}
 
 		auto m = transformMatrix * mid;
@@ -694,8 +938,11 @@ void Landscape::draw(Tile* tile)
 		for (auto child : children)
 		{
 
+			// check children are all ready
 
-			if ((child->getScreenSize() > minSize)  )
+//			if ((child->getScreenSize() >= -1)) // minSize)  )
+
+			if ((child->getScreenSize() >  minSize)  )
 			{
 				visChildren++;
 
@@ -707,6 +954,9 @@ void Landscape::draw(Tile* tile)
 					
 			}
 
+			if (Globals::currentTime.time - child->lastDrawn.time < 3e6)
+				readyChildren++;
+
 		}
 
 		bool drawChildren = false;
@@ -714,10 +964,12 @@ void Landscape::draw(Tile* tile)
 		{
 			if ((Globals::currentTime.time - tile->childTime.time) < 1e6)
 			{
-				drawChildren = true;
+			//	drawChildren = true;
 
 			}
 		}
+
+
 		if ((visChildren > 0) && (readyChildren >= visChildren))
 		{
 			tile->childTime = Globals::currentTime;
@@ -728,11 +980,19 @@ void Landscape::draw(Tile* tile)
 		//we can definitely draw children instead
 		if (drawChildren)
 		{
+
+
+			//drawCallback(tile, false);
+
+
 			tile->childTime = Globals::currentTime;
 			for (auto child : children)
 			{
 				draw(child);
 			}
+
+
+
 
 		//	if (tile->isOnScreen())
 			//should only draw here if fading out
@@ -763,6 +1023,8 @@ void Landscape::draw(Tile* tile)
 		 
 //			std::cout << (int) tile->drawStatus << "  " << tile->getScreenSize() <<  "   " << tile->id <<"  : " << tile->LOD <<"\n";
 			drawCallback(tile, false);
+
+			
 			tileDrawn(tile);
 		}
 
@@ -999,30 +1261,47 @@ void Landscape::manageQueue()
 	if (loadedDataTiles.size() < 5)
 		return;
 
- 
+ //temporarily disabled
+	return;
 
 	std::vector<Tile*> notReady;
+ 
+ // take them in order of when they were last actually drawn
+	// in the event of a tie, remove lowest lod?
+ 
+	
 
-
-	if (loadedDataTiles.size() > tilesInRam) // tilesInRam)
+	if (loadedDataTiles.size() > tilesInRam)  
 	{
  
+		//copying a priority value to not invalidate sort
+		for (auto t : loadedDataTiles)
+			t->storePriority();
+
 		std::sort(loadedDataTiles.begin(), loadedDataTiles.end(), Tile::compareTilePtrReverse);
-	 
+		Tile* next = loadedDataTiles.back();
+		std::cout << 1e-6*(Globals::currentTime.time - loadedDataTiles[0]->lastDrawn.time) << "  most recent \n";
+		std::cout << loadedDataTiles.back()-> id << "   " <<  1e-6 * (Globals::currentTime.time - loadedDataTiles.back()->lastDrawn.time) << "  least recent \n";
+		std::cout << loadedDataTiles.back()->id << "   " << 1e-6 * (Globals::currentTime.time - loadedDataTiles.back()->lastLoaded.time) << "  least recent \n";
+
 		int numToClear = 90;
- 		while (loadedDataTiles.size() > tilesInRam - numToClear)
+
+		//clear max 90 per frame
+ 		while (loadedDataTiles.size() > std::max(1, tilesInRam - numToClear))
 		{
 
 	 
-			
-			Tile* next = loadedDataTiles.back();
+		 
 
+			Tile* next = loadedDataTiles.back();
+			loadedDataTiles.pop_back();
+
+		 // if it was recently loaded, don't remove it
 			if ((Globals::currentTime.time - next->lastLoaded.time) < 5e6)
 			{
 				numToClear++;
 
 				notReady.push_back(next);
-				loadedDataTiles.pop_back();
 				continue;
 
 			}
@@ -1030,16 +1309,13 @@ void Landscape::manageQueue()
 			if (next->unLoad() == false)
 			{
 				numToClear++;
-				if (numToClear > 300)
-					numToClear = 300;
 				notReady.push_back(next);
 
 			}
-			loadedDataTiles.pop_back();
 
 		}
-	//	for (auto t : notReady)
-	//		loadedDataTiles.push_back(t);
+		for (auto t : notReady)
+			loadedDataTiles.push_back(t);
 
 	}
 
@@ -1058,17 +1334,27 @@ inline bool Landscape::canDraw(Tile *tile)
 
 	int visChildren = 0;
 	int readyChildren = 0;
+	
 
 	//only check chilren if this is quite large
-	//if ((tile->getScreenSize() > maxSize) )
+//	if ((tile->getScreenSize() > maxSize) )
+
+
+
 	for (auto child : children)
 	{
 		 
-		if ((child->getScreenSize() > minSize)  )
+		if ((child->getScreenSize() >-2)) //    minSize)  )
 		{
 			visChildren++;
 			if (canDraw(child))
 				readyChildren++;
+		}
+		// if any of the children were drawn recently, then we can draw them
+		// (to prevent removing children, then re-adding them moments later)
+		if (Globals::currentTime.time - child->lastDrawn.time < 2e6)
+		{
+			readyChildren += 256;
 		}
 
 	}
@@ -1077,8 +1363,8 @@ inline bool Landscape::canDraw(Tile *tile)
 	if ((visChildren > 0) && (visChildren == readyChildren))
 		return true;
 
-
-//  	if (tile->getScreenSize() > 0.001)
+	//if can't draw children, can we draw this one?
+  	if (tile->getScreenSize() > 0.001)
 	if ((tile->drawStatus == DrawStatus::ready)
 		|| (tile->drawStatus == DrawStatus::reCreatingMesh)
 		|| (tile->drawStatus == DrawStatus::reCreateMesh)
@@ -1156,9 +1442,9 @@ inline bool Landscape::canDraw(Tile *tile)
 		for (int i = 0; i < sizeof(g_vertex_buffer_data) / sizeof(g_vertex_buffer_data[0]); i += 3)
 		{
 			float x, y, z;
-			x = (g_vertex_buffer_data[i + 0]-.5 ) * -200;
-			y = (g_vertex_buffer_data[i + 1] ) * 200;
-			z = (g_vertex_buffer_data[i + 2] - .5) * 200;
+			x = (g_vertex_buffer_data[i + 0]-.5 ) * -300;
+			y = (g_vertex_buffer_data[i + 1] ) * 300;
+			z = (g_vertex_buffer_data[i + 2] - .5) * 300;
 			vertex_vec.push_back(glm::vec3(x, y, z));
 			uv_vec.push_back(glm::vec2(-g_vertex_buffer_data[i + 0], -g_vertex_buffer_data[ i + 2]));
 		}

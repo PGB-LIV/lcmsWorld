@@ -136,9 +136,10 @@ inline std::vector<byte> Cache::getDataFromFile(DataSource d)
 	if (loadFromURL)
 		return LCHttp::getFromHttp(d);
 #endif
+	std::lock_guard<std::mutex> lock(cacheLock);
 
 
-	cacheLock.lock();
+ 
 
 	cacheFile.seekg(d.offset);
 	std::vector<byte> data(d.compressed_size);
@@ -148,7 +149,8 @@ inline std::vector<byte> Cache::getDataFromFile(DataSource d)
 	if (readSize != d.compressed_size)
 	{
 		std::cout << "file read size mismatch \n";
-		cacheLock.unlock();
+ 
+		new Error(Error::ErrorType::file, "There was a problem loading data from the .lcms file. \nIit may be invalid, or the disk may be full.\n");
 
 		return empty;
 
@@ -164,7 +166,7 @@ inline std::vector<byte> Cache::getDataFromFile(DataSource d)
 	}
 
 
-	cacheLock.unlock();
+ 
 
 
 	return data;
@@ -301,11 +303,15 @@ void Cache::processLoadQueue()
 		}
 		else
 		{
-
+		 
 			loadQueueLock.lock();
-			queueSize = loadQueue.size();
 			
- 
+
+			// just store the values so that they don't change during sort
+			for (auto t : loadQueue)
+				t->storeLocation();
+
+			queueSize = loadQueue.size();
 			std::sort(loadQueue.begin(), loadQueue.end(), Tile::compareTilePtr);
 
 
@@ -460,10 +466,11 @@ void Cache::processmakeQueue()
 
 void Cache::makeMeshStandard(Tile* tile)
 {
+	std::lock_guard<std::mutex> lock(makeQueueLock);
 
-	makeQueueLock.lock();
+  
 	makeQueue.push(tile);
-	makeQueueLock.unlock();
+ 
 	// should notify loadqueue lock
  
 }

@@ -153,7 +153,7 @@ void Tile::setScreenSize(glm::mat4 matrix, glm::vec2 view)
 	double z1 = 0;
 	double z2 = maxSignal;
 	
-	//don't do them all every frame (mask = 2^n-1)
+	// To reduce cpu load, don't do them all every frame (mask = 2^n-1)
 	int mask = 1;
 
 	if ((random & mask) != (Globals::loopCount & mask))
@@ -282,6 +282,8 @@ void Tile::setScreenSize(glm::mat4 matrix, glm::vec2 view)
 
 		 //a coarse approach to adjust by size of model
 		area *= Settings::detail-0.9f;
+		area *= Globals::windowScale;
+
  		{
 		 
 
@@ -582,6 +584,7 @@ int  Tile::serialise(byte *buffer)
 
 void Tile::setMZData(MZData* n) 
 { 
+	hasMzData = false;
 	mzdata = n; 
 	type = n->type;
  
@@ -601,10 +604,10 @@ void Tile::setMZData(MZData* n)
 	maxSignal = n->info.signalRange.max;
 	
 	updateWorldRange(n->info);
-	
+	hasMzData = true;
 }
 
-
+/*
 DrawStatus Tile::getChildrenStatus()
 {
 	if (children.size() == 0)
@@ -620,6 +623,8 @@ DrawStatus Tile::getChildrenStatus()
 
 	return status;
 }
+*/
+
 std::mutex loadLock;
 bool Tile::unLoad()
 {
@@ -643,10 +648,12 @@ bool Tile::unLoad()
 		loadLock.lock();
 		if (drawStatus == DrawStatus::noMesh)
 		{
+					hasMzData = false;
 					drawStatus = DrawStatus::noData;
 					//need to make sure it's not loading!
  					delete mzdata;
 					mzdata = NULL;
+					
 		}
 		loadLock.unlock();
 	}
@@ -727,6 +734,7 @@ void Tile::clearMZData()
 
 	if (mzdata != NULL)
 	{
+		hasMzData = false;
 		delete mzdata;
 		mzdata = NULL;
 	}
@@ -822,6 +830,7 @@ void Tile::deSerialiseData(const std::vector<byte> &buf)
 	assert(mesh == NULL);
 	drawStatus = DrawStatus::noMesh;
 	bufferLock.unlock();
+	hasMzData = true;
 }
 
 Tile::~Tile()

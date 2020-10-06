@@ -95,7 +95,7 @@ Tile* Builder::makeTiles(MZData* data, int lod, int threadId)
 		Tile* tile = new Tile(lod, source, System::primary);
 		tile->setMZData(smallData);
 
-
+//  trying different splits - greater splits should mean fewer levels of detail needed
 
 		int splitX = 2;
 		int splitY = 2;

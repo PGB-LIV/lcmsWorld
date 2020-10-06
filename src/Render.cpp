@@ -582,24 +582,22 @@ void Render::drawMesh(GLDraw *drawObject, bool wireFrame)
 void  Render::drawCubeMeshDirection(GLMesh* cube, int type)
 {
 	
-	auto matrix = System::primary->getCamera()->getDirectionMatrix();
+	auto cmatrix = System::primary->getCamera()->getDirectionMatrix();
 	float zScale = Settings::scale.z;
 	if (Settings::axisMarker == 0)
 		return;
 
 
-	auto 	sm = glm::scale(glm::vec3(Settings::scale.x, zScale, Settings::scale.y));
+ 	auto 	sm = glm::scale(glm::vec3(Settings::windowHeight / (Settings::windowWidth+.0001f), 1, 1));
 
 
 	
-	auto translate = glm::translate(glm::vec3(-.85, .75, 0));
+	auto translate = glm::translate(glm::vec3(-.90, .75, 0));
 
 
 	//	matrix *= glm::translate(glm::vec3(100, 0, 0));
-	matrix = translate * GlobalProjectionMatrix * matrix * ModelMatrix ; // *sm
-	
-	matrix = glm::rotate(matrix, -0.60f, glm::vec3(-1.0, 0.0, 0.0));
-
+	auto matrix = translate * sm* GlobalProjectionMatrix * cmatrix * ModelMatrix;
+ 
 
   	glUniformMatrix4fv(Render::getMatrixID(), 1, GL_FALSE, &matrix[0][0]);
 	//glUniformMatrix4fv(Render::getMatrixID(), 1, GL_FALSE, &Render::MVP[0][0]);

@@ -82,6 +82,9 @@ char buffer[1024 * 1024];
 MZData* RawLoader::loadDataPartial()
 {
 
+	if (Globals::closing)
+		return NULL;
+
 
 	// finished
 	if (status == 2)
@@ -211,7 +214,8 @@ MZData* RawLoader::loadDataPartial()
 
 			while (curScan < size)
 			{
-
+				if (Globals::closing)
+					return NULL;
 
 				double progress = 100.0 * curScan / size;
 				Globals::statusText = "Loaded " + std::to_string((int)progress) + "%%";

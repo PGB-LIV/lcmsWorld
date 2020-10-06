@@ -351,3 +351,18 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+lcms_prefs.ini
+Dev/lcmsWorld.tlog/CL.command.1.tlog
+Dev/lcmsWorld.tlog/unsuccessfulbuild
+Dev/lcmsWorld.tlog/lcmsWorld.lastbuildstate
+Dev/lcmsWorld.tlog/rc.write.1.tlog
+Dev/lcmsWorld.tlog/rc.read.1.tlog
+Dev/lcmsWorld.tlog/rc.command.1.tlog
+Dev/lcmsWorld.tlog/link.write.1.tlog
+Dev/lcmsWorld.tlog/link.read.1.tlog
+Dev/lcmsWorld.tlog/link.command.1.tlog
+Dev/lcmsWorld.tlog/CL.write.1.tlog
+Dev/lcmsWorld.tlog/CL.read.1.tlog
+Dev/lcmsWorld.exe
+Dev/lcmsWorld.vcxproj.FileListAbsolute.txt
+errorlog.txt

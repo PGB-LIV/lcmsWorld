@@ -1,10 +1,12 @@
 #include "Settings.h"
+#include <algorithm>
 #include <string>
 #include <fstream>
 
 #include "Structs.h"
 #include "ImGuiFileDialog.h"
-
+#include "SystemSetup.h"
+#include "Camera.h"
 #include "sys/stat.h"
 
 bool Settings::flatLighting = false;
@@ -72,6 +74,7 @@ std::string Settings::autoLoadFile;
 bool Settings::expertMode = false;
 int Settings::axisMarker = 1;
 
+std::string Settings::lastCameraString = "";
 void Settings::setup(int  argc, char ** argv)
 {
 	if (argc == 0)
@@ -88,7 +91,11 @@ void Settings::setup(int  argc, char ** argv)
 	{
 		std::string loadFile(argv[1]);
 		autoLoadFile = loadFile;
-//		loadPath = "";
+
+ 		if (argv[1][0] == '-')
+			loadPath = "";
+
+
 
 	}
 	else
@@ -132,6 +139,7 @@ void Settings::loadSettings()
 	std::ifstream settings(loadPath + settingsFileName);
 	std::string version;
 	
+	std::cout << " Load settings\n";
 
 	settings >> version;
 
@@ -203,8 +211,9 @@ void Settings::loadSettings()
 	settings >> wheelSpeed;
 	settings >> mouseSpeed;
 	settings >> axisMarker;
-	
+	settings >> lastCameraString;
 	setMouse();
+ 
 
 	settings.close();
 
@@ -234,6 +243,22 @@ void Settings::saveSettings()
 {
 	std::ofstream settings(loadPath + settingsFileName);
  
+	lastCameraString = "";
+	if (System::primary != NULL)
+	{
+		auto camera = System::primary->getCamera();
+		if (camera != NULL)
+		{
+			DataPoint d = { 0, 0, 0 };
+
+			std::string camString = camera->to_string(d);
+
+			std::replace(camString.begin(), camString.end(), '\n', '_');
+			lastCameraString = camString;
+		}
+
+	}
+
 
 	settings << version << "\n";
 	std::string name = lastFilename;
@@ -284,7 +309,7 @@ void Settings::saveSettings()
 	settings << wheelSpeed << "\n";
 	settings << mouseSpeed << "\n";
 	settings << axisMarker << "\n";
-
+	settings << lastCameraString << "\n";
 	
 	settings.close();
 

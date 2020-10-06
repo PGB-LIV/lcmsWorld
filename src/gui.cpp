@@ -37,6 +37,7 @@
 #include "Input2.h"
 #include "Render.h"
 #include "Cache.h"
+#include "Annotations.h"
 
 #if !defined(_WIN32) && (defined(__WIN32__) || defined(WIN32) || defined(__MINGW32__))
 #define _WIN32
@@ -49,6 +50,7 @@
 bool fileOpen(std::string filePathName);
 bool reloadFile();
 
+void restart();
 
 const float gui::statusHeight = 35;
 TimeStamp gui::lastMenuTime = { 0 };
@@ -61,6 +63,7 @@ void gui::scrollWheel(GLFWwindow* window, double xoffset, double yoffset)
 #include "../files/OpenSans.h"
 #include "../files/OpenSans_Italic.h"
 
+#include "../files/OpenSans_Bold.h"
 
 std::string aboutText[] = { "lcmsWorld","Early Prototype version " CUR_VERSION_STRING ,"","This version is only for testing, it is not guaranteed to perform correctly","","(c) University of Liverpool 2020","",
 "For any issues, please go to the github page",
@@ -125,13 +128,19 @@ void gui::setup(const char* glsl_version)
 
 	gui::italic = io.Fonts->AddFontFromMemoryTTF(fontCopy, sizeof(OpenSans_Italic), 22.0f, NULL, io.Fonts->GetGlyphRangesChineseFull());
 
- 
+
+	fontCopy = malloc(sizeof(OpenSans_Bold));
+	memcpy(fontCopy, OpenSans_Bold, sizeof(OpenSans_Bold));
+
+	gui::bold = io.Fonts->AddFontFromMemoryTTF(fontCopy, sizeof(OpenSans_Bold), 22.0f, NULL, io.Fonts->GetGlyphRangesChineseFull());
+
 
 }
 int gui::infoWidth = 240;
 ImFont* gui::italic;
+ImFont* gui::bold;
 // const char * identFilters = ".csv\0\0";
-const char * identFilters = ".csv\0.txt\0.mzid\0.mzid.gz\0\0";
+const char * identFilters = ".csv\0.txt\0.mzid\0.mzid.gz\0.mztab\0\0";
 
 const char * lcmsFilters = ".lcms\0.mzml\0.raw\0\0";
  
@@ -171,7 +180,7 @@ void gui::MouseMenu()
 
 void gui::SlidersMenu()
 {
-
+	float transformWidth = 230;
 	bool rebuild = false;
 	if (ImGui::SliderFloat("m/z scale", &Settings::xScale_slider, -10.0f, 10.0f, "%.1f"))
 		rebuild = true;
@@ -184,7 +193,28 @@ void gui::SlidersMenu()
 		rebuild = true;
 
 	setSliderValues();
+	ImGui::PushItemWidth(transformWidth);
 
+	if (ImGui::BeginCombo("Transform Intensity", Settings::transformTypes[Settings::transformType].c_str()))
+	{
+		int numTransformOptions = Settings::transformTypes.size();
+
+		for (int i = 0; i < numTransformOptions; i++)
+		{
+			bool is_selected = (i == Settings::transformType);
+
+			if (ImGui::Selectable(Settings::transformTypes[i].c_str(), is_selected))
+			{
+
+				Settings::transformType = i;
+			}
+			if (is_selected)
+				ImGui::SetItemDefaultFocus();
+
+		}
+		ImGui::EndCombo();
+	}
+	ImGui::PopItemWidth();
 	return;
 
 
@@ -204,6 +234,14 @@ bool gui::numbersBox()
 	buttonText = "Show Information Panel";
 	if (ImGui::Checkbox(buttonText, &Settings::showInfoPanel))
 	{
+		auto width = Settings::windowWidth;
+		if (Settings::showInfoPanel)
+		{
+			width = std::max(gui::infoWidth, width - gui::infoWidth);
+		}
+		Globals::windowWidthActive = width;
+
+
 		ret = true;
 	
 	}
@@ -321,7 +359,9 @@ void gui::annotationSelector(Landscape* l)
 			}
 		}
 	}
-	ImGui::BeginChild("ScrollingRegion", ImVec2(0, 200), false, 0);
+
+
+	ImGui::BeginChild("ScrollingRegion", ImVec2(0, Settings::windowHeight-380), false, 0);
 
 	int lines_count = useAnnotations.size();
 	float lines_height = ImGui::GetTextLineHeightWithSpacing();
@@ -601,6 +641,13 @@ void gui::infoPanel(ImVec2 menuSize)
 			font = 1;
 			ImGui::PushFont(gui::italic);
 		}
+		if (startsWith(line, "<b>"))
+		{
+			line = line.substr(3);
+
+			font = 1;
+			ImGui::PushFont(gui::bold);
+		}
 		if (startsWith(line,"<c>"))
 		{
 			line = line.substr(3);
@@ -710,7 +757,7 @@ void gui::fileOpenMenu()
 #ifdef _WIN32
 
 	if (getView() != NULL)
-		if (ImGui::Button("Close & Restart"))
+		if (ImGui::Button("Close File & Restart"))
 		{
 
 
@@ -739,6 +786,17 @@ void gui::fileOpenMenu()
 
 
 		}
+
+		if (getView() != NULL)
+		if (ImGui::Button("Restart Instance"))
+		{
+
+			restart();
+
+
+
+		}
+
 #endif
 
 
@@ -835,7 +893,7 @@ void  gui::viewMenu(glm::mat4 view)
 
 	const char* buttonText = "Show Small Values";
 
-	float transformWidth = 230;
+
 
 
 	if (getView() == NULL)
@@ -845,14 +903,7 @@ void  gui::viewMenu(glm::mat4 view)
 
 		ImGui::Checkbox(buttonText, &Settings::showBaseWireframe);
 		//	ImGui::Checkbox(buttonText2, &Settings::logTransform);
-		ImGui::PushItemWidth(transformWidth);
 
-		if (ImGui::BeginCombo("Transform Intensity", Settings::transformTypes[Settings::transformType].c_str()))
-		{
-
-			ImGui::EndCombo();
-		}
-		ImGui::PopItemWidth();
 
 		ImGui::PopStyleVar();
 		ImGui::PopItemFlag();
@@ -873,6 +924,8 @@ void  gui::viewMenu(glm::mat4 view)
 				getView()->reBuild();
 		}
 		ImGui::SameLine();
+
+		if (0)
 		if (ImGui::Checkbox("Show full bars", &Settings::displaySides))
 		{
 
@@ -880,28 +933,7 @@ void  gui::viewMenu(glm::mat4 view)
 				getView()->reBuild();
 		}
 
-		ImGui::PushItemWidth(transformWidth);
 
-		if (ImGui::BeginCombo("Transform Intensity", Settings::transformTypes[Settings::transformType].c_str()))
-		{
-			int numTransformOptions = Settings::transformTypes.size();
-
-			for (int i = 0; i < numTransformOptions; i++)
-			{
-				bool is_selected = (i == Settings::transformType);
-
-				if (ImGui::Selectable(Settings::transformTypes[i].c_str(), is_selected))
-				{
-
-					Settings::transformType = i;
-				}
-				if (is_selected)
-					ImGui::SetItemDefaultFocus();
-
-			}
-			ImGui::EndCombo();
-		}
-		ImGui::PopItemWidth();
 	}
 
 	if (gui::numbersBox())
@@ -941,9 +973,11 @@ std::string helpText[] = { "lcmsWorld","","A 3d viewer for mass spectrometry dat
 "Use the mouse wheel to zoom", "",
 "Alternatively, use keyboard arrows with shift or controlbto move the camera","",
 "When you load an mzml or raw  file, a similarly named .lcms file is created", 
-"Load this file next time for instant access","","Load a correctly formatted csv file to add annotations ",
+"Load this file next time for instant access","","Load a correctly formatted csv, text, or mzIdentML file to add annotations ",
 "you can filter annotations by sequence or protein descriptor", "then select the annotations to view labels","    ",
-"The annotation box size is entirely arbitrary, ", "identifications are only given as the centre point",
+"The annotation box size is entirely arbitrary for viewing purposes, ", "the exact point is marked in green",
+"There is an experimental .mztab loader, but this may not work with all formats  ",
+
 };
 
 
@@ -1164,13 +1198,11 @@ void checkScreenShot(Landscape *l)
 
 
 std::string curlText[] = {
-	"These notices only apply to the relevant portion of the software, and not to lcmsWorld as a whole.\n\n"
+"These notices only apply to the relevant portion of the software, and not to lcmsWorld as a whole.\n\n"
 	
 "ImGui \n"
 "__________\n"
-"\n"
 "Copyright (c) 2014-2019 Omar Cornut "
-" "
 "Permission is hereby granted, free of charge, to any person obtaining a copy "
 "of this software and associated documentation files (the 'Software'), to deal "
 "in the Software without restriction, including without limitation the rights "
@@ -1181,26 +1213,18 @@ std::string curlText[] = {
 "The above copyright notice and this permission notice shall be included in all "
 "copies or substantial portions of the Software. \n"
  " \n"
-"\n"
  "RawFileReader reading tool.\n"
 	"__________\n"
-"\n"
 	"Copyright 2016 by Thermo Fisher Scientific, Inc.\n"
 	"All rights reserved.\n"
 	"\n"
-	"\n"
 	"libCurl \n"
 	"__________\n"
-	"\n"
-
-"COPYRIGHT AND PERMISSION NOTICE\n"
-"\n"
 "Copyright(c) 1996 - 2019, Daniel Stenberg, daniel@haxx.se, and many contributors, see the THANKS file."
-"\n"
 "All rights reserved."
 "\n"
 "Permission to use, copy, modify, and distribute this software for any purpose with or without fee is hereby granted, provided that the above copyright notice and this permission notice appear in all copies."
-"\n\n\n"
+"\n\n"
 };
 
 void gui::aboutMenu()
@@ -1237,7 +1261,24 @@ void gui::aboutMenu()
 
 void gui::annotationsMenu(glm::mat4 view)
 {
-	ImGui::PushItemWidth(150);
+	ImGui::PushItemWidth(250);
+
+	if (getView() != NULL)
+		if (getView()->hasAnnotations())
+		{
+			std::string fname = Annotations::filename;
+ 
+
+			while (fname.length() > 60)
+			{
+				ImGui::Text(fname.substr(0,60).c_str());
+				fname = fname.substr(60);
+			}
+			ImGui::Text(fname.c_str());
+			
+
+
+		}
 
 	ImGui::SliderFloat("Annotation highlight size", &Settings::cubeSize, 1.0f, 500.0f, "%.1f");
 	ImGui::PopItemWidth();
@@ -1317,6 +1358,10 @@ void gui::guiLoop(glm::mat4 view)
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
+
+	gui::labels();
+ 
+
 
 	Error * e = Error::getNextError();
 	if (e != NULL)
@@ -1441,7 +1486,7 @@ void gui::decorations()
 		xSize -= gui::infoWidth;
 
  
-	ImGui::SetNextWindowBgAlpha(0.30f);
+	ImGui::SetNextWindowBgAlpha(.30f);
 
 	ImGui::SetNextWindowSize(ImVec2(xSize, (float)statusHeight));
 
@@ -1502,7 +1547,7 @@ void gui::labels()
 		static bool vis = true;
 		ImGui::Begin("Labels", &vis, ImGuiWindowFlags_NoInputs);                         
 //		ImColor labelCols[] = { ImColor(250, 250, 250, 255) ,ImColor(160, 255, 160, 255) ,ImColor(240, 240, 240, 255) ,ImColor(255, 230, 230, 255) };
-		ImColor labelCols[] = { ImColor(250, 250, 250, 255) ,ImColor(160, 255, 160, 255) ,ImColor(255,255,255, 255) ,ImColor(255, 255, 255, 255) };
+		ImColor labelCols[] = { ImColor(250, 250, 250, 255) ,ImColor(230, 255, 60, 195) ,ImColor(255,255,255, 255) ,ImColor(255, 255, 255, 255) };
 
 		for (int i = 0; i < 4; i++)
 		{
@@ -1512,7 +1557,10 @@ void gui::labels()
 			for (Label label : labels)
 			{
 				std::string text = label.text;
-
+				int wd = (gui::infoWidth * Settings::showInfoPanel) + 40;
+				if ( (label.x > Settings::windowWidth- wd)
+					|| (label.y < gui::statusHeight/2) )
+					continue;
 	 	 	ImGui::GetWindowDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize(), ImVec2((float)label.x, (float)label.y), labelCols[i], text.c_str(), 0, 0.0f, 0);
 			
 

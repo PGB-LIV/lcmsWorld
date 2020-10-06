@@ -12,6 +12,7 @@ class gui
 public:
 	static const float statusHeight;
 	static ImFont* italic;
+	static ImFont* bold;
 	static void decorations();
 	static 	void labels();
 	static void setup(const char* glsl_version);

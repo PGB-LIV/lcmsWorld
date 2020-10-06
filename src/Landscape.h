@@ -33,7 +33,7 @@ public:
 	}
 
 	long long numDataPoints = 0;
-
+	void setInfo();
 	void addTile(Tile* newTile);
 	void drawTiles();
 	void setDrawCallback(void(*callback)(Tile* mesh, bool isFaded));
@@ -218,9 +218,12 @@ public:
 	void setMap();
 
 	std::vector<DataPointInfo> findDataPoints(mzFloat mz, lcFloat lc, signalFloat sig);
-
+	void clearAnnotations() { visibleAnnotations.clear();  annotations.clear(); annotationsLoaded = false;
+	}
 
 private:
+	glm::vec2  get2d(float tx, float ty, float tz);
+
 	GLuint peakTexture;
 	const signalFloat peakUV = 0.995f;
 

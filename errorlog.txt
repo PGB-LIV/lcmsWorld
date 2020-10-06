@@ -1,7 +1,8 @@
 64 bit version.
  folder: 
+ Load settings
 P:
-P:D:\lcmsdata
+P:D:\lcmsw\web
 memory = 15.9505 gb
  not caching binary data 
 12 cores reported 
@@ -23,23 +24,23 @@ texture 256 * 256
 texture 256 * 256
 texture 32 * 32
 texture 64 * 64
- Load metadata D:\lcmsdata\VH_110517_Digest_3_1.raw.lcms
+ load :D:\lcmsw\web\VH_110517_Digest_3_1.raw.lcms:
+ Load metadata D:\lcmsw\web\VH_110517_Digest_3_1.raw.lcms
  version 0.25
-offset 473593656
-metaCompressedSize 3240224
+offset 473832288
+metaCompressedSize 3245152
  opening as binary0.25
-prepare landscape3240224
-capping memory at 15962 tiles 
-deserialise landscape3240224
+prepare landscape3245152
+capping memory at 3000 tiles 
+deserialise landscape3245152
  Landscape ver = 87654321
  Landscape range = 1.97358e+09
  Landscape range = 1.97358e+09
 mz Range 349.898 - 2000.04
 lc Range 0.00443401 - 115.003
- load cache D:\lcmsdata\VH_110517_Digest_3_1.raw.lcms
-Cache file opened D:\lcmsdata\VH_110517_Digest_3_1.raw.lcms
+ load cache D:\lcmsw\web\VH_110517_Digest_3_1.raw.lcms
+Cache file opened D:\lcmsw\web\VH_110517_Digest_3_1.raw.lcms
  Callbacks set 
 set xscale 48.4806 - 2000.04
-18606939 read bytes for mzid D:\lcmsdata\VH_110517_Digest_3_1.peptide_shaker.mzid.gz
- Uncompress from 18606939 to 185966370
-PeptideShaker v1.16.45
+ load :D:\lcmsw\web\DB search psm.csv:
+ Max RT = 106.28 scaling RT by 1

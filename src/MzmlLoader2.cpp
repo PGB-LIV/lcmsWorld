@@ -99,7 +99,8 @@ MZData* MzmlLoader2::loadDataPartial()
 	
  
 	std::cout << " mzml load \n" << status << std::flush;
-
+	if (Globals::closing)
+		return NULL;
 	// finished
 	if (status == 2)
 	{
@@ -171,7 +172,8 @@ MZData* MzmlLoader2::loadDataPartial()
 			{
 
 
-
+				if (Globals::closing)
+					return NULL;
 
 				int pos = readScans;
 				double progress = 100.0 * pos / size;

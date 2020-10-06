@@ -557,8 +557,9 @@ void Camera::updateCamera(double time)
 	glm::vec3 up(0, 1, 0);
 	glm::vec3 zero(0, 0, 0);
 
+	unitDirection.y += 1.15;
+	unitDirection = glm::normalize(unitDirection);
 
- 
 	GlobalDirectionMatrix = glm::lookAt(
 
 		unitDirection* 1000.0f, // and looks here : at the same position, plus "direction"

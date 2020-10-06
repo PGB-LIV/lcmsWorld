@@ -73,12 +73,21 @@ void checkSize()
 
 	Settings::windowHeight = height;
 	Settings::windowWidth = width;
-
+	
 
 	if (Settings::showInfoPanel)
 	{
-		width = std::max(200, width - gui::infoWidth);
+		width = std::max(gui::infoWidth, width - gui::infoWidth);
 	}
+	Globals::windowWidthActive = width;
+
+	//setting a scale value so that amount of detail can change
+	//depending on the window size
+	double maxW = std::max(height, width);
+	maxW /= 1700;
+
+	Globals::windowScale = maxW;
+
 
 	if ((width != last_width) || (height != last_height))
 		glViewport(0, 0, width, height);
@@ -196,8 +205,21 @@ bool fileOpen(std::string filePathName)
 	return true;
 }
 
+bool restartFlag = false;
+void restart()
+{
+	restartFlag = true;
+}
+
+
 bool reloadFile()
 {
+	if (getView() != NULL)
+	{
+		restart();
+		return false;
+	}
+
 	if (Settings::lastFilename.length() > 2)
 	{
 		auto annotation = Settings::lastAnnotationFilename;
@@ -206,6 +228,18 @@ bool reloadFile()
 		if (res)
 		if (annotation.length() > 2)
 			fileOpen(annotation);
+
+		std::string camString = Settings::lastCameraString;
+		if (camString.length() > 10)
+		{
+			
+			std::replace(camString.begin(), camString.end(), '_', '\n');
+			std::cout << "Set camera " << camString << "\n";
+			getView()->getCamera()->from_string(camString);
+		}
+
+
+ 
 
 		return res;
 	}
@@ -336,15 +370,76 @@ void checkAutoLoad()
 
 	if (Settings::autoLoadFile.length() > 0)
 	{
+
+		
+	
 		std::string filePathName = Settings::autoLoadFile;
-		Settings::autoLoadFile = "";
-		std::cout << " load >>" << filePathName << "<<\n";
+ 		Settings::autoLoadFile = "";
+
+		if (filePathName == "-restart")
+		{
+			std::cout << " reloading \n" << Settings::lastFilename <<" \n";
+
+			
+
+			reloadFile();
+			return;
+		}
+
+
+
+ 
 		fileOpen(filePathName);
 	}
 }
 
+
+void restartNow()
+{
+	restartFlag = false;
+
+	Globals::closing = true;
+	Cache::closeCache();
+
+	Settings::saveSettings();
+	concurrent_end();
+
+
+
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
+
+
+	glfwDestroyWindow(Globals::window);
+	glfwTerminate();
+
+
+	LCHttp::finish();
+
+	//give threads a little more time to exit cleanly
+	//
+				//		resetView();
+ 
+	char pathtofile[MAX_PATH];
+
+	GetModuleFileName(GetModuleHandle(NULL), pathtofile, sizeof(pathtofile));
+
+ 	strcat(pathtofile, " -restart");
+	//WinExec(pathtofile, SW_SHOW);
+
+	system(pathtofile);
+
+	// (pathtofile);
+	//system(pathtofile, SW_SHOW);
+	std::this_thread::sleep_for(std::chrono::milliseconds(250));
+
+	exit(0);
+
+}
 void exitApp()
 {
+	Globals::closing = true;
 	Cache::closeCache();
 	
 	Settings::saveSettings();
@@ -362,6 +457,10 @@ void exitApp()
 
 
 	LCHttp::finish();
+
+	//give threads a little more time to exit cleanly
+	//
+	std::this_thread::sleep_for(std::chrono::milliseconds(250));
 
 
 	exit(0);
@@ -561,21 +660,24 @@ int cmain(int  argc, char ** argv)
 	{
 		Globals::loopCount++;
   		checkSize();
-		//temp bodge - no threading on making meshes
-//		Cache::processmakeQueueFG();
+		if (getView() != NULL)
+		getView()->setInfo();
+
 
 		Input::update();
 		Input::computeViewMatrices();
 		Input::handleCursor(getView());
 
 		auto matrixView = Render::prepareView(getView());
+ 
+
 		gui::guiLoop(matrixView);
 		
 		drawLoop(matrixView);
 
 		glDisable(GL_DEPTH_TEST);
 
-		gui::labels();
+	
 		gui::decorations();
 
 		ImGui::Render();
@@ -587,7 +689,8 @@ int cmain(int  argc, char ** argv)
 
 		glEnable(GL_DEPTH_TEST);
 		checkAutoLoad();
-
+		if (restartFlag)
+			restartNow();
 		
 	}
 
