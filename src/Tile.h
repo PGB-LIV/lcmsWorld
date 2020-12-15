@@ -264,6 +264,7 @@ public:
 
 	// a tile may be visible, but too large/small to be drawn itself - this is when it was actually drawn
 	TimeStamp lastDrawn = { 0 };
+	void Tile::setScreenSizeMaxSibling(std::vector<Tile*> sibs);
 
 private:
 	signalFloat maxSignal;

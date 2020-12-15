@@ -197,6 +197,24 @@ void parseSpectrum(xml_node<>* node)
  
 	std::string RT = "";
 
+	auto name = node->first_attribute("name");
+	if (name != NULL)
+	{
+		int id, scan;
+		std::string names = name->value();
+		int val = sscanf(names.c_str(), "%d: Scan %d", &id, &scan);
+		if (val == 2)
+		{
+
+			//get teh scan number
+			//but scan number is currentlt not stored, so need  a way to convert them...
+			std::cout << scan << "  scan \n";
+
+		}
+	//	std::cout << name->value() << "  name \n";
+	}
+
+
 	//check cvparams for RT
 	auto cvNode = node->first_node("cvParam");
 	while (cvNode != NULL)
@@ -204,6 +222,16 @@ void parseSpectrum(xml_node<>* node)
 		if (cvNode->first_attribute("accession") != NULL)
 		{
 		std::string type = cvNode->first_attribute("accession")->value();
+
+		if (type == "MS:1000016" || type == "MS:1000894" || type == "MS:1000895" || type == "MS:1000826" || type == "MS:1000916" || type == "MS:1001114")
+		{
+
+			if (cvNode->first_attribute("value") != NULL)
+			{
+
+			}
+		}
+
 		if (type == "MS:1000016" || type == "MS:1000894" || type == "MS:1000895" || type == "MS:1000826" || type == "MS:1000916" || type == "MS:1001114")
 			{
 
@@ -234,6 +262,7 @@ void parseSpectrum(xml_node<>* node)
 	node = node->first_node("SpectrumIdentificationItem");
 	if (node == NULL)
 	{
+		
 		std::cout << " SpectrumIdentificationResult without  SpectrumIdentificationItem n in .mzid file, ignoring \n";
 
 		return;

@@ -226,7 +226,7 @@ bool gui::numbersBox()
 	if (ImGui::Checkbox(buttonText, &Settings::addGridLines))
 	{
 	}
-	buttonText = "Show Numbers";
+	buttonText = "Axis Numbering";
 	if (ImGui::Checkbox(buttonText, &Settings::showNumbers))
 	{
 	}

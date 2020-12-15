@@ -218,9 +218,28 @@ void Landscape::prepareTile(Tile* tile)
 	if ((tile->getScreenSize() > maxSize) || tile->LOD == 0)
 	{
 	 
+
 		for (auto child : tile->getChildren())
 		{
 			child->setScreenSize(transformMatrix, viewport);
+
+		}
+
+		//test of setting each tile to the max of its siblings
+		//so that all are drawn together, preventing missing tiles from breaking the rendering
+
+		for (auto child : tile->getChildren())
+		{
+			child->setScreenSizeMaxSibling(tile->getChildren());
+
+		}
+
+
+
+		
+		for (auto child : tile->getChildren())
+		{
+			// child->setScreenSize(transformMatrix, viewport);
 
 	//		 std::cout << child->getScreenSize() << " <? " << minSize << "   " << (int)tile->drawStatus << " \n";
 
@@ -495,27 +514,14 @@ void Landscape::addMarkers()
 	auto dist = c->distance;
 
 	//how many there are depends on how far from the camera
-	int xs = (int) ((worldMzRange.max - worldMzRange.min) / dist * 400.0) * 2 ;
+	int xs = (int) ((worldMzRange.max - worldMzRange.min) / dist ) * 2 ;
 
-	int ys = (int)((worldLcRange.max - worldLcRange.min) / dist * 1500.0) * 2;
+	int ys = (int)((worldLcRange.max - worldLcRange.min) / dist ) * 2;
 	auto xscale = (worldMzRange.max - worldMzRange.min);
 
-	bool fixX = false;
-	bool fixY = false;
-	// don't show more detail than necessay; 1 m/z, and 1/10 RT
-	if (xs > xscale*2)
-	{
-		xs = (int) xscale*2; // xs = (int)((worldMzRange.max - worldMzRange.min) / dist * 400.0) * 2 + 1;
-		fixX = true;
-
-	}
+ 
 	auto yscale = (worldLcRange.max - worldLcRange.min);
-
-	if (ys > (yscale * 10))
-	{
-		ys = (int)yscale * 10;
-		fixY = true;
-	}
+ 
 
 	//don't draw too close  together (possible due to perspective)
 	float screen_gap = 20;
@@ -526,21 +532,65 @@ void Landscape::addMarkers()
 
 	centre_lc = data.lc;
 	centre_mz = data.mz;
-	// std::cout << xs << "  " << xscale * 2 << "  " << (xs == xscale * 2) << "\n";
+	//  std::cout << xs << "  " << xscale * 2 << "  " << (xs == xscale * 2) << "\n";
+	// std::cout << xscale <<"  " << xs << "\n";
+
+ 
+	double xsc = xs / xscale ;
 
 	glm::vec2 last_pos = glm::vec2(-100, -100);
-	for (int x = 0; x < xs; x++)
-	{
-		auto xstart = (int) worldMzRange.min;
-		float xpos = (float) ( xstart + (xscale*x) / xs);
-		
-		//if it's in full detail - put them on exactly the right spot
-		if (fixX)
-		{
-			
-			xpos = (double(int(2 * xpos + .5))) / 2;
 
-		}
+
+	float xranges[] = {.5,1,2,5,10,20,50,100, 200, 400, 1000};
+	
+	float yranges[] = { .1, .2, .5,1,2,5,10,20,30,60 };
+
+
+	auto screen1 = get2d(centre_mz, centre_lc, 0);
+	auto screen2 = get2d(centre_mz, centre_lc, 0);
+
+
+
+	int u = 0;
+	float xrange = 1;
+	do
+	{
+		float ypos = centre_lc;
+		xrange = xranges[u];
+		float x1 = centre_mz - xrange / 2;
+		float x2 = centre_mz + xrange / 2;
+		screen1 = get2d(x1, ypos, 0);
+		screen2 = get2d(x2, ypos, 0);
+		u = u + 1;
+		
+	} while (glm::distance(screen1, screen2) < (screen_gap*4) && (u < sizeof(xranges)/sizeof(float)));
+	
+	u = 0;
+	float yrange = 1;
+	do
+	{
+		
+		yrange = yranges[u];
+		float xpos = centre_mz ;
+		float y1 = centre_lc - yrange / 2;
+		float y2 = centre_lc + yrange / 2;
+		
+		screen1 = get2d(xpos, y1, 0);
+		screen2 = get2d(xpos, y2, 0);
+		u = u + 1;
+
+	} while (glm::distance(screen1, screen2) < (screen_gap*2  ) && (u < sizeof(yranges) / sizeof(float)));
+
+
+
+
+	float xstart = worldMzRange.min;
+	xstart = ((int)(xstart / xrange)) * xrange;
+
+	for (float xpos = xstart; xpos < worldMzRange.max; xpos += xrange)
+	{
+
+	 
 		float ypos = centre_lc;;
 
 		auto screen = get2d(xpos, ypos, 0);
@@ -548,33 +598,40 @@ void Landscape::addMarkers()
 			continue;
 		last_pos = screen;
 		
-		
+		std::stringstream stream;
+		stream <<  xpos;
+		std::string s = stream.str();
+
+
 		 		std::string text = std::to_string((int)(xpos + .49));
-				if (fixX)
-				{
-				 	if (xpos - (int)xpos > .25)
-						text += ".5";
-				}
+				text = s;
 
-
-		addMarker(xpos, ypos, 0, 1, text, 30, 15);
+		 
+					addMarker(xpos, ypos, 0, 1, text, 30, 15);
+		 
 
 	}
 
+ 
+ 
+		double ysc = ys / yscale * 400;
+ 
+ 
+ 
 
 	last_pos = glm::vec2(-100, -100);
-	for (int y = 0; y < ys; y++)
+
+	float ystart = (int)worldLcRange.min;
+	ystart = ((int)(ystart / yrange)) * yrange;
+
+	for (float ypos = ystart; ypos < worldLcRange.max; ypos += yrange)
 	{
-		auto ystart = (int) worldLcRange.min;
-		float ypos = (float)(ystart + (yscale * y) / ys);
+
+		
 		float xpos = centre_mz;
  
-		if (fixY)
-		{
-			
-			ypos = (double(int(10*ypos + .5)))/10;
-			
-		}
+ 
+
 		auto screen = get2d(xpos, ypos, 0);
 		
 		if (glm::distance(screen, last_pos) < screen_gap)
@@ -584,17 +641,17 @@ void Landscape::addMarkers()
 
 		float yd = (float)(ystart + (yscale * 1) / ys);
 		std::stringstream stream;
-		int dp = 0;
-		if (yd < 1)
-			dp = 1;
  
+		int dp = 0;
+		if (yrange < 1)
+			dp = 1;
+
 		stream << std::fixed << std::setprecision(dp) << ypos;
 		std::string label = stream.str();
 
-	 
-		
-		addMarker(xpos, ypos, 0, 0, label , 30, 15);
  
+			addMarker(xpos, ypos, 0, 0, label, 30, 15);
+	 
 
 
 	}
@@ -1486,7 +1543,7 @@ void Landscape::addPendingTiles()
 
 	tileLock.unlock();
 }
-void Landscape::updateLandscape(glm::mat4 matrix)
+void Landscape::updateLandscape(glm::dmat4 matrix)
 {
 	transformMatrix = matrix;
 

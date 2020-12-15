@@ -214,6 +214,7 @@ void restart()
 
 bool reloadFile()
 {
+	
 	if (getView() != NULL)
 	{
 		restart();
@@ -235,6 +236,7 @@ bool reloadFile()
 			
 			std::replace(camString.begin(), camString.end(), '_', '\n');
 			std::cout << "Set camera " << camString << "\n";
+			if (getView() != NULL)
 			getView()->getCamera()->from_string(camString);
 		}
 
@@ -468,7 +470,7 @@ void exitApp()
 
 
 
-void drawLoop(glm::mat4 view)
+void drawLoop(glm::dmat4 view)
 {
 	if (getView() != NULL)
 	{
@@ -643,17 +645,45 @@ int cmain(int  argc, char ** argv)
 	{
 		// window has input focus
 		glfwFocusWindow(Globals::window);
-		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+		std::this_thread::sleep_for(std::chrono::milliseconds(150));
 	}
-	glfwSetKeyCallback(Globals::window, Input::key_callback);
 
+
+ 
+
+	while (!glfwGetWindowAttrib(Globals::window, GLFW_FOCUSED))
+	{
+		// window has input focus
+		glfwFocusWindow(Globals::window);
+		std::this_thread::sleep_for(std::chrono::milliseconds(150));
+	}
 
 	glfwSetMouseButtonCallback(Globals::window, Input::mouse_button_callback);
+
+	while (!glfwGetWindowAttrib(Globals::window, GLFW_FOCUSED))
+	{
+		// window has input focus
+		glfwFocusWindow(Globals::window);
+		std::this_thread::sleep_for(std::chrono::milliseconds(150));
+	}
 	glfwSetScrollCallback(Globals::window, Input::scroll_callback);
+
+	while (!glfwGetWindowAttrib(Globals::window, GLFW_FOCUSED))
+	{
+		// window has input focus
+		glfwFocusWindow(Globals::window);
+		std::this_thread::sleep_for(std::chrono::milliseconds(150));
+	}
 	glfwSetKeyCallback(Globals::window, Input::key_callback);
 
 //	glfwSetTouchCallback(Globals::window, Input::touch_callback);
 
+	while (!glfwGetWindowAttrib(Globals::window, GLFW_FOCUSED))
+	{
+		// window has input focus
+		glfwFocusWindow(Globals::window);
+		std::this_thread::sleep_for(std::chrono::milliseconds(150));
+	}
 
 	// Main loop
  	while (!glfwWindowShouldClose(Globals::window))

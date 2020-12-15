@@ -251,6 +251,11 @@ void Input::computeViewMatrices() {
 	Settings::farPlane = 300000.0f;
 		Settings::nearPlane = 7.0f;
 
+		Render::FixedProjectionMatrix = glm::perspective(FoV / aspect, aspect, Settings::nearPlane, Settings::farPlane);
+
+		
+
+ 
 		if (1)
 		if (cam->distance < 50000)
 		{
@@ -259,7 +264,7 @@ void Input::computeViewMatrices() {
 		}
 
  
-
+	 
 		if (1)
 			if (cam->distance < 5000)
 			{

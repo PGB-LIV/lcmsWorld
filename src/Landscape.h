@@ -42,7 +42,7 @@ public:
 	std::vector<Tile*> &getTiles() { return tiles; }
 	void drawTiles(const std::vector<Tile*> tiles);
 	void prepareTiles(const std::vector<Tile*> tiles);
-	void updateLandscape(glm::mat4 matrix);
+	void updateLandscape(glm::dmat4 matrix);
 	void reMake();
 	void updateViewport(int x, int y);
 	glm::vec2 getViewport() { return viewport; }
@@ -260,7 +260,7 @@ private:
 
 	std::vector<byte> serialiseTiles(Tile* tile);
 
-	glm::mat4 transformMatrix;
+	glm::dmat4 transformMatrix;
 	glm::ivec2 viewport;
 	void reMake(Tile* tile);
 	bool canDraw(Tile *tile);

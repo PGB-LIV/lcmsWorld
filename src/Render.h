@@ -85,14 +85,17 @@ public:
 
 	static glm::mat4 GlobalViewMatrix;
 	static glm::mat4 GlobalProjectionMatrix;
+	static glm::dmat4 FixedProjectionMatrix;
+
 	static glm::mat4 ModelMatrix;
+
 
 	static glm::mat4 ProjectionMatrix;
 	static glm::mat4 ViewMatrix;
 	static glm::mat4 MVP;
 
 	static bool drawWireFrame;
-	static glm::mat4  prepareView(Landscape* l);
+	static glm::dmat4  prepareView(Landscape* l);
 
 
 	static void drawTile(Tile* tile, bool isFading);

@@ -80,12 +80,28 @@ void clipping(float& x1, float& y1, float& x2, float& y2)
 	}
 }
 
+void Tile::setScreenSizeMaxSibling(std::vector<Tile*> sibs)
+{
+	auto maxSa = screenArea;
+	auto maxCd = cameraDistance;
+	for (auto child : sibs)
+	{
+		maxSa = std::max(child->screenArea, maxSa);
+		maxCd = std::min(child->cameraDistance, maxCd);
+
+	}
+	screenArea = maxSa;
+	cameraDistance = maxCd;
+}
 
 void Tile::setScreenSize(glm::mat4 matrix, glm::vec2 view)
 {
 	Camera* c = owner->getCamera();
 	auto centre_mz = c->currentTarget.mz;
 	auto centre_lc = c->currentTarget.lc;
+
+
+	 
 
 	if (owner->xScale == 0)
 	{
@@ -156,8 +172,8 @@ void Tile::setScreenSize(glm::mat4 matrix, glm::vec2 view)
 	// To reduce cpu load, don't do them all every frame (mask = 2^n-1)
 	int mask = 1;
 
-	if ((random & mask) != (Globals::loopCount & mask))
-		return;
+//	if ((random & mask) != (Globals::loopCount & mask))
+//		return;
  
 	//if it's  off-screen currently, eventually assume that it will not be a priority
 	screenLocation += .001f;
@@ -195,6 +211,12 @@ void Tile::setScreenSize(glm::mat4 matrix, glm::vec2 view)
 		y2 = yp;
 		xs = 1;
 		ys = 1;
+	}
+
+	if (id != 80696)
+	{
+	//	screenArea = 0;
+//		return;
 	}
 
 	for (int k = 0; k < zs; k++)
@@ -240,8 +262,8 @@ void Tile::setScreenSize(glm::mat4 matrix, glm::vec2 view)
 
 
 
-						if (std::abs(tp.x) < 1.41)
-							if (std::abs(tp.y) < 1.31)
+						if (std::abs(tp.x) < 2.41)
+							if (std::abs(tp.y) < 2.31)
 							{
 								min_z = std::min(tp.z, min_z);
 
@@ -298,8 +320,10 @@ void Tile::setScreenSize(glm::mat4 matrix, glm::vec2 view)
 		screenArea = (1.0f - min_z) * area;
 
  
-	 	screenArea *=  1.35f;
-
+	 	screenArea *=  .45f;
+ 
+ 
+	
 
 				// won't so easily downsize
 

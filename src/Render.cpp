@@ -22,6 +22,7 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtx/transform.hpp" // after <glm/glm.hpp>
+#include "glm/gtx/string_cast.hpp"
 
 #include "SampleLoader.h"
 #include "Camera.h"
@@ -96,6 +97,8 @@ float Render::frameTime;
 
 glm::mat4 Render::GlobalViewMatrix;
 glm::mat4 Render::GlobalProjectionMatrix;
+glm::dmat4 Render::FixedProjectionMatrix;
+
 glm::mat4 Render::ModelMatrix;
 
 glm::mat4 Render::ProjectionMatrix;
@@ -338,7 +341,7 @@ void testHUD()
 }
 */
 
-glm::mat4  Render::prepareView(Landscape* l)
+glm::dmat4  Render::prepareView(Landscape* l)
 {
  	
 	auto clearColour = Settings::clearColour;
@@ -454,7 +457,18 @@ glm::mat4  Render::prepareView(Landscape* l)
 
 	zFilter = f[4] - .0001f;
 
-	return MVP;
+	{
+		glm::dmat4 pm = FixedProjectionMatrix;
+		glm::dmat4 vm = ViewMatrix;
+
+		auto 	sm = glm::scale(glm::dvec3(Settings::scale.x, zScale, Settings::scale.y));
+		glm::dmat4 mm = glm::dmat4(1.0f);
+		glm::dmat4 mvp = pm* vm* mm* sm;;
+
+ 
+		return mvp;
+	}
+
 }
 
 
@@ -1030,9 +1044,10 @@ void Render::drawTile(Tile* tile, bool isFading)
 	}
 #endif
 
+ 
+ // std::cout << " draw tile : " << tile->id << " id - s " << tile->getScreenSize() << " " << drawn_tiles.size() << " : \n ";
 
-	// std::cout << " draw tile : " << tile->id << " id - s " << tile->getMesh()->getSize() << " " << drawn_tiles.size() << " : \n ";
-
+ 
 
 	GLDraw *drawObject = glMesh->getDrawObject();
 
@@ -1056,14 +1071,18 @@ void Render::drawTile(Tile* tile, bool isFading)
  
 	}
 
-	//	if (tile->getScreenSize() > .05)
+	 //	if (tile->getScreenSize() > .05)
 	if (tile->getwGLMesh() != NULL)
 	if (drawWireFrame)
 	{
-		alpha = (float) std::min(.6, tile->getCameraDistance());
+		alpha = (float) std::min(.6, tile->getCameraDistance()/4.0);
 
-		if (alpha > 0.05)
+ 
+
+
+		if (alpha > 0.02)
 		{
+		
 			drawObject = tile->getwGLMesh()->getDrawObject();
 			drawObject->alpha = alpha;
 			wireBuffer.push_back(drawObject);
