@@ -6,7 +6,7 @@
 #include <vector>
 #include "glm/glm.hpp"
 
-#define CUR_VERSION_STRING "0.25"
+#define CUR_VERSION_STRING "0.26"
 class Settings
 {
 public:
