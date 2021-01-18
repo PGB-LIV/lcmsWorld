@@ -395,6 +395,7 @@ void checkAutoLoad()
 	}
 }
 
+char* executable_name = NULL;
 
 void restartNow()
 {
@@ -422,16 +423,24 @@ void restartNow()
 	//give threads a little more time to exit cleanly
 	//
 				//		resetView();
- 
+#ifdef _WIN32
 	char pathtofile[MAX_PATH];
 
 	GetModuleFileName(GetModuleHandle(NULL), pathtofile, sizeof(pathtofile));
+#else
 
- 	strcat(pathtofile, " -restart");
-	//WinExec(pathtofile, SW_SHOW);
+	if (executable_name == NULL)
+	{
+		exit(0);
+		return;
+	}
 
+	char pathtofile[PATH_MAX];
+	strcpy(pathtofile, executable_name);
+#endif
+
+	strcat(pathtofile, " -restart");
 	system(pathtofile);
-
 	// (pathtofile);
 	//system(pathtofile, SW_SHOW);
 	std::this_thread::sleep_for(std::chrono::milliseconds(250));
@@ -576,6 +585,8 @@ void loadBMP_custom_data_ARGB(const unsigned char* imageData, GLFWimage &dest) {
 int cmain(int  argc, char ** argv)
 {
 
+	if (argc > 0)
+		executable_name = argv[0];
 
 #ifdef FINAL
 #ifdef _WIN32
@@ -641,50 +652,28 @@ int cmain(int  argc, char ** argv)
 	//If window is not focused, callbacks fail
 	glfwFocusWindow(Globals::window);
 
+	std::cout << glfwGetWindowAttrib(Globals::window, GLFW_FOCUSED) << " focused \n";
+
 	while (!glfwGetWindowAttrib(Globals::window, GLFW_FOCUSED))
 	{
+		std::cout << "Window not focused\n";
 		// window has input focus
 		glfwFocusWindow(Globals::window);
 		std::this_thread::sleep_for(std::chrono::milliseconds(150));
 	}
-
 
  
 
-	while (!glfwGetWindowAttrib(Globals::window, GLFW_FOCUSED))
-	{
-		// window has input focus
-		glfwFocusWindow(Globals::window);
-		std::this_thread::sleep_for(std::chrono::milliseconds(150));
-	}
-
 	glfwSetMouseButtonCallback(Globals::window, Input::mouse_button_callback);
-
-	while (!glfwGetWindowAttrib(Globals::window, GLFW_FOCUSED))
-	{
-		// window has input focus
-		glfwFocusWindow(Globals::window);
-		std::this_thread::sleep_for(std::chrono::milliseconds(150));
-	}
+ 
 	glfwSetScrollCallback(Globals::window, Input::scroll_callback);
 
-	while (!glfwGetWindowAttrib(Globals::window, GLFW_FOCUSED))
-	{
-		// window has input focus
-		glfwFocusWindow(Globals::window);
-		std::this_thread::sleep_for(std::chrono::milliseconds(150));
-	}
+ 
 	glfwSetKeyCallback(Globals::window, Input::key_callback);
 
 //	glfwSetTouchCallback(Globals::window, Input::touch_callback);
 
-	while (!glfwGetWindowAttrib(Globals::window, GLFW_FOCUSED))
-	{
-		// window has input focus
-		glfwFocusWindow(Globals::window);
-		std::this_thread::sleep_for(std::chrono::milliseconds(150));
-	}
-
+ 
 	// Main loop
  	while (!glfwWindowShouldClose(Globals::window))
 	{
