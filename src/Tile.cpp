@@ -304,7 +304,7 @@ void Tile::setScreenSize(glm::mat4 matrix, glm::vec2 view)
 
 		 //a coarse approach to adjust by size of model
 		area *= Settings::detail-0.9f;
-		area *= Globals::windowScale;
+		area *= (float) Globals::windowScale;
 
  		{
 		 

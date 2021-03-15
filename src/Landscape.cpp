@@ -594,7 +594,7 @@ void Landscape::addMarkers()
 		float ypos = centre_lc;;
 
 		auto screen = get2d(xpos, ypos, 0);
-		if (glm::distance(screen,last_pos) < screen_gap)
+		if (glm::distance(screen,last_pos) < screen_gap*2)
 			continue;
 		last_pos = screen;
 		
@@ -621,7 +621,7 @@ void Landscape::addMarkers()
 
 	last_pos = glm::vec2(-100, -100);
 
-	float ystart = (int)worldLcRange.min;
+	float ystart = (float) round(worldLcRange.min);
 	ystart = ((int)(ystart / yrange)) * yrange;
 
 	for (float ypos = ystart; ypos < worldLcRange.max; ypos += yrange)
@@ -1498,10 +1498,10 @@ inline bool Landscape::canDraw(Tile *tile)
 		
 		for (int i = 0; i < sizeof(g_vertex_buffer_data) / sizeof(g_vertex_buffer_data[0]); i += 3)
 		{
-			float x, y, z;
-			x = (g_vertex_buffer_data[i + 0]-.5 ) * -300;
+			GLfloat x, y, z;
+			x = (g_vertex_buffer_data[i + 0]-.5f ) * -300;
 			y = (g_vertex_buffer_data[i + 1] ) * 300;
-			z = (g_vertex_buffer_data[i + 2] - .5) * 300;
+			z = (g_vertex_buffer_data[i + 2] - .5f) * 300;
 			vertex_vec.push_back(glm::vec3(x, y, z));
 			uv_vec.push_back(glm::vec2(-g_vertex_buffer_data[i + 0], -g_vertex_buffer_data[ i + 2]));
 		}

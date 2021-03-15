@@ -1,11 +1,5 @@
- 
-
-#if 1
-// dear imgui: standalone example application for GLFW + OpenGL 3, using programmable pipeline
-// If you are new to dear imgui, see examples/README.txt and documentation at the top of imgui.cpp.
-// (GLFW is a cross-platform general purpose library for handling windows, inputs, OpenGL/Vulkan graphics context creation, etc.)
-
-// FINAL switches off debug window
+// FINAL switches off debug window and logs to text file
+// should be set by compiler options
 // #define FINAL
 
 #define NOMINMAX
@@ -27,7 +21,6 @@
 #include "imgui/imgui_impl_opengl3.h"
 #include "imgui/imgui_internal.h"
 #ifdef _WIN32
-//support for filesystem is a bit patchy
 #include <filesystem>
 #endif
 
@@ -52,7 +45,7 @@
 #include "Cache.h"
 #include "Camera.h"
 
-//use this to remove command prompt window
+//  remove command prompt window
 #ifdef FINAL
 #pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
 #else
@@ -61,7 +54,7 @@
  
 
  
-
+//needed to support multiple views in same executable, but this is unlikely to be supported in the near future
 static Landscape* getView() { return System::primary; }
 
 void checkSize()
@@ -727,4 +720,4 @@ int main(int  argc, char** argv)
 }
  
 
-#endif
+

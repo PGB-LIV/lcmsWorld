@@ -65,7 +65,7 @@ void gui::scrollWheel(GLFWwindow* window, double xoffset, double yoffset)
 
 #include "../files/OpenSans_Bold.h"
 
-std::string aboutText[] = { "lcmsWorld","Early Prototype version " CUR_VERSION_STRING ,"","This version is only for testing, it is not guaranteed to perform correctly","","(c) University of Liverpool 2020","",
+std::string aboutText[] = { "lcmsWorld","  " CUR_VERSION_STRING ,"","This version is for testing, it is not guaranteed to perform correctly","","(c) University of Liverpool 2021","",
 "For any issues, please go to the github page",
 "github.com/PGB-LIV/lcmsWorld"
 };
@@ -360,9 +360,9 @@ void gui::annotationSelector(Landscape* l)
 		}
 	}
 
+	ImGui::BeginChild("ScrollingRegion", ImVec2(0, Settings::windowHeight - 380), false, 0);
 
-	ImGui::BeginChild("ScrollingRegion", ImVec2(0, Settings::windowHeight-380), false, 0);
-
+ 
 	int lines_count = useAnnotations.size();
 	float lines_height = ImGui::GetTextLineHeightWithSpacing();
 

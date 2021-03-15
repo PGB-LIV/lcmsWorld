@@ -27,4 +27,4 @@ TimeStamp Globals::currentTime;
  float Globals::mouseSpeed = 1.0f;
  float Globals::wheelSpeed = 1.0f;
  double Globals::windowScale = 1.0;
-  std::array<std::string, 4> Globals::supported_versions = { "0.14","0.24","0.25", CUR_VERSION_STRING };
+  std::array<std::string, 5> Globals::supported_versions = { "0.14","0.24","0.25", "0.26", CUR_VERSION_STRING };
