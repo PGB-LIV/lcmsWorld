@@ -132,7 +132,7 @@ MZData* RawLoader::loadDataPartial()
 			{
 #ifdef _WIN32
 
-				std::string cmd = "\"\""+ exe + "\" " + fileName +"\"";
+				std::string cmd = "\"\""+ exe + "\" \"" + fileName +"\"\"";
 				std::cout << "starting " << cmd << " \n";
 
 				child = _popen(cmd.c_str(), "r");
