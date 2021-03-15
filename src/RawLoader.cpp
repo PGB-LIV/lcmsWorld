@@ -113,8 +113,7 @@ MZData* RawLoader::loadDataPartial()
 #ifdef _WIN32
 			exe = std::filesystem::absolute(exe.c_str()).string();
 #endif
-
-
+ 
 			std::ifstream f(exe.c_str());
 			if (!f.good())
 			{
@@ -126,14 +125,20 @@ MZData* RawLoader::loadDataPartial()
 
 
 
-			std::string cmd = exe + " " + fileName;
+			
 
 
 			try
 			{
 #ifdef _WIN32
+
+				std::string cmd = "\"\""+ exe + "\" " + fileName +"\"";
+				std::cout << "starting " << cmd << " \n";
+
 				child = _popen(cmd.c_str(), "r");
 #else
+
+				std::string cmd = "\"+exe + "\" " + fileName;
 				child = popen(cmd.c_str(), "r");
 #endif
 
