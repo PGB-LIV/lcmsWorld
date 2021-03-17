@@ -78,7 +78,10 @@ public:
 	static void drawCubeMesh(GLMesh* cube, int type);
 	static void drawBaseMesh(bool wire);
 	static void drawDeferred();
+	static GLuint currentTexture;
+	
 	static GLuint Texture;
+	static GLuint Texture_1;
 	static GLuint FolderTexture;
 	static GLuint LcmsTexture;
 	static GLuint CsvTexture;

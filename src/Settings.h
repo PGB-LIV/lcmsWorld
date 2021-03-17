@@ -84,4 +84,6 @@ public:
 	
 	static std::string lastCameraString;
 
+	static int colourScheme;
+
 };

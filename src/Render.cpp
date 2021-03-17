@@ -69,7 +69,9 @@ GLuint Render::attribID;
 GLuint Render::vertexNormal_modelspaceID;
 
 // Load the texture
+GLuint Render::currentTexture;
 GLuint Render::Texture;
+GLuint Render::Texture_1;
 GLuint Render::PlainTexture;
 GLuint Render::cubeTexture;
 GLuint Render::cubeTexture2;
@@ -117,7 +119,10 @@ static void glfw_error_callback(int error, const char* description)
 
 
 #include "../files/heatmap2.h"
+#include "../files/heatmap2a.h"
+
 #include "../files/wirecolour.h"
+
 #include "../files/cube2.h"
 #include "../files/folder.h"
 #include "../files/lcms.h"
@@ -132,7 +137,9 @@ void  Render::loadTextures()
 {
 	//create textures from RAM
 	Texture = loadBMP_custom_data(heatmap2);
+	Texture_1 = loadBMP_custom_data(heatmap2a);
 
+	currentTexture = Texture;
 	PlainTexture = loadBMP_custom_data(wirecolour);
 
 	// #include "../files/cube.h"
@@ -771,6 +778,10 @@ void Render::readyTiles(Landscape *l)
 }
 void Render::drawBaseMesh(bool wire)
 {
+	if (Settings::colourScheme == 0)
+		currentTexture = Texture;
+	if (Settings::colourScheme == 1)
+		currentTexture = Texture_1;
 
 	static GLMesh* base = NULL;
 	static GLMesh* baseQ = NULL;
@@ -795,7 +806,7 @@ void Render::drawBaseMesh(bool wire)
 		if (System::primary != NULL)
 		{
 			base = System::primary->makeBaseMesh(PlainTexture);
-			baseQ = System::primary->makeBaseQuads(Texture);
+			baseQ = System::primary->makeBaseQuads(currentTexture);
 		}
 
 
@@ -824,7 +835,9 @@ void Render::drawBaseMesh(bool wire)
 			auto drawObject = baseQ->getDrawObject();
 			// std::cout << " draw base " << drawObject->size << "\n";
 
-			glBindTexture(GL_TEXTURE_2D, Texture);
+			glBindTexture(GL_TEXTURE_2D, currentTexture);
+			//glBindTexture(GL_TEXTURE_2D, Texture_1);
+
 			drawMesh(drawObject, false);
 
 
@@ -837,7 +850,7 @@ void Render::drawBaseMesh(bool wire)
 	glPolygonOffset(0, 0);
 	glUniform1f(ZFilterID, zFilter);
 
-	glBindTexture(GL_TEXTURE_2D, Texture);
+	glBindTexture(GL_TEXTURE_2D, currentTexture);
 
 
 }

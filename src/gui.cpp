@@ -55,6 +55,8 @@ void restart();
 const float gui::statusHeight = 35;
 TimeStamp gui::lastMenuTime = { 0 };
 
+const std::string colOptions[] = { "Default","Alternative" };
+
 
 void gui::scrollWheel(GLFWwindow* window, double xoffset, double yoffset)
 {
@@ -253,6 +255,28 @@ bool gui::numbersBox()
 	{
 
 	}
+
+
+
+	if (ImGui::BeginCombo("Colour Scheme", colOptions[Settings::colourScheme].c_str()))
+	{
+
+		for (int i = 0; i < 2; i++)
+		{
+			bool is_selected = (i == Settings::colourScheme);
+
+			if (ImGui::Selectable(colOptions[i].c_str(), is_selected))
+			{
+
+				Settings::colourScheme = i;
+			}
+			if (is_selected)
+				ImGui::SetItemDefaultFocus();
+
+		}
+		ImGui::EndCombo();
+	}
+
 
 	return ret;
 
@@ -914,8 +938,22 @@ void  gui::viewMenu(glm::mat4 view)
 	{
 		ImGui::SliderFloat("Amount of detail", &Settings::detail, 1.0f, 10.0f, "%.1f");
 
+
+		
+
+		
+
+
 		// it's stored as an int, because I intend to add different positions
 		ImGui::Checkbox("Show Axis Marker", (bool*)&Settings::axisMarker);
+
+
+		
+
+
+
+
+
 
 		if (ImGui::Checkbox(buttonText, &Settings::showBaseWireframe))
 		{

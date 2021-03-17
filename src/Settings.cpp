@@ -12,7 +12,7 @@
 bool Settings::flatLighting = false;
 bool Settings::displaySides = true;
 float Settings::detail = 5;
-
+int Settings::colourScheme = 0;
  float Settings::hlFilterSize = 3;
 bool Settings::highlightFilter = false;
 bool Settings::dragMode = false;
@@ -212,6 +212,8 @@ void Settings::loadSettings()
 	settings >> mouseSpeed;
 	settings >> axisMarker;
 	settings >> lastCameraString;
+	settings >> colourScheme ;
+
 	setMouse();
  
 
@@ -310,7 +312,8 @@ void Settings::saveSettings()
 	settings << mouseSpeed << "\n";
 	settings << axisMarker << "\n";
 	settings << lastCameraString << "\n";
-	
+	settings << colourScheme << "\n";
+ 
 	settings.close();
 
 }
