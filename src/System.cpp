@@ -16,7 +16,7 @@ const static int maxThreads = 6;
 
  void System::setPrimaryTexture()
  {
-	 primary->setTexture(Render::Texture);
+	 primary->setTexture(Render::Texture[0]);
 
  }
 void System::setup()

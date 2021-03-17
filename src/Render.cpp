@@ -70,8 +70,8 @@ GLuint Render::vertexNormal_modelspaceID;
 
 // Load the texture
 GLuint Render::currentTexture;
-GLuint Render::Texture;
-GLuint Render::Texture_1;
+GLuint Render::Texture[16];
+
 GLuint Render::PlainTexture;
 GLuint Render::cubeTexture;
 GLuint Render::cubeTexture2;
@@ -120,6 +120,9 @@ static void glfw_error_callback(int error, const char* description)
 
 #include "../files/heatmap2.h"
 #include "../files/heatmap2a.h"
+#include "../files/heatmap2m.h"
+#include "../files/heatmap2b.h"
+#include "../files/heatmap2c.h"
 
 #include "../files/wirecolour.h"
 
@@ -136,16 +139,24 @@ static void glfw_error_callback(int error, const char* description)
 void  Render::loadTextures()
 {
 	//create textures from RAM
-	Texture = loadBMP_custom_data(heatmap2);
-	Texture_1 = loadBMP_custom_data(heatmap2a);
+	Texture[0] = loadBMP_custom_data(heatmap2);
+	Texture[1] = loadBMP_custom_data(heatmap2a);
+	Texture[2] = loadBMP_custom_data(heatmap2m);
+	Texture[3] = loadBMP_custom_data(heatmap2b);
+	Texture[4] = loadBMP_custom_data(heatmap2c);
 
-	currentTexture = Texture;
+	
+	currentTexture = Texture[0];
 	PlainTexture = loadBMP_custom_data(wirecolour);
+
+ 
 
 	// #include "../files/cube.h"
 	// 	cubeTexture = loadBMP_custom_data(cube);
 
 	cubeTexture2 = loadBMP_custom_data(cube2);
+
+	
 	FolderTexture = loadBMP_custom_data(folder);
 	LcmsTexture = loadBMP_custom_data(lcms);
 	CsvTexture = loadBMP_custom_data(csv);
@@ -778,10 +789,9 @@ void Render::readyTiles(Landscape *l)
 }
 void Render::drawBaseMesh(bool wire)
 {
-	if (Settings::colourScheme == 0)
-		currentTexture = Texture;
-	if (Settings::colourScheme == 1)
-		currentTexture = Texture_1;
+	if (Settings::colourScheme < 5)
+		currentTexture = Texture[Settings::colourScheme];
+	
 
 	static GLMesh* base = NULL;
 	static GLMesh* baseQ = NULL;

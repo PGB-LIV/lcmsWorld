@@ -55,7 +55,7 @@ void restart();
 const float gui::statusHeight = 35;
 TimeStamp gui::lastMenuTime = { 0 };
 
-const std::string colOptions[] = { "Default","Alternative" };
+const std::string colOptions[] = { "Default","Alternative","Blue", "Bright","Dark" };
 
 
 void gui::scrollWheel(GLFWwindow* window, double xoffset, double yoffset)
@@ -261,7 +261,7 @@ bool gui::numbersBox()
 	if (ImGui::BeginCombo("Colour Scheme", colOptions[Settings::colourScheme].c_str()))
 	{
 
-		for (int i = 0; i < 2; i++)
+		for (int i = 0; i <sizeof(colOptions) / sizeof(colOptions[0]); i++)
 		{
 			bool is_selected = (i == Settings::colourScheme);
 

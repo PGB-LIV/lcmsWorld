@@ -80,8 +80,8 @@ public:
 	static void drawDeferred();
 	static GLuint currentTexture;
 	
-	static GLuint Texture;
-	static GLuint Texture_1;
+	static GLuint Texture[16];
+	
 	static GLuint FolderTexture;
 	static GLuint LcmsTexture;
 	static GLuint CsvTexture;

@@ -698,7 +698,7 @@ Landscape* Cache::loadMetaData(std::string fileName)
 
 	Landscape* l = new Landscape();
 
-	l->setTexture(Render::Texture);
+	l->setTexture(Render::Texture[0]);
 	std::cout << "deserialise landscape" << metaSize << "\n";
 
 	l->deSerialiseData(buffer, Builder::viewLod);
