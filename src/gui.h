@@ -25,7 +25,10 @@ public:
 	static int infoWidth;
 	static bool inMenu() {return ((Globals::currentTime.time - lastMenuTime.time) < (0.30 * 1e6));	}
 	static void highlightFilter(Landscape* l);
+	static std::vector<std::string> getFileReaders();
+	static std::string getFileReader(std::string extension);
 private:
+	static void setupReaders();
 	static void displayPopup(std::string title, std::string text);
 
 	static TimeStamp lastMenuTime;
@@ -47,6 +50,9 @@ private:
 
 	static bool openFileDialog;
 	static bool openMzTABFileDialog;
+
+	static std::vector<std::string> fileReaders;
+
 
 	static inline Landscape* getView() {
 		return System::primary;

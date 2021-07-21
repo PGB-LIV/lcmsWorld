@@ -182,7 +182,10 @@ bool fileOpen(std::string filePathName)
 		return (getView() != NULL);
 	}
 
-	if (endsWith(loadFile, ".raw"))
+	//check for a registered extension
+	std::string exe = gui::getFileReader(loadFile);
+
+	if (endsWith(loadFile, ".raw") || (exe.length() > 0))
 	{
 		Settings::lastAnnotationFilename = "";
 		std::thread t1(Builder::makeLandscape, filePathName);

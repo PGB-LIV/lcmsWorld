@@ -18,7 +18,10 @@ class RawLoader :
 	public MZLoader
 {
 public:
-	RawLoader(MZLoaderHandle filehandle);
+	
+	RawLoader(MZLoaderHandle filehandle, std::string path_to_executable) ;
+	
+
 	~RawLoader();
 
 	MZData* loadDataPartial();
@@ -26,11 +29,14 @@ public:
 	size_t getFileSize();
 	double getProgress();
 	static void cleanUp();
+	static inline const std::string rawReaderPath = "RawReader/RawMS1Reader.exe";
+	static inline const std::string rawReaderFolder = "RawReader";
+
 
 private:
 	MZLoaderHandle fileHandle;
  
-
+	std::string executable;
 
 
 

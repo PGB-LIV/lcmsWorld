@@ -39,6 +39,7 @@
 #include "Builder.h"
 #include "Render.h" 
 #include "SystemSetup.h"
+#include "gui.h"
 
 int Builder::useThreads = 4;
 
@@ -258,29 +259,41 @@ void Builder::makeLandscape(std::string filename)
 	// std::string filename = "files/small.mzml"; // small.mzml  test2.mzml
 	MZLoader *loader;
 
+	//check if a custom reader exists
+	std::string exe = gui::getFileReader(loadFile);
 
-	if (endsWith(loadFile, ".raw"))
+	
+	if (exe.length() > 0)
 	{
-#ifdef USE_RAW_READER
-		loader = new RawLoader(filename);
-#else
-		new Error(Error::ErrorType::file, "Raw files can only be loaded directly with Windows drivers installed.\nPlease convert to mzml.");
-		delete System::primary;
-		System::primary = NULL;
-		Globals::statusText = "";
-		return;
-#endif
+		loader = new RawLoader(filename, exe);
 
 	}
 	else
 	{
-		if (Settings::experimentalMzml)
-			loader = new MzmlLoader(filename);
-		else
-			loader = new MzmlLoader2(filename);
-	}
-	//loader = new MzmlLoader(filename);
 
+
+		if (endsWith(loadFile, ".raw"))
+		{
+#ifdef USE_RAW_READER
+			loader = new RawLoader(filename, RawLoader::rawReaderPath);
+#else
+			new Error(Error::ErrorType::file, "Raw files can only be loaded directly with Windows drivers installed.\nPlease convert to mzml.");
+			delete System::primary;
+			System::primary = NULL;
+			Globals::statusText = "";
+			return;
+#endif
+
+		}
+		else
+		{
+			if (Settings::experimentalMzml)
+				loader = new MzmlLoader(filename);
+			else
+				loader = new MzmlLoader2(filename);
+		}
+		//loader = new MzmlLoader(filename);
+	}
 
 
 	//	std::cout << "prepared mzml file \n";

@@ -50,13 +50,16 @@ std::vector<double> MzmlLoader::readBinary(std::string_view const & line)
 		return empty;
 
 	startPos += (int) strlen("<binary>");
+	while (line[startPos] <= 32)
+		startPos++;
+
 	if (endPos >= startPos + 2)
 	{
 
 		std::vector<BYTE> decodedData = base64_decode_mem(line, startPos, endPos);
 		if (compressedData > 0)
 		{
-
+	
 			int length = Zip::UncompressData(&decodedData[0], (int)decodedData.size(), &zipBuffer[0], zipBufferSize);
 			decodedData.assign(&zipBuffer[0], &zipBuffer[0] + length);
 		}
@@ -74,7 +77,7 @@ std::vector<double> MzmlLoader::readBinary(std::string_view const & line)
 
 		size_t length = decodedData.size() / 8;
 		double* floatData = (double*)&decodedData[0];
-
+ 
 
 		std::vector<double> data(floatData, floatData + length);
 		//for (int i = 0; i < length; i++)

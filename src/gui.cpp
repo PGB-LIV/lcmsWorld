@@ -38,14 +38,21 @@
 #include "Render.h"
 #include "Cache.h"
 #include "Annotations.h"
+#include "RawLoader.h"
 
 #if !defined(_WIN32) && (defined(__WIN32__) || defined(WIN32) || defined(__MINGW32__))
 #define _WIN32
 #endif 
 
 #ifdef _WIN32
+
 #include <Windows.h>
+#include "dirent_portable.h"
+#else
+#include <dirent.h>
 #endif
+
+
 
 bool fileOpen(std::string filePathName);
 bool reloadFile();
@@ -66,11 +73,125 @@ void gui::scrollWheel(GLFWwindow* window, double xoffset, double yoffset)
 #include "../files/OpenSans_Italic.h"
 
 #include "../files/OpenSans_Bold.h"
+inline bool ends_with(std::string const& value, std::string const& ending)
+{
+	if (ending.size() > value.size()) return false;
+	return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+}
 
 std::string aboutText[] = { "lcmsWorld","  " CUR_VERSION_STRING ,"","This version is for testing, it is not guaranteed to perform correctly","","(c) University of Liverpool 2021","",
 "For any issues, please go to the github page",
 "github.com/PGB-LIV/lcmsWorld"
 };
+
+int gui::infoWidth = 240;
+ImFont* gui::italic;
+ImFont* gui::bold;
+// const char * identFilters = ".csv\0\0";
+const char* identFilters = ".csv\0.txt\0.mzid\0.mzid.gz\0.mztab\0\0";
+
+char* lcmsFilters = "\0\0";
+std::vector <std::string> lcmsFileFilters = { ".lcms",".mzml",".raw" };
+
+//char* lcmsFilters = ".lcms\0.mzml\0.raw\0\0";
+
+
+std::vector<std::string>  gui::fileReaders;
+
+std::vector<std::string> gui::getFileReaders()
+{
+	//return the executables as pairs of strings
+	return fileReaders;
+
+}
+
+//check if we registered a file with this extension
+
+std::string gui::getFileReader(std::string filename)
+{
+	auto parts = Utils::split(filename, '.');
+	if (parts.size() < 2)
+		return "";
+
+	auto extension = "."+parts[1];
+
+	//return the executables as pairs of strings
+	for (int i = 0; i < fileReaders.size(); i += 2)
+	{
+		auto ext = fileReaders[i];
+		auto exe = fileReaders[i+1];
+		if (ext == extension)
+			return exe;
+	}
+	return "";
+}
+
+void gui::setupReaders()
+{
+	//going to look for executables
+	std::string path = RawLoader::rawReaderFolder;
+	DIR* dir = opendir(path.c_str());
+	if (dir == 0)
+	{
+		std::cout << " No Readers found in "+RawLoader::rawReaderFolder +"\n";
+		return;
+	}
+	struct dirent* ent;
+	while ((ent = readdir(dir)) != NULL) {
+		std::string filename(ent->d_name);
+
+		if (ends_with(filename, ".exe"))
+		{
+			std::cout << "found .exe " + filename << " \n";
+			auto parts = Utils::split(filename, '.');
+			std::cout << parts.size() << "\n";
+
+			//register a file extension
+			//for now we assume the executable indicates the extension it can load
+			//as in reader.raw.exe, reader.hdf5.exe, etc.
+			if (parts.size() == 3)
+			{
+				std::string extension = "."+parts[1];
+				std::string executable = path+"/"+filename;
+				fileReaders.push_back(extension);
+				fileReaders.push_back(executable);
+				lcmsFileFilters.push_back(extension);
+
+
+			}
+
+		}
+
+		
+	}
+
+	 
+	int length = 1;
+	for (auto ext : lcmsFileFilters)
+	{
+		length += ext.length() + 1;
+		
+	}
+	char* buffer = (char*) std::malloc(length);
+
+	int idx = 0;
+	for (auto ext : lcmsFileFilters)
+	{
+		const char* str = ext.c_str();
+		while (*str != 0)
+		{
+			buffer[idx++] = *str;
+
+			str++;
+		}
+		buffer[idx++] = 0;
+		std::cout << " add " << ext << "\n";
+
+	}
+	buffer[idx++] = 0;
+	lcmsFilters = buffer;
+}
+
 
 void gui::setup(const char* glsl_version)
 {
@@ -136,16 +257,12 @@ void gui::setup(const char* glsl_version)
 
 	gui::bold = io.Fonts->AddFontFromMemoryTTF(fontCopy, sizeof(OpenSans_Bold), 22.0f, NULL, io.Fonts->GetGlyphRangesChineseFull());
 
+	
+	setupReaders();
+		
 
 }
-int gui::infoWidth = 240;
-ImFont* gui::italic;
-ImFont* gui::bold;
-// const char * identFilters = ".csv\0\0";
-const char * identFilters = ".csv\0.txt\0.mzid\0.mzid.gz\0.mztab\0\0";
 
-const char * lcmsFilters = ".lcms\0.mzml\0.raw\0\0";
- 
 void gui::setSliderValues()
 {
 
