@@ -10,6 +10,7 @@ class Landscape;
 class gui
 {
 public:
+
 	static const float statusHeight;
 	static ImFont* italic;
 	static ImFont* bold;

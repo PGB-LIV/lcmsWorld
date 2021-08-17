@@ -17,6 +17,10 @@
 #endif
 #include <regex>
 #include "Structs.h"
+#ifdef _WIN32
+#include <filesystem>
+#endif
+#include "Error.h"
 
 int Utils::getNumberOfCores() {
 #ifdef WIN32
@@ -89,6 +93,115 @@ std::vector<std::string> csplit(const std::string& input, const std::string& reg
 	return { first, last };
 }
 
+std::vector <std::vector<std::string>> Utils::readFromExecutable(std::string executable)
+{
+	//for each line return a vector of string, should be key-value pairs
+	char buffer[1024 * 16];
+	FILE* child;
+	//maximum length of a line
+
+	std::vector<std::vector<std::string>> result;
+
+
+
+
+			std::string exe = executable;
+
+
+#ifdef _WIN32
+			exe = std::filesystem::absolute(exe.c_str()).string();
+#endif
+
+			std::cout << "try to read " << exe << "\n";
+
+			std::ifstream f(exe.c_str());
+			if (!f.good())
+			{
+
+				new Error(Error::ErrorType::file, executable + " could not start");
+				return result;
+
+			}
+
+
+
+
+
+
+			try
+			{
+#ifdef _WIN32
+
+				std::string cmd = "\"\"" + exe ;
+				std::cout << "starting " << cmd << " \n";
+
+				child = _popen(cmd.c_str(), "r");
+#else
+
+				std::string cmd = "\"+exe + "\" \"" + fileName + "\"";
+				child = popen(cmd.c_str(), "r");
+#endif
+
+			}
+			catch (...)
+
+
+			{
+
+				new Error(Error::ErrorType::file, "lcmsWorld was not able to start the RawFileReader\nThis may require installing .Net Framework");
+				return result;
+			}
+
+
+
+
+			//get the size
+
+
+
+			try
+			{
+				while (fgets(buffer, sizeof(buffer), child))
+				{
+					std::vector<std::string>line;
+
+					if (buffer[0] == '!')
+					{
+						std::string linestring(buffer+1);
+						auto words = split(linestring, '\t');
+						for (auto s: words)
+						line.push_back(s);
+
+						
+					}
+
+					result.push_back(line);
+
+
+
+				}
+				
+
+				
+			}
+			catch (...)
+			{
+#ifdef _WIN32
+				new Error(Error::ErrorType::file, "lcmsWorld was not able to use the " + executable + "\nThis may require installing .Net Framework");
+#else
+				new Error(Error::ErrorType::file, "lcmsWorld was not able to use the " + executable + "\nThis may require installing Mono.");
+#endif
+
+				return result;
+			}
+
+
+
+
+			return result;
+
+
+}
 
 std::vector<std::string> Utils::split(const std::string& s, char delimiter)
 {

@@ -692,7 +692,9 @@ int numTileMeshesSet = 0;
 void Tile::setMesh(Mesh* m) 
 {
 	lastLoaded = Globals::getCurrentTime();
-
+	//testing - move it to the front of the queue
+	//i.e. - preloaded means it should be considered drawn, to keep the two queues in balance
+	lastDrawn = Globals::getCurrentTime();
 	// mesh is currently deleted when GLMesh is created
 	//so no need to delete old one here
 	 

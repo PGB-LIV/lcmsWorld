@@ -132,8 +132,9 @@ static void glfw_error_callback(int error, const char* description)
 #include "../files/csv.h"
 #include "../files/centre.h"
 
-#include "../files/arrowText.h"
 
+#include "../files/arrowText.h"
+#include "../files/arrowTextTOC.h"
 #include "../files/arrow.h"
 
 void  Render::loadTextures()
@@ -163,7 +164,12 @@ void  Render::loadTextures()
 	CentreTexture = loadBMPA_custom_data(centre);
  
 	ArrowTexture = loadBMPA_custom_data(arrow);
+#if TOC_VERSION
+	ArrowTextTexture = loadBMPA_custom_data(arrowTextTOC);
+#else
+
 	ArrowTextTexture = loadBMPA_custom_data(arrowText);
+#endif
 	
 	
 }

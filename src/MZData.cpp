@@ -793,8 +793,8 @@ std::vector<MZData*> MZData::new_split(int xsize, int ysize)
 {
 	std::vector<MZData*> newData;
 	MZData* table[16][16];
-	assert(xsize <= 16);
-	assert(ysize <= 16);
+	assert(xsize < 16);
+	assert(ysize < 16);
 
 	for (int i = 0; i < xsize; i++)
 		for (int j = 0; j < ysize; j++)
@@ -824,6 +824,13 @@ std::vector<MZData*> MZData::new_split(int xsize, int ysize)
 		for (auto mz : mzs)
 		{
 			int bucket = (int)(((mz - min) * 256) / (max - min));
+
+			if (bucket < 0)
+			{
+				bucket = 0;
+				std::cout << " Error - mz less than min, check ordering of points \n";
+
+			}
 			if (bucket > 255)
 				bucket = 255;
 

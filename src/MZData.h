@@ -59,9 +59,12 @@ public:
 	std::vector<DataPoint>  findClosePoints(DataPoint s);
 		std::vector<DataPoint>  findClosest(DataPoint s);
 	static void cleanUp();
+
+	int id = 0;
 private:
  
-	int id = 0;
+	int state = 0;
+
 	static int next_id;
 
 	int times_cleared = 0;
@@ -73,7 +76,10 @@ private:
 	//if the data is 'square'- i.e., every scan gas the same mz values
 	// then only the first scan will contain them
 	void copyRange(MZData* source);
+	int space[1024];
+
 	std::vector<MZScan*> scans;
+	int space2[1024];
 	MZDataType type = MZDataType::jagged;
 //	const static double scaleFactor;
 

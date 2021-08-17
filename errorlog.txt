@@ -2,7 +2,7 @@
  folder: 
  Load settings
 P:
-P:D:\lcmsw\web
+P:C:\Users\Tony\Downloads
 memory = 15.9505 gb
  not caching binary data 
 12 cores reported 
@@ -14,6 +14,10 @@ Shaders loaded 4
  vertexUV 0
 GL Handles acquired 0
 texture 16 * 512
+texture 16 * 512
+texture 16 * 512
+texture 16 * 512
+texture 16 * 512
 texture 8 * 8
 texture 32 * 32
 texture 28 * 28
@@ -24,23 +28,15 @@ texture 256 * 256
 texture 256 * 256
 texture 32 * 32
 texture 64 * 64
- load :D:\lcmsw\web\VH_110517_Digest_3_1.raw.lcms:
- Load metadata D:\lcmsw\web\VH_110517_Digest_3_1.raw.lcms
- version 0.25
-offset 473832288
-metaCompressedSize 3245152
- opening as binary0.25
-prepare landscape3245152
-capping memory at 3000 tiles 
-deserialise landscape3245152
- Landscape ver = 87654321
- Landscape range = 1.97358e+09
- Landscape range = 1.97358e+09
-mz Range 349.898 - 2000.04
-lc Range 0.00443401 - 115.003
- load cache D:\lcmsw\web\VH_110517_Digest_3_1.raw.lcms
-Cache file opened D:\lcmsw\web\VH_110517_Digest_3_1.raw.lcms
- Callbacks set 
-set xscale 48.4806 - 2000.04
- load :D:\lcmsw\web\DB search psm.csv:
- Max RT = 106.28 scaling RT by 1
+1 focused 
+Change drive to D:\
+ load :D:\testbed\test.mzml:
+capping memory at -2147483648 tiles 
+ load cache D:\testbed\test.mzml
+Cache file opened D:\testbed\test.mzml.lcms
+opened D:\testbed\test.mzml  41847403
+ Load part 0 
+delete old result? 0
+read chunk 33554432 0  0
+2735 returning buffer 
+result = 0000016B44BDF560 level 1 lines = 2735

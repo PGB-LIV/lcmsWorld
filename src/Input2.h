@@ -64,6 +64,9 @@ class Input
 	static void mouseClicked(int button);
 	static void mouseDoubleClicked(int button);
 	static void getCursorZ();
+
+	
+
 public:
 	static double averageTime;
 	static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);

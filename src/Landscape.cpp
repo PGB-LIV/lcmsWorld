@@ -19,7 +19,7 @@
 
 //This is temporary, as there is a problem with the load queue
 
-#define DISABLE_UNLOADING
+//#define DISABLE_UNLOADING
 
 const static int TILES_PER_GB = 750;
 const static int MIN_TILES = 4000;
@@ -41,10 +41,13 @@ const static double maxSizePrepare = 0.22;
 
 Landscape::Landscape()
 {
-	viewData = { 3500,80000,30000 };
+	//defines aspect ratio of default view
+	viewData = { 3500,80000,80000 };
  
 	tilesInRam = (int) (MIN_TILES + (System::systemMemory )*TILES_PER_GB);
 	tilesInRam = std::min(tilesInRam, TILES_PER_GB * 4);
+	tilesInRam = 200;
+
 
 	/// <summary>
 #ifdef DISABLE_UNLOADING
@@ -856,12 +859,12 @@ void Landscape::setInfo()
 {
 	addInfo("<b>File Information");
 
-	addInfo("<i>m/z");
+	addInfo(Globals::x_axis_name);
 	addInfo("<c>range:");
 	std::string mzr = std::to_string(worldMzRange.min) + " - " + std::to_string(worldMzRange.max);
 
 		addInfo(mzr);
-		addInfo("RT range:");
+		addInfo(Globals::y_axis_name+" range:");
 		addInfo(std::to_string(worldLcRange.min) + " - " + std::to_string(worldLcRange.max));
 
 
@@ -1317,9 +1320,7 @@ void Landscape::manageQueue()
 
 	if (loadedDataTiles.size() < 5)
 		return;
-
- //temporarily disabled
-	return;
+ 
 
 	std::vector<Tile*> notReady;
  
@@ -1353,9 +1354,13 @@ void Landscape::manageQueue()
 			Tile* next = loadedDataTiles.back();
 			loadedDataTiles.pop_back();
 
-		 // if it was recently loaded, don't remove it
-			if ((Globals::currentTime.time - next->lastLoaded.time) < 5e6)
+		 // if it was recently loaded, don't remove it (and will assume that we need more memory)
+			std::cout << " remnove "<< tilesInRam<<"  : " << (Globals::currentTime.time - next->lastLoaded.time) / 1000 << "\n";
+			if ((Globals::currentTime.time - next->lastLoaded.time) < (30*1e6))
 			{
+				tilesInRam = tilesInRam * 1.4;
+				std::cout << " change " << tilesInRam << "  : " << (Globals::currentTime.time - next->lastLoaded.time) / 1000 << "\n";
+
 				numToClear++;
 
 				notReady.push_back(next);
@@ -1502,7 +1507,14 @@ inline bool Landscape::canDraw(Tile *tile)
 			x = (g_vertex_buffer_data[i + 0]-.5f ) * -300;
 			y = (g_vertex_buffer_data[i + 1] ) * 300;
 			z = (g_vertex_buffer_data[i + 2] - .5f) * 300;
+
+	 
+
 			vertex_vec.push_back(glm::vec3(x, y, z));
+
+
+		
+
 			uv_vec.push_back(glm::vec2(-g_vertex_buffer_data[i + 0], -g_vertex_buffer_data[ i + 2]));
 		}
 

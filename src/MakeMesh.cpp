@@ -107,6 +107,7 @@ Mesh* Landscape::getJaggedMesh(Tile* tile)
 		auto y2 = bottom->getLcTime();
 
 		auto topMz = top->getMz();
+		auto botMz = top->getMz();
 
 
 		auto topI = top->getIntensity();
@@ -136,8 +137,32 @@ Mesh* Landscape::getJaggedMesh(Tile* tile)
 			auto z3 = topI[j - 1];
 
 			auto z2 = topI[j];
-			auto z4 = topI[j];
+			auto z4 = z2;
 
+			//an attempt to align, doesn't work
+#if 0
+ 			
+			int j2 = 1;
+
+			auto z4b = z4;
+			
+			while (botMz[j2] < x1 && j2 < botI.size())
+			{
+			
+			z4b = botI[j2];
+			
+			j2++;
+			}
+			
+			auto diff = botMz[j2] - x1 ;
+			if (abs(diff) < .01)
+			{
+				if ((z4b > z4*.5) && (z4b < z4*1.5))
+				z4 = z4b;
+
+			}
+			 
+#endif
 			byte mapVal = 0;
 			if (mapSet)
 			{
@@ -146,6 +171,8 @@ Mesh* Landscape::getJaggedMesh(Tile* tile)
 				mapVal &= (1 << (xp & 7));
 
 			}
+
+
 
 			insertData(tile, vertex_vec, uv_vec, vb_vec, attr_vec, x1, x2, y1, y2, z1, z2, z3, z4, mapVal, 2);
 
@@ -469,7 +496,8 @@ bool inline Landscape::insertData(Tile* tile, std::vector<glm::vec3> &vertex_vec
 
 
 
-
+ 
+ 
 
 	x1 -= (mzRange.min + mzRange.max) / 2;
 	x2 -= (mzRange.min + mzRange.max) / 2;
@@ -778,6 +806,8 @@ Mesh* Landscape::makeMesh(Tile* tile)
 				z2 = topI[j];
 				z4 = botI[j];
 
+ 
+
 			}
 
 
@@ -1026,6 +1056,7 @@ Mesh* Landscape::makeMesh2(Tile* tile)
 			//	z4 = 0;
 
 
+			 
 
 			total++;
 
@@ -1045,6 +1076,8 @@ Mesh* Landscape::makeMesh2(Tile* tile)
 				z4 = botI[j];
 
 			}
+ 
+
 
 
 			byte mapVal = 0;
@@ -1060,6 +1093,8 @@ Mesh* Landscape::makeMesh2(Tile* tile)
 			if (loops < 1)
 			{
 
+
+			 
 
 
 				if (insertData(tile, vertex_vec, uv_vec, vb_vec, attr_vec, x1, x1, y1, y2, 0, z1, 0, z3, mapVal, 0))
@@ -1085,6 +1120,9 @@ Mesh* Landscape::makeMesh2(Tile* tile)
 				if (last_pos1y[j] == (i))
 				{
 					assert(j < max_line_size);
+
+			 
+
 
 					if (insertData(tile, vertex_vec, uv_vec, vb_vec, attr_vec, x2, y2, z4, last_pos1, last_pos2, last_pos2y[j], mapVal))
 					{

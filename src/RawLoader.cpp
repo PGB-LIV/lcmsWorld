@@ -132,8 +132,9 @@ MZData* RawLoader::loadDataPartial()
 			try
 			{
 #ifdef _WIN32
-
-				std::string cmd = "\"\""+ exe + "\" \"" + fileName +"\"\"";
+				//no noise removal (file could be big!)
+				//std::string cmd = "\"\""+ exe + "\" \"" + fileName +"\"\" -n";
+				std::string cmd = "\"\"" + exe + "\" \"" + fileName + "\"\" ";
 				std::cout << "starting " << cmd << " \n";
 
 				child = _popen(cmd.c_str(), "r");
@@ -163,6 +164,11 @@ MZData* RawLoader::loadDataPartial()
 			try
 			{
 				fgets(buffer, sizeof(buffer), child);
+				//ignore comments
+				while (buffer[0] == '#')
+					fgets(buffer, sizeof(buffer), child);
+
+
 				size = atoi(buffer);
 
 				std::cout << " init size " << size << "\n";
@@ -231,6 +237,8 @@ MZData* RawLoader::loadDataPartial()
 				}
 
 				fgets(buffer, sizeof(buffer), child);
+				if (buffer[0] == '#')
+					continue;
 
 				curScan = atoi(buffer);
 				if (curScan < 0 )

@@ -8,9 +8,26 @@
 #include "gl3w/gl3w.h"  
 #include "glfw/include/GLFW/glfw3.h" // Include glfw3.h after our OpenGL definitions
 
+#define TOC_VERSION true
+
+
 class Globals
 {
 public:
+
+#if TOC_VERSION 
+	static inline std::string x_axis_desc = "prec. m/z";
+	static inline std::string y_axis_desc = "frag. m/z";
+	static inline std::string x_axis_name = "Prec.";
+	static inline std::string y_axis_name = "Frag.";
+#else
+	static inline std::string x_axis_desc = "m/z";
+	static inline std::string y_axis_desc = "RT";
+	static inline std::string x_axis_name = "m/z";
+	static inline std::string y_axis_name = "RT";
+#endif
+
+
 	static GLFWwindow* window;
 	static std::array<std::string, 5> supported_versions; 
 	static TimeStamp currentTime;

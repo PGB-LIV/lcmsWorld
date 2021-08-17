@@ -626,9 +626,9 @@ int cmain(int  argc, char ** argv)
 	System::setup();
 	if (Render::setup() == false)
 	{
-		std::cerr << "Fatal Error setting up rendering system\n lcmsWorld needs an OpenGL 3+ compatible graphics card.\n";
+		std::cerr << "Fatal Error setting up rendering system\n ToC-msWorld needs an OpenGL 3+ compatible graphics card.\n";
 #ifdef _WIN32
-		MessageBox(nullptr, TEXT("Fatal Error setting up the rendering system.\nlcmsWorld needs an OpenGL 3+\
+		MessageBox(nullptr, TEXT("Fatal Error setting up the rendering system.\nToC-msWorld needs an OpenGL 3+\
  compatible graphics card.\n\nThis may not be available on remote desktops or virtual machines."), TEXT("Error"), MB_OK);
 #endif
 		// exitApp();

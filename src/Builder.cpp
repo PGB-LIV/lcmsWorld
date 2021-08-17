@@ -187,6 +187,8 @@ std::mutex testLock;
 
 Tile* Builder::makeTilesBase(MZData* data, int threadId)
 {
+ 
+
 	//should probably already be set
 	making[threadId] = 1;
 	bool locked = false;
@@ -337,6 +339,8 @@ void Builder::makeLandscape(std::string filename)
 				int nt = i;
 				std::thread t1(makeTilesBase, newData, nt);
 				making[nt] = 1;
+
+				//makeTilesBase(newData, nt);
 				t1.detach();
 				break;
 			}

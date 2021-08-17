@@ -714,8 +714,13 @@ void Input::handleCursor(Landscape* l)
 		//	ImGui::Text("");
 			getView()->addInfo("<b>Cursor Information");
 			
-			getView()->addInfo("<i>m/z");
+#if TOC_VERSION
+			getView()->addInfo(Globals::x_axis_desc);
 			getView()->addInfo("<c>= " + std::to_string(cursor.mz));
+#else
+			getView()->addInfo("<i>" + Globals::x_axis_desc);
+			getView()->addInfo("<c>= " + std::to_string(cursor.mz));
+#endif
 
 	 
 
@@ -730,11 +735,17 @@ void Input::handleCursor(Landscape* l)
 			part = part * 10;
 
 
-
+#if TOC_VERSION
+			getView()->addInfo(Globals::y_axis_desc);
+			getView()->addInfo("<c>= " + std::to_string(cursor.lc));
+#else
 			std::ostringstream infolc;
+
 			infolc << "RT = " << (int)mins << " min " << std::setfill('0') << std::setw(2) << (int)(seconds) << "." << (int)part << " s";
 
 			getView()->addInfo(infolc.str());
+#endif
+
 
 			std::ostringstream info;
 			info << "intensity = " << std::scientific << std::setprecision(2) << cursor.signal;
@@ -888,7 +899,16 @@ void Input::showNearest(DataPoint cursorPoint)
 		if (a.ptm.size() > 0)
 			getView()->addInfo("ptm: " + a.ptm);
 
-		getView()->addInfo("<i>m/z");
+
+#ifdef TOC_VERSION
+		getView()->addInfo( Globals::x_axis_desc);
+		getView()->addInfo("<c>= " + std::to_string(a.mz));
+
+		getView()->addInfo(Globals::y_axis_desc);
+		getView()->addInfo("<c>= " + std::to_string(a.lc));
+
+#else
+		getView()->addInfo("<i>"+Globals::x_axis_desc);
 		getView()->addInfo("<c>= " + std::to_string(a.mz));
 		std::ostringstream infolc;
 
@@ -899,9 +919,9 @@ void Input::showNearest(DataPoint cursorPoint)
 		float part = seconds - (int)seconds;
 		part = part * 10;
 
-		infolc << "RT = " << (int)mins << " min " << std::setfill('0') << std::setw(2) << (int)(seconds) << "." << (int)part; "\"";
-
+		infolc << Globals::y_axis_desc<< " = " << (int)mins << " min " << std::setfill('0') << std::setw(2) << (int)(seconds) << "." << (int)part; "\"";
 		getView()->addInfo(infolc.str());
+#endif
 
 		//		getView()->addInfo("lc = " + std::to_string((int)((a.lc * 600)/10)));
 		std::ostringstream info2;
