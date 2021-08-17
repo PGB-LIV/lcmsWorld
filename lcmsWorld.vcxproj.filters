@@ -1369,11 +1369,11 @@
     <None Include="..\..\..\RawMS1\RawMS1Reader.exe" />
     <None Include="..\..\..\RawMS1\ThermoFisher.CommonCore.RawFileReader.dll" />
     <None Include="..\..\..\RawMS1\ThermoFisher.CommonCore.Data.dll" />
-    <None Include="RawReader\RawMS1Reader.exe" />
-    <None Include="RawReader\ThermoFisher.CommonCore.Data.dll" />
-    <None Include="RawReader\ThermoFisher.CommonCore.RawFileReader.dll" />
     <None Include="..\..\..\RawFileReader\RawFileReaderLicense.pdf" />
-    <None Include="RawReader\RawFileReaderLicense.pdf" />
+    <None Include="Readers\RawFileReaderLicense.pdf" />
+    <None Include="Readers\RawMS1Reader.exe" />
+    <None Include="Readers\ThermoFisher.CommonCore.Data.dll" />
+    <None Include="Readers\ThermoFisher.CommonCore.RawFileReader.dll" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="lcmsWorld1.rc">

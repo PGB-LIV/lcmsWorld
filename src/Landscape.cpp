@@ -46,7 +46,7 @@ Landscape::Landscape()
  
 	tilesInRam = (int) (MIN_TILES + (System::systemMemory )*TILES_PER_GB);
 	tilesInRam = std::min(tilesInRam, TILES_PER_GB * 4);
-	tilesInRam = 200;
+
 
 
 	/// <summary>
@@ -1355,11 +1355,10 @@ void Landscape::manageQueue()
 			loadedDataTiles.pop_back();
 
 		 // if it was recently loaded, don't remove it (and will assume that we need more memory)
-			std::cout << " remnove "<< tilesInRam<<"  : " << (Globals::currentTime.time - next->lastLoaded.time) / 1000 << "\n";
 			if ((Globals::currentTime.time - next->lastLoaded.time) < (30*1e6))
 			{
 				tilesInRam = tilesInRam * 1.4;
-				std::cout << " change " << tilesInRam << "  : " << (Globals::currentTime.time - next->lastLoaded.time) / 1000 << "\n";
+
 
 				numToClear++;
 

@@ -29,8 +29,8 @@ public:
 	size_t getFileSize();
 	double getProgress();
 	static void cleanUp();
-	static inline const std::string rawReaderPath = "RawReader/RawMS1Reader.exe";
-	static inline const std::string rawReaderFolder = "RawReader";
+	static inline const std::string rawReaderPath = "Readers/RawMS1Reader.exe";
+	static inline const std::string rawReaderFolder = "Readers";
 
 
 private:
