@@ -233,7 +233,7 @@ bool Render::setup()
 
 	glfwWindowHint(GLFW_FLOATING, false);
 	// Create window with graphics context
-	Globals::window = glfwCreateWindow(width, height, "ToCmsWorld", NULL, NULL);
+	Globals::window = glfwCreateWindow(width, height, "tocmsWorld", NULL, NULL);
 	if (Globals::window == NULL)
 		return false;
 	glfwMakeContextCurrent(Globals::window);

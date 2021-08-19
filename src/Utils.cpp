@@ -148,7 +148,7 @@ std::vector <std::vector<std::string>> Utils::readFromExecutable(std::string exe
 
 			{
 
-				new Error(Error::ErrorType::file, "lcmsWorld was not able to start the RawFileReader\nThis may require installing .Net Framework");
+				new Error(Error::ErrorType::file, "tocmsWorld was not able to start the RawFileReader\nThis may require installing .Net Framework");
 				return result;
 			}
 
@@ -187,9 +187,9 @@ std::vector <std::vector<std::string>> Utils::readFromExecutable(std::string exe
 			catch (...)
 			{
 #ifdef _WIN32
-				new Error(Error::ErrorType::file, "lcmsWorld was not able to use the " + executable + "\nThis may require installing .Net Framework");
+				new Error(Error::ErrorType::file, "tocmsWorld was not able to use the " + executable + "\nThis may require installing .Net Framework");
 #else
-				new Error(Error::ErrorType::file, "lcmsWorld was not able to use the " + executable + "\nThis may require installing Mono.");
+				new Error(Error::ErrorType::file, "tocmsWorld was not able to use the " + executable + "\nThis may require installing Mono.");
 #endif
 
 				return result;

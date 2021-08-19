@@ -154,12 +154,15 @@ void gui::setupReaders()
 			allFilters = ext;
 		else
 			allFilters = allFilters + " "+ ext ;
+		
 		length += ext.length() + 1;
-
 	}
-	
+	length += allFilters.length() + 1;
+
 	if (lcmsFileFilters.size() > 1)
 		lcmsFileFilters.insert(lcmsFileFilters.begin(), allFilters);
+
+
 	char* buffer = (char*)std::malloc(length);
 
 	
@@ -1120,7 +1123,7 @@ std::string helpText[] = { "ToC-msWorld","","A 3d viewer for ToC mass spectromet
 "Click on the Rotate or Drag button to switch the functionality of the mouse buttons",
 "Use the mouse wheel to zoom", "",
 "Alternatively, use keyboard arrows with shift or controlbto move the camera","",
-"When you load a ToC-ms file, a similarly named .lcms file is created",
+"When you load a ToC-ms file, a similarly named .tocms file is created",
 "Load this file next time for instant access","","Load a correctly formatted csv, text, or mzIdentML file to add annotations ",
 "you can filter annotations by sequence or protein descriptor", "then select the annotations to view labels","    ",
 "The annotation box size is entirely arbitrary for viewing purposes, ", "the exact point is marked in green",
@@ -1346,7 +1349,7 @@ void checkScreenShot(Landscape* l)
 
 
 std::string curlText[] = {
-"These notices only apply to the relevant portion of the software, and not to lcmsWorld as a whole.\n\n"
+"These notices only apply to the relevant portion of the software, and not to tocmsWorld as a whole.\n\n"
 
 "ImGui \n"
 "__________\n"

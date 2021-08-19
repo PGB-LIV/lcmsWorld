@@ -406,7 +406,7 @@ void Annotations::loadMZIDFromBuffer(char* buffer, Landscape* l)
 
 		if (peptide_RT.size() == 0)
 		{
-			new Error(Error::ErrorType::file, "This file does not have the required information\nto support annotations with lcmsWorld.\
+			new Error(Error::ErrorType::file, "This file does not have the required information\nto support annotations.\
 \npeptide, m/z, and RT are required.");
 			return;
 		}
@@ -635,7 +635,7 @@ void Annotations::loadTextBased(std::string filename, char delim, Landscape* l)
 		int numAnnotations = 0;
 		if ((mz_col < 0) || (lc_col < 0) || (pep_col < 0))
 		{
-			new Error(Error::ErrorType::file, "This file does not have the required information\nto support annotations with lcmsWorld.\
+			new Error(Error::ErrorType::file, "This file does not have the required information\nto support annotations.\
 \npeptide, m/z, and RT are required.");
 			try
 			{
@@ -863,7 +863,7 @@ void Annotations::loadMZTab(std::string filename, Landscape* l)
 		|| (mz_col < 0)
 		|| (lc_col < 0))
 	{
-		new Error(Error::ErrorType::file, "This mztab file does not have the required information\nto support annotations with lcmsWorld.");
+		new Error(Error::ErrorType::file, "This mztab file does not have the required information\nto support annotations.");
 
 		return;
 

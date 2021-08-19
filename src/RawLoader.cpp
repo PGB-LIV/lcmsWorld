@@ -150,7 +150,7 @@ MZData* RawLoader::loadDataPartial()
 
 			{
 
-				new Error(Error::ErrorType::file, "lcmsWorld was not able to start the RawFileReader\nThis may require installing .Net Framework");
+				new Error(Error::ErrorType::file, "The RawFileReader could not be started\nThis may require installing .Net Framework");
 				return NULL;
 			}
 
@@ -176,9 +176,9 @@ MZData* RawLoader::loadDataPartial()
 			catch (...)
 			{
 #ifdef _WIN32
-				new Error(Error::ErrorType::file, "lcmsWorld was not able to use the "+executable+"\nThis may require installing .Net Framework");
+				new Error(Error::ErrorType::file, "tocmsWorld was not able to use the "+executable+"\nThis may require installing .Net Framework");
 #else
-				new Error(Error::ErrorType::file, "lcmsWorld was not able to use the " + executable + "\nThis may require installing Mono.");
+				new Error(Error::ErrorType::file, "tocmsWorld was not able to use the " + executable + "\nThis may require installing Mono.");
 #endif
 
 				return NULL;
