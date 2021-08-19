@@ -437,17 +437,32 @@ bool ImGuiFileDialog::FileDialog(const char* vName,  const char* vFilters, std::
 	{
 		FileInfoStruct infos = *it;
 		bool show = true;
-		
+
 
 		std::string str;
- 
 
-		str =  infos.fileName;
+
+		str = infos.fileName;
 
 		//not sure how to deal with links at the moment
- 		if (infos.type == 'l')
-		 show = false;
-		if (infos.type == 'f' && m_CurrentFilterExt.size() > 0 && stricmp(infos.ext.c_str(), m_CurrentFilterExt.c_str()))
+		if (infos.type == 'l')
+			show = false;
+	 
+
+		bool matchedFileExtension = false;
+		if (m_CurrentFilterExt.size() > 0)
+		{
+		
+			auto extensions = Utils::split(m_CurrentFilterExt,' ');
+		
+			for (auto ex : extensions)
+			{
+				if (!stricmp(infos.ext.c_str(), ex.c_str()))
+					matchedFileExtension = true;
+			}
+		}
+
+		if (infos.type == 'f' && !matchedFileExtension)
 		{
 			 
 			show = false;

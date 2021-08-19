@@ -299,7 +299,7 @@ void Tile::setScreenSize(glm::mat4 matrix, glm::vec2 view)
 		float ly = lcRange.max - lcRange.min;
 		mx *= owner->xScale;
 		ly *= owner->yScale;
-		float area = (mx*ly) *  .0005f;
+		float area = (mx * ly) * Settings::DetailConstant;
 		area = std::sqrt(area);
 
 		 //a coarse approach to adjust by size of model

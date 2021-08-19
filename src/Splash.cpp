@@ -7,7 +7,7 @@
 #include "../files/splash.h"
 #include "texture.hpp"
 #include "Render.h"
-
+#include "Zip.h"
 #include "Settings.h"
 #include "SystemSetup.h"
 #include "Input2.h"
@@ -34,10 +34,41 @@ bool Splash::Render()
 	if (splashtexture == 0)
 	{
 		glGenFramebuffers(1, &framebuffer);
+		
 		auto header = splash;
+
+	
+
+		//zip test - not really needed, would save 2-3 mb
+#if 0
+		auto size = sizeof(splash);
+		std::vector<byte> decompressedData(size);
+
+		
+		if (1)
+		{
+		
+			std::cout << "size? " << size << "\n";
+			std::vector<byte> compressedData(size);
+
+			int length = Zip::CompressData(splash, size, &compressedData[0], size);
+			std::cout << "length? " << length << "\n";
+
+			compressedData.resize(length);
+			std::vector<byte> splashzip(compressedData);
+
+	
+			length = Zip::UncompressData(&splashzip[0], length, &decompressedData[0], size);
+			header = &decompressedData[0];
+			//decompress data 
+		}
+#endif
+
 		twidth = *(int*)&(header[0x12]);
 		theight = *(int*)&(header[0x16]);
-		splashtexture = loadBMP_custom_data(splash);
+
+		 
+		splashtexture = loadBMP_custom_data(header);
 	}
  
  

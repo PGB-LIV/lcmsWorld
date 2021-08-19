@@ -146,12 +146,24 @@ void gui::setupReaders()
 
 
 	int length = 1;
+
+	std::string allFilters = "";
 	for (auto ext : lcmsFileFilters)
 	{
+		if (length == 1)
+			allFilters = ext;
+		else
+			allFilters = allFilters + " "+ ext ;
 		length += ext.length() + 1;
 
 	}
+	
+	if (lcmsFileFilters.size() > 1)
+		lcmsFileFilters.insert(lcmsFileFilters.begin(), allFilters);
 	char* buffer = (char*)std::malloc(length);
+
+	
+
 
 	int idx = 0;
 	for (auto ext : lcmsFileFilters)

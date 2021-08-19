@@ -10,6 +10,8 @@
 class Settings
 {
 public:
+	//adjusts the amount of detail shown, constant setting
+	static inline float DetailConstant = .0009f;  //was .0005
 
 	static void setMouse() { 
 		if (Settings::mouseSpeed >= 50)
@@ -85,5 +87,5 @@ public:
 	static std::string lastCameraString;
 
 	static int colourScheme;
-
+	
 };

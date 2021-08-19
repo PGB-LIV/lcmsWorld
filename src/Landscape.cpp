@@ -17,12 +17,12 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtx/transform.hpp" // after <glm/glm.hpp>
 
-//This is temporary, as there is a problem with the load queue
-
+ 
 //#define DISABLE_UNLOADING
+const static int maxGB = 8;
 
-const static int TILES_PER_GB = 750;
-const static int MIN_TILES = 4000;
+const static int TILES_PER_GB = 850;
+const static int MIN_TILES = 3000;
 static int tilesInRam = MIN_TILES;
 
 static int GLtilesPerFrame = 50;
@@ -44,8 +44,10 @@ Landscape::Landscape()
 	//defines aspect ratio of default view
 	viewData = { 3500,80000,80000 };
  
-	tilesInRam = (int) (MIN_TILES + (System::systemMemory )*TILES_PER_GB);
-	tilesInRam = std::min(tilesInRam, TILES_PER_GB * 4);
+	int gb = std::min((int) (System::systemMemory+.5), maxGB);
+
+	tilesInRam = (int) (MIN_TILES +gb*TILES_PER_GB);
+	tilesInRam = std::min(tilesInRam, TILES_PER_GB * 3);
 
 
 
@@ -53,7 +55,7 @@ Landscape::Landscape()
 #ifdef DISABLE_UNLOADING
 	tilesInRam = 2 << 30;
 #endif
- 	std::cout << "capping memory at " << tilesInRam << " tiles \n";
+ 	std::cout << "capping memory at " << tilesInRam << " tiles for "<<gb<<" GB  \n";
 	Range<mzFloat> t1;
 	t1.min = mzFloat_max;
 	t1.max = mzFloat_min;
