@@ -49,7 +49,7 @@ ImFont* gui::bold;
 const char* identFilters = ".csv\0.txt\0.mzid\0.mzid.gz\0.mztab\0\0";
 
 char* lcmsFilters = "\0\0";
-std::vector <std::string> lcmsFileFilters = { ".lcms" };
+std::vector <std::string> lcmsFileFilters = { ".tocms" };
 
 //char* lcmsFilters = ".lcms\0.mzml\0.raw\0\0";
 
@@ -888,6 +888,8 @@ void gui::fileOpenMenu()
 			char pathtofile[MAX_PATH];
 
 			GetModuleFileName(GetModuleHandle(NULL), pathtofile, sizeof(pathtofile));
+			strcat(pathtofile, " -n");
+
 			WinExec(pathtofile, SW_SHOW);
 
 

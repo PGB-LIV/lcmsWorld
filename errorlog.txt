@@ -2,7 +2,7 @@
  folder: 
  Load settings
 P:
-P:C:\Users\Tony\Downloads
+P:D:\lcmsdata\verdel
 memory = 15.9505 gb
  not caching binary data 
 12 cores reported 
@@ -26,17 +26,70 @@ texture 64 * 64
 texture 128 * 128
 texture 256 * 256
 texture 256 * 256
+try to read D:\Dropbox\lcmsworld_2\lcmsWorld\Readers\HDF5Reader.exe
+starting ""D:\Dropbox\lcmsworld_2\lcmsWorld\Readers\HDF5Reader.exe 
+found .exe HDF5Reader.exe 
+adding parser for extension .hdf5  for Verdel HDF5 file  
+try to read D:\Dropbox\lcmsworld_2\lcmsWorld\Readers\RawMS1Reader.exe
+starting ""D:\Dropbox\lcmsworld_2\lcmsWorld\Readers\RawMS1Reader.exe 
+found .exe RawMS1Reader.exe 
+adding parser for extension .raw  for Thermo .raw file  
+ add .tocms
+ add .hdf5
+ add .raw
 texture 32 * 32
 texture 64 * 64
 1 focused 
-Change drive to D:\
- load :D:\testbed\test.mzml:
-capping memory at -2147483648 tiles 
- load cache D:\testbed\test.mzml
-Cache file opened D:\testbed\test.mzml.lcms
-opened D:\testbed\test.mzml  41847403
- Load part 0 
-delete old result? 0
-read chunk 33554432 0  0
-2735 returning buffer 
-result = 0000016B44BDF560 level 1 lines = 2735
+ Load metadata D:\lcmsdata\verdel\test.hdf5.tocms
+ version 1.00
+offset 44434128
+metaCompressedSize 583544
+ opening as binary1.00
+prepare landscape583544
+capping memory at 3000 tiles 
+deserialise landscape583544
+ Landscape ver = 87654321
+ Landscape range = 1.35949e+10
+ Landscape range = 1.35949e+10
+mz Range 999.9 - 7986.19
+lc Range 1000 - 7998.29
+ load cache D:\lcmsdata\verdel\test.hdf5.tocms
+Cache file opened D:\lcmsdata\verdel\test.hdf5.tocms
+ Callbacks set 
+Set camera -77546.2
+10822.3
+8030.86
+0
+0
+0
+0
+0.95
+11000
+13304.8
+0
+0
+2501.28
+4508.26
+0
+2501.28
+4508.26
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+1
+3.4
+2.8
+1.27967
+2.4
+1.8
+0.172453
+
+set xscale 11.451 - 7986.19
+ 11.451 - 7986.19

@@ -45,7 +45,7 @@ std::fstream Cache::metaFile;
 std::string sanity_string = "lcms.file.0x34012c";
 
 std::streamoff  Cache::cachePosition = 0;
-std::string Cache::cacheFileEnding = ".lcms";
+std::string Cache::cacheFileEnding = ".tocms";
 std::fstream Cache::cacheFile;
 std::streamoff  Cache::cacheFileSize = 0;
 bool Cache::cacheCacheFile = false;
@@ -150,7 +150,7 @@ inline std::vector<byte> Cache::getDataFromFile(DataSource d)
 	{
 		std::cout << "file read size mismatch \n";
  
-		new Error(Error::ErrorType::file, "There was a problem loading data from the .lcms file. \nIit may be invalid, or the disk may be full.\n");
+		new Error(Error::ErrorType::file, "There was a problem loading data from the .tocms file. \nIit may be invalid, or the disk may be full.\n");
 
 		return empty;
 
@@ -593,7 +593,7 @@ Landscape* Cache::loadMetaData(std::string fileName)
 	if (ver.length() > 10)
 	{
  
-			reportError("This .lcms file is not valid\nPlease reload from .raw or .mzml file.");
+			reportError("This .tocms file is not valid\nPlease reload from original file.");
 			return NULL;
  
 
@@ -606,7 +606,7 @@ Landscape* Cache::loadMetaData(std::string fileName)
 	std::cout << " version " << ver << "\n";
 	if (!supported)
 	{
-		reportError("This .lcms file is no longer supported\nPlease reload from .raw or .mzml file.");
+		reportError("This .tocms file is no longer supported\nPlease reload from original file.");
 		return NULL;
 	}
 

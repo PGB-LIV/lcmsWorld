@@ -714,6 +714,9 @@
     <ClCompile Include="src\Zip.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Splash.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\imgui\imgui_internal.h">
@@ -1359,6 +1362,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Splash.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

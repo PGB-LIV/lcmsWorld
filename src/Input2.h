@@ -68,6 +68,7 @@ class Input
 	
 
 public:
+	static TimeStamp last_click_time;
 	static double averageTime;
 	static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 	static void touch_callback(GLFWwindow* window, int button, int action, double x, double y);

@@ -34,8 +34,8 @@ class Render
 
 	// Load the texture
 	static GLuint PlainTexture;
+
 	static GLuint cubeTexture;
-	static GLuint cubeTexture2;
 
 	// Get a handle for our "myTextureSampler" uniform
 	static GLuint TextureID;
@@ -61,6 +61,8 @@ class Render
 
 
 public:
+	static GLuint cubeTexture2;
+
 	static void drawTarget();
 	static GLuint getMatrixID() { return MatrixID; }
 	static void  drawCubeMeshDirection(GLMesh* cube, int type);

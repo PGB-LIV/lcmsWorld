@@ -231,9 +231,9 @@ bool Render::setup()
 
 
 
-
+	glfwWindowHint(GLFW_FLOATING, false);
 	// Create window with graphics context
-	Globals::window = glfwCreateWindow(width, height, "lcmsWorld", NULL, NULL);
+	Globals::window = glfwCreateWindow(width, height, "ToCmsWorld", NULL, NULL);
 	if (Globals::window == NULL)
 		return false;
 	glfwMakeContextCurrent(Globals::window);
@@ -369,7 +369,9 @@ glm::dmat4  Render::prepareView(Landscape* l)
 {
  	
 	auto clearColour = Settings::clearColour;
+ 
 
+	glfwMakeContextCurrent(Globals::window);
 
 	glClearColor(clearColour.x, clearColour.y, clearColour.z, clearColour.w);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

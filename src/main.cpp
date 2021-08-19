@@ -32,7 +32,7 @@
 #include "ImGuiFileDialog.h"
 #include "Utils.h"
 #include "LCHttp.h"
-
+#include "Splash.h"
 #include "Error.h"
 #include "Annotations.h"
 
@@ -161,7 +161,7 @@ bool fileOpen(std::string filePathName)
 	}
 	Settings::lastFilename = filePathName;
 
-	if (endsWith(loadFile, ".lcms"))
+	if (endsWith(loadFile, ".tocms"))
 	{
 	//	std::cout << " load .lcms " << filePathName << "\n";
 		Settings::lastAnnotationFilename = ".";
@@ -374,6 +374,9 @@ void checkAutoLoad()
 		std::string filePathName = Settings::autoLoadFile;
  		Settings::autoLoadFile = "";
 
+		if (filePathName == "-n")
+			return;
+
 		if (filePathName == "-restart")
 		{
 			std::cout << " reloading \n" << Settings::lastFilename <<" \n";
@@ -385,7 +388,7 @@ void checkAutoLoad()
 		}
 
 
-
+		
  
 		fileOpen(filePathName);
 	}
@@ -583,7 +586,8 @@ int cmain(int  argc, char ** argv)
 
 	if (argc > 0)
 		executable_name = argv[0];
-
+	if (argc < 2)
+		auto splash = new Splash();
 #ifdef FINAL
 #ifdef _WIN32
 	AllocConsole();
@@ -620,10 +624,12 @@ int cmain(int  argc, char ** argv)
 	std::cout << sizeof(size_t) * 8 << " bit version.\n";
 
 
+
 	Settings::setup(argc, argv);
 	Settings::loadSettings();
 
 	System::setup();
+	//creates glfw window etc
 	if (Render::setup() == false)
 	{
 		std::cerr << "Fatal Error setting up rendering system\n ToC-msWorld needs an OpenGL 3+ compatible graphics card.\n";
@@ -634,6 +640,9 @@ int cmain(int  argc, char ** argv)
 		// exitApp();
 		return 1;
 	}
+
+	
+
 
 	std::thread t1(LCHttp::start);
 	t1.detach();
@@ -664,7 +673,8 @@ int cmain(int  argc, char ** argv)
  
 	glfwSetScrollCallback(Globals::window, Input::scroll_callback);
 
- 
+	
+
 	glfwSetKeyCallback(Globals::window, Input::key_callback);
 
 //	glfwSetTouchCallback(Globals::window, Input::touch_callback);
@@ -674,14 +684,20 @@ int cmain(int  argc, char ** argv)
  	while (!glfwWindowShouldClose(Globals::window))
 	{
 		Globals::loopCount++;
+		Globals::setCurrentTime();
+
   		checkSize();
 		if (getView() != NULL)
 		getView()->setInfo();
 
+	
 
 		Input::update();
 		Input::computeViewMatrices();
 		Input::handleCursor(getView());
+
+		if (Splash::instance != NULL)
+			Splash::instance->Render();
 
 		auto matrixView = Render::prepareView(getView());
  

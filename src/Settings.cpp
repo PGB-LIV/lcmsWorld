@@ -90,11 +90,16 @@ void Settings::setup(int  argc, char ** argv)
 	if (argc > 1)
 	{
 		std::string loadFile(argv[1]);
+	 
 		autoLoadFile = loadFile;
+		if (argv[1][0] == '-')
+		{
 
- 		if (argv[1][0] == '-')
 			loadPath = "";
-
+			//just reload
+ 
+		}
+	 
 
 
 	}
@@ -187,8 +192,8 @@ void Settings::loadSettings()
 	ImGuiFileDialog::Instance()->setCurrentPath(path);
 
 	if (lastFilename.length() > 1)
-		if (endsWith(lastFilename, ".lcms") == false)
-			lastFilename = lastFilename + ".lcms";
+		if (endsWith(lastFilename, ".tocms") == false)
+			lastFilename = lastFilename + ".tocms";
 
 	settings >> numViewAnnotations;
 	settings >> mergeIdents;

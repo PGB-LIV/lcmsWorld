@@ -42,7 +42,7 @@ static const double DOUBLE_CLICK_TIME = 0.50 * 1e6;
 static const float clickZoomDistance = 65;
 
 TimeStamp lastTouchTime;
-
+TimeStamp Input::last_click_time;
 
 const float accel = 2000.0;
 
@@ -51,12 +51,16 @@ const float accel = 2000.0;
 static char keyMask[GLFW_KEY_LAST+1] = { 0 };
 
 static double last_xpos, last_ypos;
+
+
 void resetClick()
 {
 	double xpos, ypos;
 	glfwGetCursorPos(Globals::window, &xpos, &ypos);
 	last_xpos = xpos;
 	last_ypos = ypos;
+	Input::last_click_time = Globals::getCurrentTime();
+
 }
 
 

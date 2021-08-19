@@ -1443,7 +1443,7 @@ inline bool Landscape::canDraw(Tile *tile)
 {
 
 
-	Globals::setCurrentTime();
+	
  
 	 
 

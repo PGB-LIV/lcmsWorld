@@ -240,6 +240,7 @@
     <ClCompile Include="src\Settings.cpp" />
     <ClCompile Include="src\shader.cpp" />
     <ClCompile Include="src\Spectrum.cpp" />
+    <ClCompile Include="src\Splash.cpp" />
     <ClCompile Include="src\System.cpp" />
     <ClCompile Include="src\texture.cpp" />
     <ClCompile Include="src\Tile.cpp" />
@@ -464,6 +465,7 @@
     <ClInclude Include="src\shader.hpp" />
     <ClInclude Include="src\simdb.hpp" />
     <ClInclude Include="src\Spectrum.h" />
+    <ClInclude Include="src\Splash.h" />
     <ClInclude Include="src\Structs.h" />
     <ClInclude Include="src\SystemSetup.h" />
     <ClInclude Include="src\texture.hpp" />
