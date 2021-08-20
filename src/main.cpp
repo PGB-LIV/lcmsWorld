@@ -501,7 +501,7 @@ void drawLoop(glm::dmat4 view)
 		getView()->drawAnnotations();
 
 		getView()->drawCubes();
-
+		
 		glEnable(GL_DEPTH_TEST);
 
 

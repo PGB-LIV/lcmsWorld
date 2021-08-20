@@ -220,7 +220,8 @@ public:
 	std::vector<DataPointInfo> findDataPoints(mzFloat mz, lcFloat lc, signalFloat sig);
 	void clearAnnotations() { visibleAnnotations.clear();  annotations.clear(); annotationsLoaded = false;
 	}
-
+	void addSquare(float tx, float ty, float tz, float size, float sizey);
+	void appendLine();
 private:
 	glm::vec2  get2d(float tx, float ty, float tz);
 

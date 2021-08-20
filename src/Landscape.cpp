@@ -42,7 +42,7 @@ const static double maxSizePrepare = 0.22;
 Landscape::Landscape()
 {
 	//defines aspect ratio of default view
-	viewData = { 3500,80000,80000 };
+	viewData = { 3500,40000*4,40000 };
  
 	int gb = std::min((int) (System::systemMemory+.5), maxGB);
 
@@ -741,9 +741,40 @@ static const GLfloat g_vertex_buffer_data[] = {
 std::vector<glm::vec3> vertex_vec;
 std::vector<glm::vec2> uv_vec;
 std::vector < GLMesh *> cubeMarkers;
+
+void Landscape::addSquare(float tx, float ty, float tz, float size, float sizey)
+{
+
+	glm::vec4  mid = transform({ tx,ty,tz });
+
+ 
+
+	float u = 0.75f;
+	float v = 0.25f;
+ 
+	float xoffs[] = { 0, 1, -1,   0, 2, 1 };
+	float yoffs[] = { 1, 0, 0,    1,1, 0 };
+
+	
+	for (int i = 0; i < 6; i++)
+	{
+		int j = i;
+		auto x = mid.x + xoffs[j]*size;
+		auto y = mid.z + yoffs[j] * sizey;
+		
+		auto z = mid.y ;
+
+ 		vertex_vec.push_back(glm::vec3(x, z, y));
+		uv_vec.push_back(glm::vec2(u, v));
+	 
+	}
+
+}
+
+
 void Landscape::add3dMarker(float tx, float ty, float tz, int type, std::string text, float width, float height, float cubeSize)
 {
-	
+ 
 
 	tz += 0;
 	for (int i = 0; i < sizeof(g_vertex_buffer_data) / sizeof(g_vertex_buffer_data[0]); i += 3)
@@ -789,7 +820,23 @@ void Landscape::add3dMarker(float tx, float ty, float tz, int type, std::string 
 
 
 }
+void Landscape::appendLine()
+{
+	int steps = 500;
 
+ 
+	float size = viewData.worldSizeMz/steps;
+	float sizey = viewData.worldSizeLc / steps;
+
+	for (float i = 0; i < steps; i ++)
+	{
+		float x = (float)worldMzRange.min + ((worldMzRange.max - worldMzRange.min) / steps)* i;
+		float y = (float)worldLcRange.min + ((worldLcRange.max - worldLcRange.min) / steps) * i;
+		addSquare(x, y , 0, size, sizey);
+
+
+	}
+}
 void Landscape::drawCubes()
 {
 	static GLMesh*  cubeMesh = NULL;
@@ -798,6 +845,8 @@ void Landscape::drawCubes()
 	//this regenerates the meshes list every frame
  
 
+
+
 	if (cubeMesh != NULL)
 	{
 		delete cubeMesh;
@@ -805,17 +854,24 @@ void Landscape::drawCubes()
 
 	}
 
- 
+	if (Settings::autoCorrelate)
+		appendLine();
 
 	if ((cubeMesh == NULL) && vertex_vec.size() > 0)
 	{
+ 
+	
+
 		Mesh* newMesh = new Mesh(vertex_vec, uv_vec);
 		cubeMesh = new GLMesh(newMesh, false);
 		delete newMesh;
 	}
 
 	if (cubeMesh != NULL)
- 		Render::drawCubeMesh(cubeMesh,0);
+	{
+ 
+		Render::drawCubeMesh(cubeMesh, 0);
+	}
 	
 
 	cubeMarkers.clear();
@@ -1567,6 +1623,7 @@ void Landscape::updateLandscape(glm::dmat4 matrix)
 	if (Settings::showNumbers)
 	if (readyToDrawFlag)
 		addMarkers();
+
 
  	prepareTiles(tiles);
 

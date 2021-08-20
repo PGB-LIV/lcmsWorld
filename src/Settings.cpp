@@ -30,8 +30,9 @@ std::string  Settings::lastFilename = "/";
 vec3<float> Settings::scale = { 1,1,1 };
 bool Settings::showNumbers = false;
 bool Settings::addGridLines = false;
+bool Settings::autoCorrelate = true;
 
-float Settings::xScale_slider = 0;
+float Settings::xScale_slider = -3;
 float Settings::yScale_slider = 0;
 float Settings::zScale_slider = 0;
 //updating the version number will invalidate the settings file
@@ -218,6 +219,7 @@ void Settings::loadSettings()
 	settings >> axisMarker;
 	settings >> lastCameraString;
 	settings >> colourScheme ;
+	settings >> autoCorrelate;
 
 	setMouse();
  
@@ -318,7 +320,8 @@ void Settings::saveSettings()
 	settings << axisMarker << "\n";
 	settings << lastCameraString << "\n";
 	settings << colourScheme << "\n";
- 
+	settings << autoCorrelate << "\n";
+	
 	settings.close();
 
 }

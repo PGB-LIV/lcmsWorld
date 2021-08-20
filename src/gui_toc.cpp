@@ -269,7 +269,10 @@ void gui::setSliderValues()
 	if (Settings::remoteCamera == false)
 	{
 		Settings::scale.x = xScale < 0 ? -1 / (xScale - 1) : xScale + 1;
-
+		if (xScale > 10)
+		{
+			Settings::scale.x = 10 + (xScale - 10) * (xScale - 10);
+		}
 		Settings::scale.y = yScale < 0 ? -1 / (yScale - 1) : yScale + 1;
 
 		Settings::scale.z = zScale < 0 ? -1 / (zScale - 1) : zScale + 1;
@@ -295,14 +298,14 @@ void gui::SlidersMenu()
 {
 	float transformWidth = 230;
 	bool rebuild = false;
-	if (ImGui::SliderFloat("m/z scale", &Settings::xScale_slider, -10.0f, 10.0f, "%.1f"))
+	if (ImGui::SliderFloat("fragment scale", &Settings::xScale_slider, -10.0f, 15.0f, "%.1f"))
 		rebuild = true;
 
 
-	if (ImGui::SliderFloat("fragment scale", &Settings::yScale_slider, -10.0f, 10.0f, "%.1f"))
+	if (ImGui::SliderFloat("precursor scale", &Settings::yScale_slider, -10.0f, 10.0f, "%.1f"))
 		rebuild = true;
 
-	if (ImGui::SliderFloat("precursor scale", &Settings::zScale_slider, -10.0f, 10.0f, "%.1f"))
+	if (ImGui::SliderFloat("intensity scale", &Settings::zScale_slider, -10.0f, 10.0f, "%.1f"))
 		rebuild = true;
 
 	setSliderValues();
@@ -1059,6 +1062,7 @@ void  gui::viewMenu(glm::mat4 view)
 
 		// it's stored as an int, because I intend to add different positions
 		ImGui::Checkbox("Show Axis Marker", (bool*)&Settings::axisMarker);
+		ImGui::Checkbox("Show Correlation line", (bool*)&Settings::autoCorrelate);
 
 
 
