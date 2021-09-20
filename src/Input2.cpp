@@ -138,7 +138,21 @@ void Input::update()
 	mouseWheelFriction(deltaTime);
 	//c->wheelMove(mouse_wheel_pos, deltaTime);
 	if (abs(mouse_wheel_pos) > .0001)
-		c->dragZoom(mouse_wheel_pos/400, deltaTime);
+	{
+		if (keyMask[GLFW_KEY_LEFT_CONTROL])
+		{
+ 
+			Settings::xScale_slider += mouse_wheel_pos / 10;
+			if (Settings::xScale_slider > Settings::xScale_slider_max)
+				Settings::xScale_slider =  Settings::xScale_slider_max;
+			if (Settings::xScale_slider < Settings::xScale_slider_min)
+				Settings::xScale_slider = Settings::xScale_slider_min;
+		}
+		else
+		c->dragZoom(mouse_wheel_pos / 400, deltaTime);
+		
+		
+	}
 
 
 
@@ -613,7 +627,7 @@ void Input::handleCursor(Landscape* l)
 
 
 	lastTouchTime = Globals::currentTime;
-
+ 
 
 	getCursorZ();
 

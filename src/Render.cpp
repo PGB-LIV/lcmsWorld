@@ -44,6 +44,9 @@ const float flatAmbientLevel = 1.1f;
 float ambientLevel = 0.9f;
 
 std::deque<DeferDraw> Render::deferredQueue;
+std::deque<DeferDraw> Render::drawDeferredQueue;
+std::deque<DeferDraw> Render::tileQueue;
+std::deque<DeferDraw> Render::drawTileQueue;
 
 bool Render::drawWireFrame = true;
 
@@ -77,6 +80,7 @@ GLuint Render::cubeTexture;
 GLuint Render::cubeTexture2;
 GLuint Render::FolderTexture;
 GLuint Render::LcmsTexture;
+GLuint Render::LcmsBinTexture;
 GLuint Render::CsvTexture;
 GLuint CentreTexture;
  
@@ -129,6 +133,7 @@ static void glfw_error_callback(int error, const char* description)
 #include "../files/cube2.h"
 #include "../files/folder.h"
 #include "../files/lcms.h"
+#include "../files/lcms_bin.h"
 #include "../files/csv.h"
 #include "../files/centre.h"
 
@@ -160,6 +165,7 @@ void  Render::loadTextures()
 	
 	FolderTexture = loadBMP_custom_data(folder);
 	LcmsTexture = loadBMP_custom_data(lcms);
+	LcmsBinTexture = loadBMP_custom_data(lcms_bin);
 	CsvTexture = loadBMP_custom_data(csv);
 	CentreTexture = loadBMPA_custom_data(centre);
  
@@ -622,6 +628,7 @@ void Render::drawMesh(GLDraw *drawObject, bool wireFrame)
 void  Render::drawCubeMeshDirection(GLMesh* cube, int type)
 {
 	
+	
 	auto cmatrix = System::primary->getCamera()->getDirectionMatrix();
 	float zScale = Settings::scale.z;
 	if (Settings::axisMarker == 0)
@@ -795,6 +802,9 @@ void Render::readyTiles(Landscape *l)
 	glUniform1f(ambientID, ambientLevel);
 
 }
+
+
+
 void Render::drawBaseMesh(bool wire)
 {
 	if (Settings::colourScheme < 5)
@@ -804,6 +814,10 @@ void Render::drawBaseMesh(bool wire)
 	static GLMesh* base = NULL;
 	static GLMesh* baseQ = NULL;
 
+	//not used in toc-ms?
+	if (wire)
+	return;
+	 
 	if (wire)
 		if (Settings::addGridLines == false)
 
@@ -883,6 +897,7 @@ void renderSetup();
 
 //wireframe is drawn afterward - avoids v. frequent GL state changes
 std::vector<GLDraw *> wireBuffer;
+std::vector<GLDraw*> drawWireBuffer;
 
 void Render::drawTarget()
 {
@@ -974,18 +989,60 @@ void Render::drawTarget()
 #endif
 }
 
+std::mutex render_copy_mutex;
+
+void Render::copyBuffer()
+{
+ 
+
+	std::lock_guard<std::mutex> guard(render_copy_mutex);
+
+	drawTileQueue.clear();
+
+	drawTileQueue = tileQueue;
+	tileQueue.clear();
+	
+	drawWireBuffer = wireBuffer;
+	drawDeferredQueue = deferredQueue;
+	wireBuffer.clear();
+	deferredQueue.clear();
+}
+
+
 void Render::drawDeferred()
 {
+	std::deque<DeferDraw>tempDeferQueue;
+	std::deque<DeferDraw>temptileQueue;
+	std::vector<GLDraw*> drawWireBufferCopy;
+	if (1)
+	{
+		std::lock_guard<std::mutex> guard(render_copy_mutex);
+		temptileQueue = drawTileQueue;
+		drawWireBufferCopy = drawWireBuffer;
+		tempDeferQueue = drawDeferredQueue;
 
+	}
 //	glActiveTexture(GL_TEXTURE0);
 //	glBindTexture(GL_TEXTURE_2D, Texture);
-
-
-	while (deferredQueue.size() > 0)
+		//	drawMesh(drawObject, false);
+	// std::cout << " render " << temptileQueue.size() << "\n";
+	
+  
+	
+	for (auto dd: temptileQueue)
 	{
-		DeferDraw dd = deferredQueue.back();
-		deferredQueue.pop_back();
 
+			glUniform1f(AlphaID, dd.alpha);
+			drawMesh(dd.drawObject, false);
+		}
+
+	
+ 
+ 
+	for (auto dd: tempDeferQueue)
+	
+	{
+	
 		glUniform1f(AlphaID, dd.alpha);
 		drawMesh(dd.drawObject, false);
 	}
@@ -1002,8 +1059,8 @@ void Render::drawDeferred()
 	glUniform3f(LightID, lightPos.x, lightPos.y, lightPos.z);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
  
-
-	for (auto drawObject : wireBuffer)
+ 
+	for (auto drawObject : drawWireBufferCopy)
 	{
 		glUniform1f(AlphaID, drawObject->alpha);
 		glBindVertexArray(drawObject->vao);
@@ -1016,7 +1073,7 @@ void Render::drawDeferred()
 	
 	
  
-	wireBuffer.clear();
+
 
  
 	 
@@ -1096,10 +1153,10 @@ void Render::drawTile(Tile* tile, bool isFading)
 	}
 	else
 	{
- 
-		drawMesh(drawObject, false);
+ 		DeferDraw dd = { alpha, drawObject };
+		tileQueue.push_back(dd);
 
- 
+	//	drawMesh(drawObject, false);
 	}
 
 	 //	if (tile->getScreenSize() > .05)

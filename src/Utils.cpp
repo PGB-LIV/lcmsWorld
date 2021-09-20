@@ -108,8 +108,10 @@ std::vector <std::vector<std::string>> Utils::readFromExecutable(std::string exe
 			std::string exe = executable;
 
 
+
 #ifdef _WIN32
 			exe = std::filesystem::absolute(exe.c_str()).string();
+
 #endif
 
 			std::cout << "try to read " << exe << "\n";
@@ -132,7 +134,7 @@ std::vector <std::vector<std::string>> Utils::readFromExecutable(std::string exe
 			{
 #ifdef _WIN32
 
-				std::string cmd = "\"\"" + exe ;
+				std::string cmd = "\"" + exe +"\"";
 				std::cout << "starting " << cmd << " \n";
 
 				child = _popen(cmd.c_str(), "r");

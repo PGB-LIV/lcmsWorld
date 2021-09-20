@@ -5,6 +5,7 @@
 #include <ctime>
 #include <ratio>
 #include <chrono>
+#include <thread>
 #include "Globals.h"
 #include "Structs.h"
 #include "Camera.h"
@@ -21,8 +22,8 @@
 //#define DISABLE_UNLOADING
 const static int maxGB = 8;
 
-const static int TILES_PER_GB = 850;
-const static int MIN_TILES = 3000;
+const static int TILES_PER_GB = 750;
+const static int MIN_TILES = 4000;
 static int tilesInRam = MIN_TILES;
 
 static int GLtilesPerFrame = 50;
@@ -30,7 +31,7 @@ static int GLtilesThisFrame = 0;
 static int loadTilesPerFrame = 100;
 static int loadTilesThisFrame = 0;
 
-const static double minSize = 0.005*2;
+const static double minSize = 0.005*2    ; // smaller for toc-ms
 
 const double minSizePreload = 0.004*2;
 
@@ -47,7 +48,7 @@ Landscape::Landscape()
 	int gb = std::min((int) (System::systemMemory+.5), maxGB);
 
 	tilesInRam = (int) (MIN_TILES +gb*TILES_PER_GB);
-	tilesInRam = std::min(tilesInRam, TILES_PER_GB * 3);
+	//tilesInRam = std::min(tilesInRam, TILES_PER_GB * 3);
 
 
 
@@ -742,7 +743,7 @@ std::vector<glm::vec3> vertex_vec;
 std::vector<glm::vec2> uv_vec;
 std::vector < GLMesh *> cubeMarkers;
 
-void Landscape::addSquare(float tx, float ty, float tz, float size, float sizey)
+void Landscape::addDSquare(float tx, float ty, float tz, float size, float sizey)
 {
 
 	glm::vec4  mid = transform({ tx,ty,tz });
@@ -770,6 +771,39 @@ void Landscape::addSquare(float tx, float ty, float tz, float size, float sizey)
 	}
 
 }
+
+void Landscape::addSquare(float tx, float ty, float tz, float size, float sizey, int col)
+{
+
+	glm::vec4  mid = transform({ tx,ty,tz });
+
+	float ucols[] = { .05,.75,.95,.05,.25,.25,.95,.75,             .75,.95,.25,.25, .05, .95, .75, .05 };
+	float vcols[] = { .05,.25,.05,.95,.75,.25,.95,.75    ,      .75,.95,.25,.75, .95, .05, .25, .05 };
+
+	float u = ucols[col&7];
+	float v = vcols[col & 7];
+	
+	
+
+	float xoffs[] = { 0, 1, 0,   0, 1, 1 };
+	float yoffs[] = { 1, 0, 0,    1,1, 0 };
+
+
+	for (int i = 0; i < 6; i++)
+	{
+		int j = i;
+		auto x = mid.x + xoffs[j] * size;
+		auto y = mid.z + yoffs[j] * sizey;
+
+		auto z = mid.y;
+
+		vertex_vec.push_back(glm::vec3(x, z, y));
+		uv_vec.push_back(glm::vec2(u, v));
+
+	}
+
+}
+
 
 
 void Landscape::add3dMarker(float tx, float ty, float tz, int type, std::string text, float width, float height, float cubeSize)
@@ -820,23 +854,142 @@ void Landscape::add3dMarker(float tx, float ty, float tz, int type, std::string 
 
 
 }
+
+
+
 void Landscape::appendLine()
 {
-	int steps = 500;
+	int steps = 150;
 
- 
-	float size = viewData.worldSizeMz/steps;
+	if (camera == NULL)
+		return;
+
+	float size = viewData.worldSizeMz / steps;
 	float sizey = viewData.worldSizeLc / steps;
 
-	for (float i = 0; i < steps; i ++)
+
+
+	float yscale = Settings::correlateRatio;
+
+	if (yscale < 0)
 	{
-		float x = (float)worldMzRange.min + ((worldMzRange.max - worldMzRange.min) / steps)* i;
-		float y = (float)worldLcRange.min + ((worldLcRange.max - worldLcRange.min) / steps) * i;
-		addSquare(x, y , 0, size, sizey);
+		yscale = -1 / (yscale - 1);
+	}
+	else
+		yscale = yscale + 1;
+
+
+	auto camtarget = camera->currentTarget;
+	auto pos2d = get2d(camtarget.mz, camtarget.lc, 0);
+	
+
+	double ranges[] = {.00001, .0001, 0.01, 0.1, 1, 10,100,1000,10000 };
+	double range = 1000;
+	int cnt = 0;
+	int rangeIndex = 0;
+	for (auto r : ranges)
+	{
+		auto pos2da = get2d(camtarget.mz + r, camtarget.lc, 0);
+		auto dist = glm::distance(pos2d, pos2da);
+
+ 
+
+		if (dist > 30)
+		{
+			range = r;
+			rangeIndex = cnt;
+			break;
+		}
+		cnt++;
+	}
+	
+	
+
+
+
+
+	float xoff = (worldMzRange.max - worldMzRange.min) * Settings::correlateOffset;
+
+	// goes to *2 just because can start below 0, and it's easier
+
+	if (Settings::autoCorrelate)
+	for (float i = 0; i < steps * 2; i++)
+	{
+		float x = (float)worldMzRange.min + ((worldMzRange.max - worldMzRange.min) / steps) * i + xoff;
+		if ((x < worldMzRange.min) || x > worldMzRange.max)
+			continue;
+		float y = (float)worldLcRange.min + ((worldLcRange.max - worldLcRange.min) / steps) * i * yscale;
+
+		if (y > worldLcRange.max)
+			break;
+
+		addDSquare(x, y, 0, size, sizey * yscale);
+		
 
 
 	}
+
+	if (Settings::addGridLines == false)
+	return;
+
+ 
+	for (int r = 0; r < 2; r++)
+	{
+		float x = (float)worldMzRange.min;
+		steps = 10;
+		size = viewData.worldSizeMz / 50000;
+		sizey = viewData.worldSizeLc / steps;
+
+		size = range;
+
+
+		//	auto pos2d = get2d(camtarget.mz, camtarget.lc, 0);
+
+		x = camtarget.mz - (range * 50);
+		x = (int)(x / range);
+		x *= range;
+
+
+		cnt = 0;
+		while (x < worldMzRange.max)
+		{
+			for (float i = 0; i < steps * 2; i++)
+			{
+				float y = (float)worldLcRange.min + ((worldLcRange.max - worldLcRange.min) / steps) * i * yscale;
+
+				if (y > worldLcRange.max)
+					continue;
+
+				addSquare(x, y, 0, size*.5, sizey * yscale, rangeIndex);
+
+
+
+			}
+			x += range;
+			if (cnt++ > 100)
+				break;
+		}
+
+		range *= 10;
+		rangeIndex++;
+	}
+	 
 }
+
+
+
+
+
+
+
+void Landscape::drawPinstripes()
+{
+	// does not need to be separated - maybe if there is a priority change
+	return;
+ 
+}
+
+
 void Landscape::drawCubes()
 {
 	static GLMesh*  cubeMesh = NULL;
@@ -854,8 +1007,8 @@ void Landscape::drawCubes()
 
 	}
 
-	if (Settings::autoCorrelate)
-		appendLine();
+	
+ 	appendLine();
 
 	if ((cubeMesh == NULL) && vertex_vec.size() > 0)
 	{
@@ -1032,7 +1185,7 @@ inline glm::vec4  Landscape::transform(glm::vec3 input)
 
 void Landscape::draw(Tile* tile)
 {
-	checkReBuild();
+	 checkReBuild();
 
 
 	if (tile->mzRange.max < filter.mzRange.min)
@@ -1130,7 +1283,7 @@ void Landscape::draw(Tile* tile)
 
 
 
-		//	if (tile->getScreenSize() > 0.01)
+	//	 	if (tile->getScreenSize() > 0.01)
 		//if (tile->isOnScreen())
 		if ((tile->drawStatus == DrawStatus::ready)
 			|| (tile->drawStatus == DrawStatus::reCreatingMesh)
@@ -1380,6 +1533,8 @@ void Landscape::manageQueue()
 		return;
  
 
+ 
+
 	std::vector<Tile*> notReady;
  
  // take them in order of when they were last actually drawn
@@ -1456,7 +1611,7 @@ inline bool Landscape::canDraw(Tile *tile)
 	
 
 	//only check chilren if this is quite large
-//	if ((tile->getScreenSize() > maxSize) )
+ //	if ((tile->getScreenSize() > maxSize) )
 
 
 
@@ -1469,6 +1624,8 @@ inline bool Landscape::canDraw(Tile *tile)
 			if (canDraw(child))
 				readyChildren++;
 		}
+
+ 
 		// if any of the children were drawn recently, then we can draw them
 		// (to prevent removing children, then re-adding them moments later)
 		if (Globals::currentTime.time - child->lastDrawn.time < 2e6)
@@ -1497,20 +1654,26 @@ inline bool Landscape::canDraw(Tile *tile)
 }
 
 
- void Landscape::drawTiles(const std::vector<Tile*> draw_tiles)
+bool stillDrawing = false;
+
+
+#if 0
+//non-parallel version
+
+void Landscape::drawTiles(const std::vector<Tile*> draw_tiles)
 {
 
 
-	
- 
-	 
+	Globals::setCurrentTime();
+
+
 
 	if (draw_tiles.size() < 1)
 		return;
 	if (drawCallback == NULL)
 		return;
-	
- 
+
+
 	if (1)
 	{
 		bool all_drawn = true;
@@ -1547,32 +1710,25 @@ inline bool Landscape::canDraw(Tile *tile)
 
 	//this regenerates the meshes list every frame
 
- 
 
-	if ((targetMesh == NULL) )
+
+	if ((targetMesh == NULL))
 	{
 
-//		
-	 	static const GLfloat g_vertex_buffer_data[] = { 0,0,0,  0,0,1,  1,0,0 , 0,0,1,   1,0,0,  1,0,1 };
+		//		
+		static const GLfloat g_vertex_buffer_data[] = { 0,0,0,  0,0,1,  1,0,0 , 0,0,1,   1,0,0,  1,0,1 };
 
 		std::vector<glm::vec3> vertex_vec;
 		std::vector<glm::vec2> uv_vec;
-		
+
 		for (int i = 0; i < sizeof(g_vertex_buffer_data) / sizeof(g_vertex_buffer_data[0]); i += 3)
 		{
 			GLfloat x, y, z;
-			x = (g_vertex_buffer_data[i + 0]-.5f ) * -300;
-			y = (g_vertex_buffer_data[i + 1] ) * 300;
+			x = (g_vertex_buffer_data[i + 0] - .5f) * -300;
+			y = (g_vertex_buffer_data[i + 1]) * 300;
 			z = (g_vertex_buffer_data[i + 2] - .5f) * 300;
-
-	 
-
 			vertex_vec.push_back(glm::vec3(x, y, z));
-
-
-		
-
-			uv_vec.push_back(glm::vec2(-g_vertex_buffer_data[i + 0], -g_vertex_buffer_data[ i + 2]));
+			uv_vec.push_back(glm::vec2(-g_vertex_buffer_data[i + 0], -g_vertex_buffer_data[i + 2]));
 		}
 
 
@@ -1587,6 +1743,78 @@ inline bool Landscape::canDraw(Tile *tile)
 
 
 }
+
+
+#else
+
+ void Landscape::drawTiles(const std::vector<Tile*> draw_tiles)
+{
+	 
+ 
+
+	 Globals::setCurrentTime();
+
+ 
+
+
+	if (stillDrawing)
+ 		 return;
+
+ 
+
+	if (draw_tiles.size() < 1)
+		return;
+	if (drawCallback == NULL)
+		return;
+	
+	stillDrawing = true;
+ 
+	if (1)
+	{
+		bool all_drawn = true;
+		int cnt = 0;
+		int cd = 0;
+
+		for (Tile* tile : draw_tiles)
+		{
+			int ds = (int)tile->drawStatus;
+			cnt++;
+
+
+			//		drawCallback(tile);
+			//		continue;
+
+			if (canDraw(tile))
+			{
+				cd++;
+				draw(tile);
+			}
+
+
+		}
+ 
+		 
+	}
+
+
+	 
+	 
+	Render::copyBuffer();
+
+	stillDrawing = false;
+ 
+
+}
+
+
+
+
+
+
+#endif
+
+
+
 
 void Landscape::updateViewport(int x, int y)
 {
@@ -1612,6 +1840,8 @@ void Landscape::addPendingTiles()
 
 	tileLock.unlock();
 }
+
+
 void Landscape::updateLandscape(glm::dmat4 matrix)
 {
 	transformMatrix = matrix;
@@ -1634,12 +1864,116 @@ void Landscape::updateLandscape(glm::dmat4 matrix)
 
 }
 
+
 void Landscape::drawTiles()
 {
+
+	//drawTiles(tiles);
+	Globals::setCurrentTime();
+#if 1
+
+	if (tiles.size() < 1)
+		return;
+	if (drawCallback == NULL)
+		return;
+
+
+
+
+	
+	if (0)
+	{
+		std::vector<Tile*> copyTiles(tiles);
+		static int cnt = 0;
+		cnt++;
+		
+
+
+		//don't need to do this every frame, it can take more than 1 frame to do
+		int freq = 3;
+		
+
+		if ((cnt &freq) == 0)
+		{
+			std::thread t1([this, copyTiles] {drawTiles(copyTiles); });
+			t1.detach();
+
+//			drawTiles(copyTiles);
+
+
+		}
+	}
+	else
 	drawTiles(tiles);
+	/*
+	if (1)
+	{
+		std::thread t1([this, copyTiles] {drawTiles(copyTiles); });
+		t1.detach();
+	}
+	else
+	 drawTiles(tiles);
+
+	 */
+
+
+
+	Render::drawDeferred();
+	Render::drawTarget();
+	manageQueue();
+
+	drawPinstripes();
+
+	drawCubes();
+
+
+	static GLMesh* targetMesh = NULL;
+
+
+	//this regenerates the meshes list every frame
+
+
+
+	if ((targetMesh == NULL))
+	{
+
+		//		
+		static const GLfloat g_vertex_buffer_data[] = { 0,0,0,  0,0,1,  1,0,0 , 0,0,1,   1,0,0,  1,0,1 };
+
+		std::vector<glm::vec3> vertex_vec;
+		std::vector<glm::vec2> uv_vec;
+
+		for (int i = 0; i < sizeof(g_vertex_buffer_data) / sizeof(g_vertex_buffer_data[0]); i += 3)
+		{
+			GLfloat x, y, z;
+			x = (g_vertex_buffer_data[i + 0] - .5f) * -300;
+			y = (g_vertex_buffer_data[i + 1]) * 300;
+			z = (g_vertex_buffer_data[i + 2] - .5f) * 300;
+
+
+
+			vertex_vec.push_back(glm::vec3(x, y, z));
+
+
+
+
+			uv_vec.push_back(glm::vec2(-g_vertex_buffer_data[i + 0], -g_vertex_buffer_data[i + 2]));
+		}
+
+
+		Mesh* newMesh = new Mesh(vertex_vec, uv_vec);
+		targetMesh = new GLMesh(newMesh, false);
+
+		delete newMesh;
+	}
+
+	if (targetMesh != NULL)
+		Render::drawCubeMeshDirection(targetMesh, 0);
+
+#endif
 
  }
-
+ 
  
 
 std::vector<byte> Landscape::serialiseTiles(Tile* tile)
@@ -1846,6 +2180,15 @@ std::vector<DataPointInfo> Landscape::findDataPoints(mzFloat mz, lcFloat lc, sig
 
 DataPoint Landscape::findDataPoint(mzFloat mz, lcFloat lc, signalFloat sig)
 {
+
+	if (0)
+	{
+		DataPoint p = { mz,lc,-1 };
+
+		return p;
+	}
+
+
 	std::deque<Tile*> q;
 	for (auto tile : tiles)
 		q.push_back(tile);

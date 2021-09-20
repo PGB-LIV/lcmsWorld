@@ -533,6 +533,8 @@ double MZData::setRange(bool setIntensity)
 					info.signalRange.min = std::min(i, info.signalRange.min);
 					info.signalRange.max = std::max(i, info.signalRange.max);
 
+ 
+
 					if (info.signalRange.max > 1e37)
 					{
 						std::cout << "too large data found \n";
@@ -792,9 +794,9 @@ std::vector<MZData*> & MZData::split(int xsize, int ysize)
 std::vector<MZData*> MZData::new_split(int xsize, int ysize)
 {
 	std::vector<MZData*> newData;
-	MZData* table[16][16];
-	assert(xsize < 16);
-	assert(ysize < 16);
+	MZData* table[32][32];
+	assert(xsize < 32);
+	assert(ysize < 32);
 
 	for (int i = 0; i < xsize; i++)
 		for (int j = 0; j < ysize; j++)

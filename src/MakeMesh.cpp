@@ -867,14 +867,22 @@ Mesh* Landscape::makeMesh(Tile* tile)
 }
 
 
-#define max_line_size 32768
-unsigned short last_pos1y[max_line_size];
-unsigned short last_pos2y[max_line_size];
+int max_line_size = 256;
+
+unsigned short *last_pos1y = NULL;
+
+unsigned short *last_pos2y = NULL;
 
 //This is now used in preference to makemesh
 Mesh* Landscape::makeMesh2(Tile* tile)
 {
 
+	if (last_pos1y == NULL)
+	{
+		last_pos1y = (unsigned short*)  malloc(max_line_size * sizeof(unsigned short));
+		last_pos2y = (unsigned short*) malloc(max_line_size * sizeof(unsigned short));
+
+	}
 
 	int maxSkip = 0;
 	int numSkip = 0;
@@ -903,6 +911,10 @@ Mesh* Landscape::makeMesh2(Tile* tile)
 	}
 	scale_lock.unlock();
 
+
+
+
+
 	auto mzRange = worldMzRange;
 	auto lcRange = worldLcRange;
 	auto signalRange = worldSignalRange;
@@ -910,6 +922,19 @@ Mesh* Landscape::makeMesh2(Tile* tile)
 
 	MZScan* first = scans[0];
 	int width = (int)first->getMz().size();
+
+	
+	if (max_line_size <= width)
+	{
+		max_line_size = width * 3 / 2;
+		free(last_pos1y);
+		free(last_pos2y);
+		last_pos1y = (unsigned short*)malloc(max_line_size * sizeof(unsigned short));
+		last_pos2y = (unsigned short*)malloc(max_line_size * sizeof(unsigned short));
+
+	}
+
+
 	int height = (int)scans.size();
 
 	int num_vertices = width * height * 4;
@@ -955,7 +980,9 @@ Mesh* Landscape::makeMesh2(Tile* tile)
 	//this stores the (next) line from where an x-position was succesfully written
 	//so we can retrieve and share vertices
 	//bearing in mind that some lines are missing vertices (due to zero removal)
-	memset(last_pos1y, -1, sizeof(last_pos1y));
+	memset(last_pos1y, -1, width * sizeof(unsigned short) );
+
+//	memset(last_pos2y, -1, width * sizeof(unsigned short) );
 
 	for (int i = 0; i < height + 1; i++)
 	{
@@ -1020,6 +1047,11 @@ Mesh* Landscape::makeMesh2(Tile* tile)
 		unsigned short last_pos1;
 		unsigned short last_pos2;
 		int loops = 0;
+
+	//	std::cout << topI.size() << " . " << botI.size() << " . " << width << "\n";
+
+	
+
 		for (int j = 1; j < width; j++)
 		{
 
@@ -1044,6 +1076,11 @@ Mesh* Landscape::makeMesh2(Tile* tile)
 
 			auto x2 = topMz[j];
 
+			if (x2 < x1)
+			if (tile->LOD == 0)
+			{
+				std::cout << x1 << " -  " << x2 << "\n";
+			}
 			auto z1 = topI[j - 1];
 			auto z3 = botI[j - 1];
 
@@ -1077,7 +1114,7 @@ Mesh* Landscape::makeMesh2(Tile* tile)
 
 			}
  
-
+			assert(j < max_line_size);
 
 
 			byte mapVal = 0;
@@ -1090,19 +1127,19 @@ Mesh* Landscape::makeMesh2(Tile* tile)
 
 			}
  
-			if (loops < 1)
+			if (loops < 1 )
 			{
 
 
 			 
 
-
+			
 				if (insertData(tile, vertex_vec, uv_vec, vb_vec, attr_vec, x1, x1, y1, y2, 0, z1, 0, z3, mapVal, 0))
 				{
 
 				}
 
-
+		
 				//always insert it, but don't add sides
 				if (insertData(tile, vertex_vec, uv_vec, vb_vec, attr_vec, x1, x2, y1, y2, z1, z2, z3, z4, mapVal, 1))
 				{
@@ -1120,10 +1157,13 @@ Mesh* Landscape::makeMesh2(Tile* tile)
 				if (last_pos1y[j] == (i))
 				{
 					assert(j < max_line_size);
+					if (0)
+					if (tile->LOD == 0)
+					{
 
+						std::cout << x2 << " , " << last_pos1 << ", " << last_pos2 << "\n";
+				}
 			 
-
-
 					if (insertData(tile, vertex_vec, uv_vec, vb_vec, attr_vec, x2, y2, z4, last_pos1, last_pos2, last_pos2y[j], mapVal))
 					{
 						last_pos1y[j] = i + 1;
@@ -1134,6 +1174,7 @@ Mesh* Landscape::makeMesh2(Tile* tile)
 				else
 				{
 					////if it didn't, we only reuse the two (x) xpoints
+			 
 					if (insertData(tile, vertex_vec, uv_vec, vb_vec, attr_vec, x2, y1, y2, z2, z4, last_pos1, last_pos2, mapVal))
 					{
 						last_pos1y[j] = i + 1;

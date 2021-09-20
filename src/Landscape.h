@@ -220,8 +220,7 @@ public:
 	std::vector<DataPointInfo> findDataPoints(mzFloat mz, lcFloat lc, signalFloat sig);
 	void clearAnnotations() { visibleAnnotations.clear();  annotations.clear(); annotationsLoaded = false;
 	}
-	void addSquare(float tx, float ty, float tz, float size, float sizey);
-	void appendLine();
+
 private:
 	glm::vec2  get2d(float tx, float ty, float tz);
 
@@ -232,6 +231,7 @@ private:
 	void setScale(Tile* tile);
 
 	Mesh* getJaggedMesh(Tile* tile);
+	void drawPinstripes();
 
 
 	bool insertData(Tile* tile, std::vector<glm::vec3> &vertex_vec, std::vector<glm::vec2> &uv_vec, mzFloat x1, mzFloat x2, lcFloat y1, lcFloat y2, signalFloat z1, signalFloat z2, signalFloat z3, signalFloat z4);
@@ -284,7 +284,9 @@ private:
 	bool annotationsLoaded = false;
 	int sortedAnnotations = 0;
 		
-
+	void addSquare(float tx, float ty, float tz, float size, float sizey, int col);
+	void addDSquare(float tx, float ty, float tz, float size, float sizey);
+	void appendLine();
  
 };
 

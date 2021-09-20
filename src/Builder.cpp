@@ -20,7 +20,7 @@
 
 #include "RawLoader.h"
 
- #include "Utils.h"
+#include "Utils.h"
 #include <sstream>
 #include <iomanip>
 // #include <GL/gl3w.h>    
@@ -43,14 +43,14 @@
 
 int Builder::useThreads = 4;
 
- 
+
 int Builder::totalScans = 0;
 volatile std::atomic<int> Builder::num_threads = 0;
 std::mutex Builder::make_lock;
 
-static const int pointsPerTile = 4500;
+static const int pointsPerTile = 5000  ;
 static const 	int pointsPerTileWeb = 3500;
-static const int pointsPerTile0 = pointsPerTile *3;
+static const int pointsPerTile0 = pointsPerTile  ;
 
 Builder::errorType Builder::error = none;
 
@@ -62,12 +62,12 @@ Tile* Builder::makeTiles(MZData* data, int lod, int threadId)
 {
 	//	auto thread_id = std::this_thread::get_id();
 
-	
+
 
 
 	int lcSize = (int)data->getScans().size();
 	int mzSize = data->getMaxSize();
-	double ratio = (mzSize*1.0) / lcSize;
+	double ratio = (mzSize * 1.0) / lcSize;
 
 	double size = pointsPerTile;
 	if (Cache::makeMetaFile)
@@ -96,16 +96,42 @@ Tile* Builder::makeTiles(MZData* data, int lod, int threadId)
 		Tile* tile = new Tile(lod, source, System::primary);
 		tile->setMZData(smallData);
 
-//  trying different splits - greater splits should mean fewer levels of detail needed
+		//  trying different splits - greater splits should mean fewer levels of detail needed
 
 		int splitX = 2;
 		int splitY = 2;
-		if (lod < 2 )
+		if (mzSize > lcSize * 6)
 		{
 			splitX = 4;
 			splitY = 1;
 
 		}
+		//tocms data can be very wide
+
+		if (lod == 0)
+		{
+			splitX = 4;
+			splitY = 1;
+			if (mzSize > 100000)
+				splitX = 12;
+
+
+	 
+
+		}
+
+		//not sure about this, but reduces the very long y ranges you can get due to all splits being better in X
+		// for extremely wide data sets
+
+ 
+		if (lod == 1)
+		{
+			splitX = 1;
+			splitY =  8;
+
+		}
+
+
 
 		auto children = data->split(splitX, splitY);
 		//split should delete the scans, but not the MZData object itself
@@ -187,7 +213,7 @@ std::mutex testLock;
 
 Tile* Builder::makeTilesBase(MZData* data, int threadId)
 {
- 
+
 
 	//should probably already be set
 	making[threadId] = 1;
@@ -196,7 +222,7 @@ Tile* Builder::makeTilesBase(MZData* data, int threadId)
 	{
 		testLock.lock();
 		locked = true;
- 	}
+	}
 	//	make_lock.lock();
 
 	Tile* result = makeTiles(data, 0, threadId);
@@ -209,7 +235,7 @@ Tile* Builder::makeTilesBase(MZData* data, int threadId)
 	making[threadId] = 0;
 	if (locked)
 	{
- 		testLock.unlock();
+		testLock.unlock();
 	}
 
 	num_threads--;
@@ -220,11 +246,11 @@ Tile* Builder::makeTilesBase(MZData* data, int threadId)
 void Builder::makeLandscapeFromCache(std::string filename)
 {
 	Landscape* l = Cache::loadMetaData(filename);
-		if (l != NULL)
+	if (l != NULL)
 	{
-			System::primary = l;
-			Cache::setupCache(filename, false);
-		
+		System::primary = l;
+		Cache::setupCache(filename, false);
+
 		setCallbacks(System::primary);
 		Globals::statusText = "";
 
@@ -233,11 +259,11 @@ void Builder::makeLandscapeFromCache(std::string filename)
 }
 void Builder::makeLandscapeFromData(std::vector<byte> data)
 {
- 
+
 }
 
 
-extern int sax_error_type ;
+extern int sax_error_type;
 
 
 
@@ -259,12 +285,12 @@ void Builder::makeLandscape(std::string filename)
 
 
 	// std::string filename = "files/small.mzml"; // small.mzml  test2.mzml
-	MZLoader *loader;
+	MZLoader* loader;
 
 	//check if a custom reader exists
 	std::string exe = gui::getFileReader(loadFile);
 
-	
+
 	if (exe.length() > 0)
 	{
 		loader = new RawLoader(filename, exe);
@@ -324,11 +350,11 @@ void Builder::makeLandscape(std::string filename)
 			continue;
 
 #if 1
- 
- 		testLock.lock();
+
+		testLock.lock();
 		testLock.unlock();
 
-  
+
 		//find a slot that is not in use
 		for (int i = 0; i < useThreads; i++)
 		{
@@ -366,7 +392,7 @@ void Builder::makeLandscape(std::string filename)
 	if (error != none)
 	{
 		std::string error_string = "The mzml file was not sequential\nPlease try converting it with ProteoWizard.";
-		if (error==exception)
+		if (error == exception)
 			error_string = "The mzml file could not be read.";
 
 		new Error(Error::ErrorType::file, error_string);
@@ -385,11 +411,11 @@ void Builder::makeLandscape(std::string filename)
 	if (System::primary->getTiles().size() == 0)
 	{
 		std::string error = "No LC-MS data was found in the .mzml file.";
-		
+
 		if (Settings::experimentalMzml == false)
 		{
 			error = "No LC-MS data was found in the .mzml file. ";
-			if (sax_error_type==1)
+			if (sax_error_type == 1)
 				error = "No LC-MS data was found in the .mzml file. For non-indexed files, \nplease try enabling the experimental mzml reader in the advanced settings\nor convert the file to indexed.";
 		}
 
@@ -402,7 +428,7 @@ void Builder::makeLandscape(std::string filename)
 		System::primary = NULL;
 		Globals::statusText = "";
 
-		Cache::closeCache( );
+		Cache::closeCache();
 
 
 		return;
@@ -458,7 +484,7 @@ void Builder::makeLandscape(std::string filename)
 
 	delete loader;
 
- 
+
 	std::cout << std::flush;
 	// Globals::statusText = "Loading complete ";
 	return;
@@ -467,7 +493,7 @@ void Builder::makeLandscape(std::string filename)
 }
 
 
-void Builder::setCallbacks(Landscape *l)
+void Builder::setCallbacks(Landscape* l)
 {
 	std::cout << " Callbacks set \n";
 	l->setMakeMeshCallback(Cache::makeMeshStandard);

@@ -14,8 +14,11 @@ class Render
 
 
 	static std::deque<DeferDraw> deferredQueue;
+	static std::deque<DeferDraw> drawDeferredQueue;
+	static std::deque<DeferDraw> tileQueue;
+	static std::deque<DeferDraw> drawTileQueue;
 
-
+	
 
 	static GLuint programID;
  	// Get a handle for our "MVP" uniform
@@ -73,6 +76,7 @@ public:
 	static GLuint attribID;
 	static GLuint vertexNormal_modelspaceID;
 
+	static void copyBuffer();
 
 	const static float highThreshold;
 	static void readyTiles(Landscape *l);
@@ -86,6 +90,8 @@ public:
 	
 	static GLuint FolderTexture;
 	static GLuint LcmsTexture;
+	static GLuint LcmsBinTexture;
+
 	static GLuint CsvTexture;
 
 	static glm::mat4 GlobalViewMatrix;

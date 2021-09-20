@@ -30,9 +30,9 @@ RawLoader::RawLoader(MZLoaderHandle handle, const std::string path_to_executable
 {
 	fileHandle = handle;
 	executable = path_to_executable;
-	
+
 }
- 
+
 
 RawLoader::~RawLoader()
 {
@@ -78,21 +78,31 @@ int curScan = 0;
 int lastScan = 0;
 FILE* child;
 //maximum length of a line
-char buffer[1024 * 1024 * 8];
+
+int buffer_size = 1024 * 1024 * 16;
+char* buffer = NULL;
+double maxVal = 0;
+
 MZData* RawLoader::loadDataPartial()
 {
 
+	if (buffer == NULL)
+		buffer = (char*)std::malloc(buffer_size);
 	if (Globals::closing)
 		return NULL;
-
 
 	// finished
 	if (status == 2)
 	{
+		Globals::statusText = fileHandle.getFileName();
+
 		fclose(child);
+		std::free(buffer);
+		buffer = NULL;
 		return NULL;
 	}
 	static std::chrono::system_clock::time_point start;
+	int max = 0;
 
 
 	try
@@ -109,38 +119,42 @@ MZData* RawLoader::loadDataPartial()
 			start = std::chrono::system_clock::now();
 
 			std::string exe = executable;
-			
+
 
 #ifdef _WIN32
 			exe = std::filesystem::absolute(exe.c_str()).string();
 #endif
- 
+
 			std::ifstream f(exe.c_str());
 			if (!f.good())
 			{
-
-				new Error(Error::ErrorType::file, executable+" was not found");
+				std::free(buffer);
+				new Error(Error::ErrorType::file, executable + " was not found");
+				buffer = NULL;
 				return NULL;
 
 			}
 
 
 
-			
+
 
 
 			try
 			{
 #ifdef _WIN32
 				//no noise removal (file could be big!)
-				//std::string cmd = "\"\""+ exe + "\" \"" + fileName +"\"\" -n";
-				std::string cmd = "\"\"" + exe + "\" \"" + fileName + "\"\" ";
+				std::string cmd = "\"\"" + exe + "\" \"" + fileName + "\"\" -n";
+				//				std::string cmd = "\"\"" + exe + "\" \"" + fileName + "\"\" ";
+				//				std::string cmd = "\"\"" + exe + "\" \"" + fileName + "\"\" -t 0.00005";
+
 				std::cout << "starting " << cmd << " \n";
+
 
 				child = _popen(cmd.c_str(), "r");
 #else
 
-				std::string cmd = "\"+exe + "\" \"" + fileName+"\"";
+				std::string cmd = "\"+exe + "\" \"" + fileName + "\"";
 				child = popen(cmd.c_str(), "r");
 #endif
 
@@ -149,24 +163,25 @@ MZData* RawLoader::loadDataPartial()
 
 
 			{
-
+				std::free(buffer);
+				buffer = NULL;
 				new Error(Error::ErrorType::file, "The RawFileReader could not be started\nThis may require installing .Net Framework");
 				return NULL;
 			}
 
 
 
-			
+
 			//get the size
 
 
 
 			try
 			{
-				fgets(buffer, sizeof(buffer), child);
+				fgets(buffer, buffer_size, child);
 				//ignore comments
 				while (buffer[0] == '#')
-					fgets(buffer, sizeof(buffer), child);
+					fgets(buffer, buffer_size, child);
 
 
 				size = atoi(buffer);
@@ -176,11 +191,12 @@ MZData* RawLoader::loadDataPartial()
 			catch (...)
 			{
 #ifdef _WIN32
-				new Error(Error::ErrorType::file, "tocmsWorld was not able to use the "+executable+"\nThis may require installing .Net Framework");
+				new Error(Error::ErrorType::file, "tocmsWorld was not able to use the " + executable + "\nThis may require installing .Net Framework");
 #else
 				new Error(Error::ErrorType::file, "tocmsWorld was not able to use the " + executable + "\nThis may require installing Mono.");
 #endif
-
+				std::free(buffer);
+				buffer = NULL;
 				return NULL;
 			}
 
@@ -201,7 +217,10 @@ MZData* RawLoader::loadDataPartial()
 			if (readScans >= size)
 			{
 
+
+				std::free(buffer);
 				status = 2;
+				buffer = NULL;
 				return NULL;
 
 			}
@@ -227,21 +246,27 @@ MZData* RawLoader::loadDataPartial()
 			while (curScan < size)
 			{
 				if (Globals::closing)
+				{
+					std::free(buffer);
+					buffer = NULL;
 					return NULL;
+				}
 
 				double progress = 100.0 * curScan / size;
 				Globals::statusText = "Loaded " + std::to_string((int)progress) + "%%";
-				if (progress >= 100)
+				if (progress > 99.5)
 				{
-					Globals::statusText = "Loaded 100%%, Processing data...";
+					Globals::statusText = fileName;
+
+
 				}
 
-				fgets(buffer, sizeof(buffer), child);
+				fgets(buffer, buffer_size, child);
 				if (buffer[0] == '#')
 					continue;
 
 				curScan = atoi(buffer);
-				if (curScan < 0 )
+				if (curScan < 0)
 
 					break;
 
@@ -253,21 +278,56 @@ MZData* RawLoader::loadDataPartial()
 
 				lastScan = curScan;
 
-				fgets(buffer, sizeof(buffer), child);
-				lcTime = (lcFloat) atof(buffer);
+				fgets(buffer, buffer_size, child);
+				lcTime = (lcFloat)atof(buffer);
 
 
 
-				if (  lcTime < 0)
+				if (lcTime < 0)
 
 					break;
 
-				fgets(buffer, sizeof(buffer), child);
+
+				//read scan length
+				fgets(buffer, buffer_size, child);
 				int scanSize = atoi(buffer);
+
+
+				//check buffer is big enough - we know how many chars should be in a 64-bit float
+
+				int max_line_length = scanSize * 25 + 4;
+				if (buffer_size < max_line_length)
+				{
+					buffer_size = max_line_length;
+					free(buffer);
+					buffer = (char*)malloc(buffer_size);
+				}
+
 				mzData.reserve(scanSize);
 				intensityData.reserve(scanSize);
 
-				fgets(buffer, sizeof(buffer), child);
+
+				//read the mz valuees
+				fgets(buffer, buffer_size, child);
+
+				//expand the buffer as needed
+				//this should never be used, unless the file reader is giving unnecessarily long values
+				//the strlen is a bit slow, would prefer to remove it, but it's only a couple of percent
+				if (1)
+					while (strlen(buffer) >= buffer_size - 1)
+					{
+
+						char* new_buffer = (char*)malloc(buffer_size * 2);
+						strcpy(new_buffer, buffer);
+						fgets(buffer, buffer_size, child);
+						strcat(new_buffer, buffer);
+
+						char* old = buffer;
+						buffer = new_buffer;
+						free(old);
+						buffer_size = buffer_size * 2;
+
+					}
 				std::string mz(buffer);
 
 				char* np = buffer;
@@ -292,11 +352,13 @@ MZData* RawLoader::loadDataPartial()
 
 						double val = atof(np);
 
+
+
 						if (val < last)
 						{
 							std::cout << " Error in m/z out of order " << val << " < " << last << "\n";
 						}
-						last = (mzFloat) val;
+						last = (mzFloat)val;
 						mzData.push_back((mzFloat)val);
 						np = ptr + 1;
 					}
@@ -305,7 +367,29 @@ MZData* RawLoader::loadDataPartial()
 					ptr++;
 
 				}
-				fgets(buffer, sizeof(buffer), child);
+
+				//read the intensity valuees
+				fgets(buffer, buffer_size, child);
+
+				if (1)
+					while (strlen(buffer) >= buffer_size - 1)
+					{
+
+						char* new_buffer = (char*)malloc(buffer_size * 2);
+						strcpy(new_buffer, buffer);
+						fgets(buffer, buffer_size, child);
+						strcat(new_buffer, buffer);
+
+						char* old = buffer;
+						buffer = new_buffer;
+						free(old);
+						buffer_size = buffer_size * 2;
+
+					}
+
+				//		std::cout << " strlen " << strlen(buffer) << "  " << buffer_size << "\n";
+
+
 				np = buffer;
 
 
@@ -321,7 +405,17 @@ MZData* RawLoader::loadDataPartial()
 						if (ptr == np)
 							break;
 						*ptr = 0;
-						intensityData.push_back((mzFloat)atof(np));
+
+						auto val = atof(np);
+
+						if (val > maxVal)
+						{
+
+
+							maxVal = val;
+						}
+						//		val += 1;
+						intensityData.push_back(val);
 						np = ptr + 1;
 					}
 					if (c == '\n' || c == 0)
@@ -330,7 +424,7 @@ MZData* RawLoader::loadDataPartial()
 
 				}
 
-				
+
 
 				assert(intensityData.size() == mzData.size());
 				assert(intensityData.size() == scanSize);
@@ -342,11 +436,29 @@ MZData* RawLoader::loadDataPartial()
 
 
 
+				//amend thhis to take into account size of lines
 
-				if (result->size() >= linesPerChunk)
+				int maxChunkSize = linesPerChunk;
+				if (buffer_size > 100000)
+					maxChunkSize /= 2;
+				if (buffer_size > 250000)
+					maxChunkSize /= 2;
+				if (buffer_size > 500000)
+					maxChunkSize /= 2;
+
+				//now evenly distribute the chunks
+				int sections = 1 + (size / maxChunkSize);
+
+				maxChunkSize = 1 + (size / sections);
+				//temp test - trying to check when it goes wrong
+	 
+
+				if (result->size() >= maxChunkSize)
 				{
 					std::cout << result->size() << " returning buffer \n";
 					lineCopy = new MZScan(last_line);
+
+
 
 					return result;
 				}
@@ -356,7 +468,8 @@ MZData* RawLoader::loadDataPartial()
 
 			if (lcTime < -1)
 			{
-
+				std::free(buffer);
+				buffer = NULL;
 				new Error(Error::ErrorType::file, "There was an error while loading file.");
 				return NULL;
 
@@ -368,16 +481,22 @@ MZData* RawLoader::loadDataPartial()
 			std::cout << " load took " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << " \n";
 			std::cout << "for parsing " << readScans << " ms1 spectra \n";
 
+			std::cout << "loaded \n";
 			Globals::statusText = fileName;
-
+			
 			status = 2;
-
+			std::free(buffer);
+			buffer = NULL;
 			return result;
 
 		}
 	}
 	catch (...)
 	{
+		if (buffer != NULL)
+			free(buffer);
+
+		buffer = NULL;
 		// likely happens when shutting down and hence access memory which has been deleted
 		return NULL;
 	}

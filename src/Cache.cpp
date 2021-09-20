@@ -1,5 +1,7 @@
 #include "gl3w/gl3w.h"    // Initialize with gl3wInit()
 
+#include <chrono>
+#include <thread>
 #include <array>
 #include <iostream>
 #include <thread>
@@ -295,6 +297,8 @@ void Cache::processLoadQueue()
 
 	while (processQueue)
 	{
+		// std::this_thread::sleep_for(std::chrono::milliseconds(2));
+
 		if (loadQueue.empty())
 		{
 			queueSize = 0;

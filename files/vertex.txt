@@ -51,11 +51,13 @@ vertexAttributeI =  0;
 		vertexAttributeI =  1;
 
 	}
- 
+
+	vec3 vpi = vp;
+
  
 	if (rootFlag == 1)
 	{
-		vp.y = sqrt(vp.y);
+		vp.y = sqrt(vp.y + 1);
 	}
 	if (rootFlag == 2)
 	{
@@ -89,7 +91,7 @@ vertexAttributeI =  0;
 		{
 		UV.x = 0.25;
 		//these constants come from landscape viewdata peakheight , makemeseh zOffset , and landscape peakUV)
-		UV.y = .001 + vp.y / 3500 * 0.995f ;
+		UV.y = .001 + vpi.y / 3500 * 0.995f ;
  		}
 	 
 
@@ -97,7 +99,8 @@ vertexAttributeI =  0;
 
 	if (rootFlag ==1)
 		{
-	//	UV.y = sqrt(UV.y);
+	// 	UV.y = sqrt(UV.y);
+	//	UV.y = UV.y*UV.y;
 		}
 
 

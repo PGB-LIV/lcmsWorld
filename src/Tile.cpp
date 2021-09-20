@@ -626,7 +626,8 @@ void Tile::setMZData(MZData* n)
 	drawStatus = DrawStatus::noMesh;
 	numDataPoints = n->info.num_points;
 	maxSignal = n->info.signalRange.max;
-	
+ 
+
 	updateWorldRange(n->info);
 	hasMzData = true;
 }

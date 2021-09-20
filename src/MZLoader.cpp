@@ -43,7 +43,7 @@ SignalMz MZLoader::insertZeros(const std::vector<mzFloat> &mz, const std::vector
  
 		if (true && (i > 1) &&((mz[i] - mz[i - 1]) > gap_threshold))
 		{
-			auto lowsig = std::min(mz[i], mz[i - 1]);
+			auto lowsig = std::min(sig[i], sig[i - 1]);
 
 			newMz.push_back(mz[i-1] + 0.01);
 			newSig.push_back(lowsig);
@@ -147,6 +147,7 @@ void MZLoader::addScan()
 	else
 	{
 
+		
 
 		last_line = new MZScan(mzData, intensityData, lcTime);
 

@@ -12,6 +12,8 @@ class Settings
 public:
 	//adjusts the amount of detail shown, constant setting
 	static inline float DetailConstant = .0004f;  //was .0005
+	static inline float xScale_slider_max = 30;
+	static inline float xScale_slider_min = -30;
 
 	static void setMouse() { 
 		if (Settings::mouseSpeed >= 50)
@@ -88,5 +90,6 @@ public:
 
 	static int colourScheme;
 	static bool autoCorrelate;
-	
+	static float correlateRatio;
+	static float correlateOffset;
 };

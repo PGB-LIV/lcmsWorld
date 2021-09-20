@@ -30,9 +30,10 @@ std::string  Settings::lastFilename = "/";
 vec3<float> Settings::scale = { 1,1,1 };
 bool Settings::showNumbers = false;
 bool Settings::addGridLines = false;
-bool Settings::autoCorrelate = true;
+bool Settings::autoCorrelate = false;
 
-float Settings::xScale_slider = -3;
+
+float Settings::xScale_slider = 0;
 float Settings::yScale_slider = 0;
 float Settings::zScale_slider = 0;
 //updating the version number will invalidate the settings file
@@ -42,6 +43,10 @@ float Settings::wheelSpeed = 50;
 float Settings::mouseSpeed = 50;
 
 float Settings::drawTarget = 0;
+
+float Settings::correlateRatio = 1;
+float Settings::correlateOffset = 0;
+
 
 bool Settings::disableCamera = false;
 bool Settings::showInfoPanel = false;
@@ -220,6 +225,9 @@ void Settings::loadSettings()
 	settings >> lastCameraString;
 	settings >> colourScheme ;
 	settings >> autoCorrelate;
+	settings >> correlateRatio;
+	settings >> correlateOffset;
+
 
 	setMouse();
  
@@ -321,7 +329,12 @@ void Settings::saveSettings()
 	settings << lastCameraString << "\n";
 	settings << colourScheme << "\n";
 	settings << autoCorrelate << "\n";
-	
+	settings << correlateRatio << "\n";
+
+	settings << correlateOffset << "\n";
+
+ 
+
 	settings.close();
 
 }

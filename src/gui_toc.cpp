@@ -9,7 +9,7 @@
 #else
 #include <dirent.h>
 #endif
-
+#include <thread>
 
 
 bool fileOpen(std::string filePathName);
@@ -48,7 +48,7 @@ ImFont* gui::bold;
 // const char * identFilters = ".csv\0\0";
 const char* identFilters = ".csv\0.txt\0.mzid\0.mzid.gz\0.mztab\0\0";
 
-char* lcmsFilters = "\0\0";
+const char* lcmsFilters = "\0\0";
 std::vector <std::string> lcmsFileFilters = { ".tocms" };
 
 //char* lcmsFilters = ".lcms\0.mzml\0.raw\0\0";
@@ -84,8 +84,11 @@ std::string gui::getFileReader(std::string filename)
 	return "";
 }
 
+//note - run in background thread to not delay startup
 void gui::setupReaders()
 {
+
+
 	//going to look for executables
 	std::string path = RawLoader::rawReaderFolder;
 	DIR* dir = opendir(path.c_str());
@@ -95,11 +98,17 @@ void gui::setupReaders()
 		return;
 	}
 	struct dirent* ent;
+
+	std::vector <std::string> newFileFilters = { ".tocms" };
+
+
 	while ((ent = readdir(dir)) != NULL) {
 		std::string filename(ent->d_name);
 
 		if (ends_with(filename, ".exe"))
 		{
+
+
 			auto lines = Utils::readFromExecutable(path+"/"+filename);
 			for (auto parts : lines)
 			{
@@ -110,7 +119,7 @@ void gui::setupReaders()
 				//for now we assume the executable indicates the extension it can load
 				//as in reader.raw.exe, reader.hdf5.exe, etc.
 				std::string extension = "";
-				std::string executable = path + "/" + filename;
+				std::string executable =  path + "/" + filename ;
 				std::string description = "";
 				for (int i = 0; i < parts.size() - 1; i += 2)
 				{
@@ -135,7 +144,7 @@ void gui::setupReaders()
 					std::cout << "adding parser for extension " + extension << "  for " << description << "  \n";
 					fileReaders.push_back(extension);
 					fileReaders.push_back(executable);
-					lcmsFileFilters.push_back(extension);
+					newFileFilters.push_back(extension);
 				}
 
 			}
@@ -148,7 +157,7 @@ void gui::setupReaders()
 	int length = 1;
 
 	std::string allFilters = "";
-	for (auto ext : lcmsFileFilters)
+	for (auto ext : newFileFilters)
 	{
 		if (length == 1)
 			allFilters = ext;
@@ -159,8 +168,8 @@ void gui::setupReaders()
 	}
 	length += allFilters.length() + 1;
 
-	if (lcmsFileFilters.size() > 1)
-		lcmsFileFilters.insert(lcmsFileFilters.begin(), allFilters);
+	if (newFileFilters.size() > 1)
+		newFileFilters.insert(newFileFilters.begin(), allFilters);
 
 
 	char* buffer = (char*)std::malloc(length);
@@ -169,7 +178,7 @@ void gui::setupReaders()
 
 
 	int idx = 0;
-	for (auto ext : lcmsFileFilters)
+	for (auto ext : newFileFilters)
 	{
 		const char* str = ext.c_str();
 		while (*str != 0)
@@ -179,10 +188,17 @@ void gui::setupReaders()
 			str++;
 		}
 		buffer[idx++] = 0;
-		std::cout << " add " << ext << "\n";
+		
 
 	}
 	buffer[idx++] = 0;
+	
+
+	lcmsFileFilters = newFileFilters;
+
+
+	//this should be atomic - fileReaders  is used when loading, but you can't load new types until the extension is added to the ui
+	// (and this function  should not take multiple seconds anyway)
 	lcmsFilters = buffer;
 }
 
@@ -252,7 +268,10 @@ void gui::setup(const char* glsl_version)
 	gui::bold = io.Fonts->AddFontFromMemoryTTF(fontCopy, sizeof(OpenSans_Bold), 22.0f, NULL, io.Fonts->GetGlyphRangesChineseFull());
 
 
-	setupReaders();
+	//setup the readers in the background
+	std::thread t1(setupReaders);
+	t1.detach();
+	
 
 
 }
@@ -262,7 +281,7 @@ void gui::setSliderValues()
 
 	Settings::zScale_slider = std::max(Settings::zScale_slider, -10.0f);
 	Settings::zScale_slider = std::min(Settings::zScale_slider, 10.0f);
-	float xScale = Settings::xScale_slider;
+	float xScale = Settings::xScale_slider - 3;
 	float yScale = Settings::yScale_slider;
 	float zScale = Settings::zScale_slider;
 
@@ -298,7 +317,7 @@ void gui::SlidersMenu()
 {
 	float transformWidth = 230;
 	bool rebuild = false;
-	if (ImGui::SliderFloat("fragment scale", &Settings::xScale_slider, -10.0f, 15.0f, "%.1f"))
+	if (ImGui::SliderFloat("fragment scale", &Settings::xScale_slider, Settings::xScale_slider_min, Settings::xScale_slider_max, "%.1f"))
 		rebuild = true;
 
 
@@ -563,7 +582,84 @@ void gui::annotationSelector(Landscape* l)
 
 #define MAX_TEXT_SIZE 32
 
+
+
+
+static void correlateFilter(const char* label, char* inputText, Range<float> worldRange, float & value)
+{
+	ImGui::PushItemWidth(90);
+
+
+	auto		usex = value;
+
+	
+	sprintf(inputText, "%.4f", usex);
+
+	ImGui::Text(label);
+	ImGui::SameLine();
+
+	std::string labelId = "##t" + std::string(label);
+
+	if (ImGui::InputText(labelId.c_str(), inputText, MAX_TEXT_SIZE))
+	{
+		try
+		{
+			std::string s(inputText);
+			std::istringstream os(s);
+
+			float f;
+			os >> f;
+
+			f = std::min(f, (float)worldRange.max);
+			f = std::max(f, (float)worldRange.min);
+	 
+			value = f;
+	
+		}
+		catch (...)
+		{
+
+		}
+	}
+
+	ImGui::SameLine();
+	ImGui::PopItemWidth();
+	ImGui::PushItemWidth(390);
+
+	labelId = "##s" + std::string(label);
+
+	//make the slider logarithmic for intensity
+	float power = 2.5;
+	
+	
+
+
+	if (ImGui::SliderFloat(labelId.c_str(), &usex, worldRange.min, worldRange.max, "", power))
+	{
+
+
+
+		{
+			if (usex > worldRange.max)
+				usex = worldRange.max;
+			if (usex < worldRange.min)
+				usex = worldRange.min;
+			value = usex;
+		}
+
+			sprintf(inputText, "%.4f", usex);
+
+
+
+	}
+	ImGui::PopItemWidth();
+
+
+}
+
+
 template <typename T>
+
 static void singleFilter(const char* label, char* inputText, Range<T> worldRange, Range<T>& filterRange, int type)
 {
 	ImGui::PushItemWidth(90);
@@ -621,6 +717,8 @@ static void singleFilter(const char* label, char* inputText, Range<T> worldRange
 	if (type > 1)
 		power = 10;
 
+	if (type ==4)
+			power = 1;
 
 	if (ImGui::SliderFloat(labelId.c_str(), &usex, worldRange.min, worldRange.max, "", power))
 	{
@@ -636,7 +734,11 @@ static void singleFilter(const char* label, char* inputText, Range<T> worldRange
 		{
 			if (usex > maxx)
 				usex = maxx;
+
 			filterRange.min = usex;
+			
+
+
 		}
 
 		if (type > 1)
@@ -686,6 +788,7 @@ void gui::filters(Landscape* l)
 {
 
 
+
 	static char minmz[MAX_TEXT_SIZE];
 	static char maxmz[MAX_TEXT_SIZE];
 	static char minlc[MAX_TEXT_SIZE];
@@ -703,12 +806,25 @@ void gui::filters(Landscape* l)
 	singleFilter("max.  frag. m/z", maxlc, l->worldLcRange, l->filter.lcRange, 1);
 
 	// using logarithmic slider, so avoid 0 
-	l->worldSignalRange.min = 1;
-	if (l->filter.signalRange.min < 1)
-		l->filter.signalRange.min = 1;
+	//but don't forget that values could be less than 1
+	
 
 	//2 signals logarithmic (and 0 is min)
-	singleFilter("min. signal", minsig, l->worldSignalRange, l->filter.signalRange, 2);
+	if (l->worldSignalRange.max > 999999)
+	{
+		singleFilter("min. signal", minsig, l->worldSignalRange, l->filter.signalRange, 2);
+		l->worldSignalRange.min = 1;
+		if (l->filter.signalRange.min < 1)
+			l->filter.signalRange.min = 1;
+	}
+	else
+	{
+		l->worldSignalRange.min = 0;
+		if (l->filter.signalRange.min < 0)
+			l->filter.signalRange.min = 0;
+		singleFilter("min. signal", minsig, l->worldSignalRange, l->filter.signalRange, 4);
+
+	}
 
 
 
@@ -1030,6 +1146,10 @@ void  gui::viewMenu(glm::mat4 view)
 {
 
 
+	static char correlateratio[MAX_TEXT_SIZE];
+	static char correlateoffset[MAX_TEXT_SIZE];
+	static Range<float> correlateRatioSelect= { -10,10 };
+
 
 	const char* buttonText = "Show Small Values";
 
@@ -1062,11 +1182,25 @@ void  gui::viewMenu(glm::mat4 view)
 
 		// it's stored as an int, because I intend to add different positions
 		ImGui::Checkbox("Show Axis Marker", (bool*)&Settings::axisMarker);
+		ImGui::Separator();
 		ImGui::Checkbox("Show Correlation line", (bool*)&Settings::autoCorrelate);
 
+		if (Settings::autoCorrelate)
+		{
+
+			Range<float> correlateRange = { -10,10 };
+			Range<float> offsetRange = { -1,1 };
+
+
+			correlateFilter("ratio", correlateratio, correlateRange, Settings::correlateRatio);
+
+			correlateFilter("offset", correlateoffset, offsetRange, Settings::correlateOffset);
 
 
 
+
+			ImGui::Separator();
+		}
 
 
 
