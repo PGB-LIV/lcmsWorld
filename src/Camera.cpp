@@ -154,7 +154,7 @@ void Camera::wheelMove(double mouse_wheel_pos, double time)
 	elevationAngle = std::min(elevationAngle, 3.14159/2 - 0.02);
 
 }
-const double MIN_DISTANCE = 300.0f;
+const double MIN_DISTANCE = 100.0f;
 const double MAX_DISTANCE = 185000.0f;
 
 const double MIN_DISTANCE_ZOOMIN = 1095.0f;
