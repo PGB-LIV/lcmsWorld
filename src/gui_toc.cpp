@@ -357,10 +357,21 @@ void gui::SlidersMenu()
 
 bool gui::numbersBox()
 {
-	auto buttonText = "Show Grid Lines";
+	auto buttonText = "Fragment m/z Lines";
 	if (ImGui::Checkbox(buttonText, &Settings::addGridLines))
 	{
+	
 	}
+
+	if (Settings::addGridLines)
+	{
+		ImGui::SameLine();
+		buttonText = "Coloured Grid Lines";
+		if (ImGui::Checkbox(buttonText, &Settings::colouredGridLines))
+		{
+		}
+	}
+
 	buttonText = "Axis Numbering";
 	if (ImGui::Checkbox(buttonText, &Settings::showNumbers))
 	{
@@ -1060,6 +1071,27 @@ void gui::fileOpenMenu()
 	if (Settings::expertMode)
 		ImGui::Checkbox("Use experimental mzml Reader", &Settings::experimentalMzml);
 
+	ImGui::Separator();
+	ImGui::Checkbox("Noise Removal", &Settings::noiseRemoval);
+	if (Settings::noiseRemoval)
+	{
+		ImGui::Checkbox("Negative Noise Removal", &Settings::negativeNoiseRemoval);
+		if (!Settings::negativeNoiseRemoval)
+		{
+			char noiseString[128];
+			sprintf(noiseString, "%s", &Settings::noiseValue);
+			if (ImGui::InputText("Noise Value", noiseString, 10))
+			{
+				std::string newString(noiseString);
+				Settings::noiseValue = newString;
+
+			}
+		}
+		
+
+
+	}
+
 
 
 
@@ -1158,15 +1190,19 @@ void  gui::viewMenu(glm::mat4 view)
 
 	if (getView() == NULL)
 	{
-		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-		ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
 
-		ImGui::Checkbox(buttonText, &Settings::showBaseWireframe);
-		//	ImGui::Checkbox(buttonText2, &Settings::logTransform);
+		if (0)
+		{
+			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+
+			ImGui::Checkbox(buttonText, &Settings::showBaseWireframe);
+			//	ImGui::Checkbox(buttonText2, &Settings::logTransform);
 
 
-		ImGui::PopStyleVar();
-		ImGui::PopItemFlag();
+			ImGui::PopStyleVar();
+			ImGui::PopItemFlag();
+		}
 
 
 	}
@@ -1205,15 +1241,15 @@ void  gui::viewMenu(glm::mat4 view)
 
 
 
-
+		if (0)
 		if (ImGui::Checkbox(buttonText, &Settings::showBaseWireframe))
 		{
 
 			if (getView() != NULL)
 				getView()->reBuild();
 		}
-		ImGui::SameLine();
 
+		//ImGui::SameLine();
 		if (0)
 			if (ImGui::Checkbox("Show full bars", &Settings::displaySides))
 			{
@@ -1234,11 +1270,18 @@ void  gui::viewMenu(glm::mat4 view)
 
 	}
 	ImGui::Checkbox("Uniform Lighting", &Settings::flatLighting);
-	ImGui::SameLine();
-	ImGui::PushItemWidth(100);
+	if (1)
+	{
+		ImGui::SameLine();
 
-	ImGui::SliderFloat("Show reticule", &Settings::drawTarget, 0, 100, "%.0f");
-	ImGui::PopItemWidth();
+		ImGui::PushItemWidth(100);
+
+		ImGui::SliderFloat("Show reticule", &Settings::drawTarget, 0, 100, "%.0f");
+		ImGui::PopItemWidth();
+
+	}
+ 
+
 	if (Settings::expertMode)
 	{
 		gui::SlidersMenu();

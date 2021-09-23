@@ -154,10 +154,10 @@ void Camera::wheelMove(double mouse_wheel_pos, double time)
 	elevationAngle = std::min(elevationAngle, 3.14159/2 - 0.02);
 
 }
-const double MIN_DISTANCE = 15.0f;
+const double MIN_DISTANCE = 300.0f;
 const double MAX_DISTANCE = 185000.0f;
 
-const double MIN_DISTANCE_ZOOMIN = 195.0f;
+const double MIN_DISTANCE_ZOOMIN = 1095.0f;
 
 void Camera::dragZoom(double z, double time)
 {
@@ -167,16 +167,18 @@ void Camera::dragZoom(double z, double time)
 	//	scale = distance + 40;
 	z = -z;
 
-	dragSpeed = (z ) / time;
+	dragSpeed = (z ) / 0.02;
 	if (dragSpeed < -5000)
 		dragSpeed = -5000;
 	if (dragSpeed > 5000)
 		dragSpeed = 5000;
 
- 	distance += (z * scale);
+
+ 
+ 	distance += (z * scale * time * 75);
 	distance = std::max(distance, MIN_DISTANCE);
 	distance = std::min(distance, MAX_DISTANCE);
-
+  
 	
 }
 
@@ -328,6 +330,8 @@ void Camera::updateCamera(double time)
  
 	}
 
+
+	if (0)
 	if (dragSpeed != 0)
 	{
 		double scale = (distance);
@@ -343,13 +347,13 @@ void Camera::updateCamera(double time)
 
  
 		double lastSpeed = dragSpeed;
-		dragSpeed += friction * time;
+		dragSpeed += friction; // *time;
 
 		if ((lastSpeed * dragSpeed) < 0)
 			dragSpeed = 0;
- 		distance += dragSpeed * time * scale * 0.9;
+  		distance += dragSpeed * time * scale *  .9;
 
-		if (distance < MIN_DISTANCE)
+ 		if (distance < MIN_DISTANCE)
 		{
 			distance = MIN_DISTANCE;
 			dragSpeed = 0;

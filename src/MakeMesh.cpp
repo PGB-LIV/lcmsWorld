@@ -74,7 +74,7 @@ Mesh* Landscape::getJaggedMesh(Tile* tile)
 	std::vector<glm::vec2> uv_vec;
 	uv_vec.reserve(num_vertices);
 
-	std::vector<unsigned short> vb_vec;
+	std::vector<unsigned int> vb_vec;
 	vb_vec.reserve(num_points);
 
 	std::vector<float> attr_vec;
@@ -196,7 +196,7 @@ Mesh* Landscape::getJaggedMesh(Tile* tile)
 //this version takes previous three points as points to include
 
 
-bool inline Landscape::insertData(Tile* tile, std::vector<glm::vec3> &vertex_vec, std::vector<glm::vec2> &uv_vec, std::vector<unsigned short> &vb_vec, std::vector<float> &attr_vec, mzFloat x2, lcFloat y2, signalFloat z4, unsigned short p1, unsigned short p3, unsigned short p2, byte mapVal)
+bool inline Landscape::insertData(Tile* tile, std::vector<glm::vec3> &vertex_vec, std::vector<glm::vec2> &uv_vec, std::vector<unsigned int> &vb_vec, std::vector<float> &attr_vec, mzFloat x2, lcFloat y2, signalFloat z4, unsigned int p1, unsigned int p3, unsigned int p2, byte mapVal)
 {
 
 
@@ -235,7 +235,7 @@ bool inline Landscape::insertData(Tile* tile, std::vector<glm::vec3> &vertex_vec
 
 	//push the triangles onto the vertices
 
-	unsigned short startVertex = vertex_vec.size() - 1;
+	unsigned int startVertex = vertex_vec.size() - 1;
 
 
 
@@ -277,7 +277,7 @@ bool inline Landscape::insertData(Tile* tile, std::vector<glm::vec3> &vertex_vec
 //this version takes previous two points as points to include
 // was p2, p4, become p1,. p3
 
-bool inline Landscape::insertData(Tile* tile, std::vector<glm::vec3> &vertex_vec, std::vector<glm::vec2> &uv_vec, std::vector<unsigned short> &vb_vec, std::vector<float> &attr_vec, mzFloat x2, lcFloat y1, lcFloat y2, signalFloat z2, signalFloat z4, unsigned short p1, unsigned short p3, byte mapVal)
+bool inline Landscape::insertData(Tile* tile, std::vector<glm::vec3> &vertex_vec, std::vector<glm::vec2> &uv_vec, std::vector<unsigned int> &vb_vec, std::vector<float> &attr_vec, mzFloat x2, lcFloat y1, lcFloat y2, signalFloat z2, signalFloat z4, unsigned int p1, unsigned int p3, byte mapVal)
 {
 
 
@@ -321,7 +321,7 @@ bool inline Landscape::insertData(Tile* tile, std::vector<glm::vec3> &vertex_vec
 
 	//push the triangles onto the vertices
 
-	unsigned short startVertex = vertex_vec.size() - 1;
+	unsigned int startVertex = vertex_vec.size() - 1;
 
 
 	//todo
@@ -466,7 +466,7 @@ bool inline Landscape::insertData(Tile* tile, std::vector<glm::vec3> &vertex_vec
 //with vb (no shared points)
 
 
-bool inline Landscape::insertData(Tile* tile, std::vector<glm::vec3> &vertex_vec, std::vector<glm::vec2> &uv_vec, std::vector<unsigned short> &vb_vec, std::vector<float> &attr_vec, mzFloat x1, mzFloat x2, lcFloat y1, lcFloat y2, signalFloat z1, signalFloat z2, signalFloat z3, signalFloat z4, byte mapVal, int alwaysDraw)
+bool inline Landscape::insertData(Tile* tile, std::vector<glm::vec3> &vertex_vec, std::vector<glm::vec2> &uv_vec, std::vector<unsigned int> &vb_vec, std::vector<float> &attr_vec, mzFloat x1, mzFloat x2, lcFloat y1, lcFloat y2, signalFloat z1, signalFloat z2, signalFloat z3, signalFloat z4, byte mapVal, int alwaysDraw)
 {
 
 	if (alwaysDraw == 0)
@@ -526,7 +526,7 @@ bool inline Landscape::insertData(Tile* tile, std::vector<glm::vec3> &vertex_vec
 
 	//push the triangles onto the vertices
 
-	unsigned short startVertex = vertex_vec.size() - 1;
+	unsigned int startVertex = vertex_vec.size() - 1;
 
 	vb_vec.push_back(startVertex + 1);
 	vb_vec.push_back(startVertex + 4);
@@ -869,9 +869,9 @@ Mesh* Landscape::makeMesh(Tile* tile)
 
 int max_line_size = 256;
 
-unsigned short *last_pos1y = NULL;
+unsigned int*last_pos1y = NULL;
 
-unsigned short *last_pos2y = NULL;
+unsigned int*last_pos2y = NULL;
 
 //This is now used in preference to makemesh
 Mesh* Landscape::makeMesh2(Tile* tile)
@@ -879,8 +879,8 @@ Mesh* Landscape::makeMesh2(Tile* tile)
 
 	if (last_pos1y == NULL)
 	{
-		last_pos1y = (unsigned short*)  malloc(max_line_size * sizeof(unsigned short));
-		last_pos2y = (unsigned short*) malloc(max_line_size * sizeof(unsigned short));
+		last_pos1y = (unsigned int*)  malloc(max_line_size * sizeof(unsigned int));
+		last_pos2y = (unsigned int*) malloc(max_line_size * sizeof(unsigned int));
 
 	}
 
@@ -929,8 +929,8 @@ Mesh* Landscape::makeMesh2(Tile* tile)
 		max_line_size = width * 3 / 2;
 		free(last_pos1y);
 		free(last_pos2y);
-		last_pos1y = (unsigned short*)malloc(max_line_size * sizeof(unsigned short));
-		last_pos2y = (unsigned short*)malloc(max_line_size * sizeof(unsigned short));
+		last_pos1y = (unsigned int*)malloc(max_line_size * sizeof(unsigned int));
+		last_pos2y = (unsigned int*)malloc(max_line_size * sizeof(unsigned int));
 
 	}
 
@@ -947,7 +947,7 @@ Mesh* Landscape::makeMesh2(Tile* tile)
 	uv_vec.reserve(num_vertices);
 
 
-	std::vector<unsigned short> vb_vec;
+	std::vector<unsigned int> vb_vec;
 	vb_vec.reserve(num_points);
 
 	std::vector<float> attr_vec;
@@ -980,7 +980,7 @@ Mesh* Landscape::makeMesh2(Tile* tile)
 	//this stores the (next) line from where an x-position was succesfully written
 	//so we can retrieve and share vertices
 	//bearing in mind that some lines are missing vertices (due to zero removal)
-	memset(last_pos1y, -1, width * sizeof(unsigned short) );
+	memset(last_pos1y, -1, width * sizeof(unsigned int) );
 
 //	memset(last_pos2y, -1, width * sizeof(unsigned short) );
 
@@ -1044,8 +1044,8 @@ Mesh* Landscape::makeMesh2(Tile* tile)
 
 
 		int last = 0;
-		unsigned short last_pos1;
-		unsigned short last_pos2;
+		unsigned int last_pos1;
+		unsigned int last_pos2;
 		int loops = 0;
 
 	//	std::cout << topI.size() << " . " << botI.size() << " . " << width << "\n";

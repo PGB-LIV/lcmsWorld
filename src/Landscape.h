@@ -237,12 +237,12 @@ private:
 	bool insertData(Tile* tile, std::vector<glm::vec3> &vertex_vec, std::vector<glm::vec2> &uv_vec, mzFloat x1, mzFloat x2, lcFloat y1, lcFloat y2, signalFloat z1, signalFloat z2, signalFloat z3, signalFloat z4);
 
 	//takes a vb 
-	bool inline insertData(Tile* tile, std::vector<glm::vec3> &vertex_vec, std::vector<glm::vec2> &uv_vec, std::vector<unsigned short> &vb_vec, std::vector<float> &attr_vec, mzFloat x1, mzFloat x2, lcFloat y1, lcFloat y2, signalFloat z1, signalFloat z2, signalFloat z3, signalFloat z4, byte mapVal, int alwaysDraw);
+	bool inline insertData(Tile* tile, std::vector<glm::vec3> &vertex_vec, std::vector<glm::vec2> &uv_vec, std::vector<unsigned int> &vb_vec, std::vector<float> &attr_vec, mzFloat x1, mzFloat x2, lcFloat y1, lcFloat y2, signalFloat z1, signalFloat z2, signalFloat z3, signalFloat z4, byte mapVal, int alwaysDraw);
 
 	//reuses points
-	bool inline insertData(Tile* tile, std::vector<glm::vec3> &vertex_vec, std::vector<glm::vec2> &uv_vec, std::vector<unsigned short> &vb_vec, std::vector<float> &attr_vec, mzFloat x2, lcFloat y1, lcFloat y2, signalFloat z2, signalFloat z4, unsigned short p1, unsigned short p3, byte mapVal);
+	bool inline insertData(Tile* tile, std::vector<glm::vec3> &vertex_vec, std::vector<glm::vec2> &uv_vec, std::vector<unsigned int> &vb_vec, std::vector<float> &attr_vec, mzFloat x2, lcFloat y1, lcFloat y2, signalFloat z2, signalFloat z4, unsigned int p1, unsigned int p3, byte mapVal);
 	//reuses 3 points
-	bool inline insertData(Tile* tile, std::vector<glm::vec3> &vertex_vec, std::vector<glm::vec2> &uv_vec, std::vector<unsigned short> &vb_vec, std::vector<float> &attr_vec, mzFloat x2, lcFloat y2, signalFloat z4, unsigned short p1, unsigned short p3, unsigned short p2, byte mapVal);
+	bool inline insertData(Tile* tile, std::vector<glm::vec3> &vertex_vec, std::vector<glm::vec2> &uv_vec, std::vector<unsigned int> &vb_vec, std::vector<float> &attr_vec, mzFloat x2, lcFloat y2, signalFloat z4, unsigned int p1, unsigned int p3, unsigned int p2, byte mapVal);
 
 	Camera* camera = NULL;
 	std::vector<Annotation*> annotationsByName;

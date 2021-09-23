@@ -139,7 +139,7 @@ void Input::update()
 	//c->wheelMove(mouse_wheel_pos, deltaTime);
 	if (abs(mouse_wheel_pos) > .0001)
 	{
-		if (keyMask[GLFW_KEY_LEFT_CONTROL])
+		if (keyMask[GLFW_KEY_LEFT_CONTROL] || keyMask[GLFW_KEY_RIGHT_CONTROL])
 		{
  
 			Settings::xScale_slider += mouse_wheel_pos / 10;
@@ -442,6 +442,8 @@ void Input::mouseWheelMove(double xoffset, double yoffset)
  	if (Settings::disableCamera)
 		return;
 
+ 
+
 	mouse_wheel_pos += yoffset * 1.5;
 
 
@@ -454,11 +456,13 @@ void Input::mouseWheelMove(double xoffset, double yoffset)
 void Input::mouseWheelFriction(double deltaTime)
 {
 
-	double wheel_friction = -mouse_wheel_pos * deltaTime * 3;
+	double maxd = std::min(deltaTime, 0.2);
+
+	double wheel_friction = -mouse_wheel_pos * maxd * 3;
 	mouse_wheel_pos += wheel_friction;
 	if (abs(mouse_wheel_pos) < .4)
 		mouse_wheel_pos = 0;
-
+ 
 }
 void Input::mouseDragged(int buttonState, double mx, double my, double xp, double yp, int status)
 {
@@ -627,11 +631,14 @@ void Input::handleCursor(Landscape* l)
 
 
 	lastTouchTime = Globals::currentTime;
- 
-
-	getCursorZ();
-
 	auto vp = getView()->getViewport();
+
+	
+		getCursorZ();
+
+
+
+
 	bool blankCursor = false;
 	if (cursor3d.z >= 1)
 	{
@@ -645,7 +652,7 @@ void Input::handleCursor(Landscape* l)
 	float maxZ = .9999999999f;
 	float minZ = .6f;
 
- 
+
 	// if we aren't really sure how far away the cursor is in z distance 
 	// we adjust it until we get to a point which is feasible
 	int lp = 0;
@@ -832,6 +839,12 @@ void Input::getCursorZ()
 	winY = (GLdouble)(ysize - ypos);  // Subtract The Current Mouse Y Coordinate 
 
 	cursor2d = glm::vec2(winX, winY);
+	static int loop = 0;
+
+	if (0)
+	if ((loop++ & 31))
+		return;
+
 
 
 	double minZ = 1;

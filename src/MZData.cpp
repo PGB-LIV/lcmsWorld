@@ -42,7 +42,7 @@ MZData::MZData()
 int MZData::next_id = 0;
 
 
-std::vector<signalFloat>  rleEncode(const std::vector<signalFloat> &data)
+std::vector<signalFloat>  rleEncode(const std::vector<signalFloat>& data)
 {
 	if (Cache::makeMetaFile)
 		return data;
@@ -88,7 +88,7 @@ std::vector<signalFloat>  rleEncode(const std::vector<signalFloat> &data)
 }
 
 
-std::vector<signalFloat>  rleDecode(const std::vector<signalFloat> &data, int dest_size)
+std::vector<signalFloat>  rleDecode(const std::vector<signalFloat>& data, int dest_size)
 {
 
 	std::vector<signalFloat> new_buffer;
@@ -137,9 +137,9 @@ for each intensity entry
 value (signalFloat)
 
 */
- //
+//
 
- 
+
 
 
 //obviously, this must match the format of serialise exactly...
@@ -237,13 +237,13 @@ void MZData::deSerialise(const std::vector<byte>& buffer)
 		MZScan* scan_p;
 		if (mz_size > 0)
 		{
-			scan_p = new MZScan(mz_data, signal_data, (lcFloat) lc_time);
- 		}
+			scan_p = new MZScan(mz_data, signal_data, (lcFloat)lc_time);
+		}
 		else
 		{
-			scan_p = new MZScan(signal_data, (lcFloat) lc_time);
- 		}
- 		scans.push_back(scan_p);
+			scan_p = new MZScan(signal_data, (lcFloat)lc_time);
+		}
+		scans.push_back(scan_p);
 
 	}
 	// std::cout << " added " << scans.size() << "\n";
@@ -253,7 +253,7 @@ void MZData::deSerialise(const std::vector<byte>& buffer)
 
 
 
- 
+
 
 std::vector<std::vector<byte >> buffers;
 
@@ -288,22 +288,22 @@ const std::vector<byte> MZData::serialise(int thread, bool compress)
 }
 std::mutex s_lock;
 
- 
+
 
 const std::vector<byte> MZData::serialise(int thread)
 {
 	const int buffer_size = 1024 * 1024 * 4 * 4;
 
- 	s_lock.lock();
+	s_lock.lock();
 
-	while (buffers.size() < thread+1)
+	while (buffers.size() < thread + 1)
 	{
 		std::vector<byte> abuffer;
 		buffers.push_back(abuffer);
-		buffers[buffers.size()-1].resize(buffer_size);
+		buffers[buffers.size() - 1].resize(buffer_size);
 
 	}
- 
+
 
 	s_lock.unlock();
 
@@ -388,7 +388,7 @@ const std::vector<byte> MZData::serialise(int thread)
 		memcpy(&buffers[thread][ptr], &scan_buffer_size, sizeof(scan_buffer_size));
 		ptr += sizeof(scan_buffer_size);
 
-		memcpy(&buffers[thread][ptr], data_ptr, sizeof(signalFloat) *scan_buffer_size);
+		memcpy(&buffers[thread][ptr], data_ptr, sizeof(signalFloat) * scan_buffer_size);
 		ptr += sizeof(signalFloat) * scan_buffer_size;
 		assert(ptr < buffers[thread].size());
 
@@ -413,7 +413,7 @@ const std::vector<byte> MZData::serialise(int thread)
 }
 
 //should be same as above function
-const int MZData::serialise(byte * buffer)
+const int MZData::serialise(byte* buffer)
 {
 	return -1;
 }
@@ -423,7 +423,7 @@ const int MZData::serialise(byte * buffer)
 
 
 
-void MZData::append(MZScan *scan)
+void MZData::append(MZScan* scan)
 {
 
 
@@ -437,7 +437,7 @@ void MZData::append(MZScan *scan)
 	}
 	scans.push_back(scan);
 	info.num_points += (int)scan->getIntensity().size();
-//	info.lcRange.set = false;
+	//	info.lcRange.set = false;
 }
 
 std::ostream& operator<<(std::ostream& os, const MZData& dt)
@@ -513,7 +513,7 @@ double MZData::setRange(bool setIntensity)
 				mzRangeTemp.min = std::min(mzMin, mzRangeTemp.min);
 				mzRangeTemp.max = std::max(mzMax, mzRangeTemp.max);
 
-		 
+
 			}
 			//rescanning is a bit inefficient after a merge or append
 			//but leave it for now, rebuilding meshes  probably makes it insignificant!
@@ -525,23 +525,23 @@ double MZData::setRange(bool setIntensity)
 
 			//only do this once (should do it for smaller tiles, but not sure how at the moment)
 		//	if (setIntensity)
-				for (auto i : intensity)
+			for (auto i : intensity)
+			{
+				//if (i > 0)
+
+				sum += i;
+				info.signalRange.min = std::min(i, info.signalRange.min);
+				info.signalRange.max = std::max(i, info.signalRange.max);
+
+
+
+				if (info.signalRange.max > 1e37)
 				{
-					//if (i > 0)
-
-					sum += i;
-					info.signalRange.min = std::min(i, info.signalRange.min);
-					info.signalRange.max = std::max(i, info.signalRange.max);
-
- 
-
-					if (info.signalRange.max > 1e37)
-					{
-						std::cout << "too large data found \n";
-					}
+					std::cout << "too large data found \n";
 				}
+			}
 
-				
+
 
 		}
 	}
@@ -577,7 +577,7 @@ std::vector<DataPoint> findClosestinLine(DataPoint s, MZScan* line, MZScan* base
 	std::vector<DataPoint> found;
 	if (line->getSize() == 0)
 		return found;
- 
+
 
 	auto useMz = base->getMz();
 	if (line->getMz().size() > 0)
@@ -585,7 +585,9 @@ std::vector<DataPoint> findClosestinLine(DataPoint s, MZScan* line, MZScan* base
 
 	auto lastMz = useMz[0];
 
+	auto intensity = line->getIntensity();
 
+	int size = useMz.size();
 	double range = .15;
 	do
 	{
@@ -593,24 +595,46 @@ std::vector<DataPoint> findClosestinLine(DataPoint s, MZScan* line, MZScan* base
 		auto minMz = s.mz - range;
 		auto maxMz = s.mz + range;
 
-		int i = 0;
-		for (auto mz : useMz)
-		{
 
+		int left = 0;
+		int right = size;
+
+		int i = 0;
+		//now does a binary search
+		int mid = (left + right) / 2;
+		while ((right - left) > 1)
+		{
+			if (useMz[mid] < minMz)
+				left = mid;
+			else
+				right = mid;
+
+			mid = (left + right) / 2;
+			i++;
+		}
+
+		mid = std::max(mid - 1, 0);
+
+		while (mid < size)
+		{
+			auto mz = useMz[mid];
 			if (mz > minMz)
 			{
-				DataPoint next = { mz, line->getLcTime(), line->getIntensity()[i] };
-				if (next.signal > 0)
+				auto signal = intensity[mid];
+				if (signal > 0)
+				{
+					DataPoint next = { mz, line->getLcTime(), signal };
 					found.push_back(next);
+				}
 				if (mz > maxMz)
 					break;
 			}
-
+			mid++;
 			i++;
 			lastMz = mz;
 		}
 		range *= 1.5;
-	} while ((found.size() <2) && (range < 32));
+	} while ((found.size() < 2) && (range < 32));
 	return found;
 
 }
@@ -630,31 +654,31 @@ std::vector<DataPoint> MZData::findClosePointsinLine(DataPoint s, MZScan* line, 
 
 
 	double range = 1.5;
-	
-	
-		found.clear();
-		auto minMz = s.mz - range;
-		auto maxMz = s.mz + range;
 
-		int i = 0;
-		for (auto mz : useMz)
+
+	found.clear();
+	auto minMz = s.mz - range;
+	auto maxMz = s.mz + range;
+
+	int i = 0;
+	for (auto mz : useMz)
+	{
+
+		if (mz > minMz)
 		{
-
-			if (mz > minMz)
-			{
-				DataPoint next = { mz, line->getLcTime(), line->getIntensity()[i] };
-				if (next.signal > 0)
-					found.push_back(next);
-				if (mz > maxMz)
-					break;
-			}
-
-			i++;
-			lastMz = mz;
+			DataPoint next = { mz, line->getLcTime(), line->getIntensity()[i] };
+			if (next.signal > 0)
+				found.push_back(next);
+			if (mz > maxMz)
+				break;
 		}
 
-		range *= 1.5;
-		return found;
+		i++;
+		lastMz = mz;
+	}
+
+	range *= 1.5;
+	return found;
 
 }
 
@@ -671,8 +695,48 @@ std::vector<DataPoint>  MZData::findClosePoints(DataPoint s)
 
 	//lc range 
 	double range = 15;
-	
-	
+
+
+	found.clear();
+	auto minLc = s.lc - range;
+	auto maxLc = s.lc + range;
+
+
+	auto lastScan = scans[0];
+	for (auto scan : scans)
+	{
+		if (scan->getLcTime() > minLc)
+		{
+			auto add = findClosestinLine(s, scan, scans[0]);
+			for (auto p : add)
+				found.push_back(p);
+
+
+			if (scan->getLcTime() > maxLc)
+				break;
+		}
+		lastScan = scan;
+	}
+
+
+
+	return found;
+
+}
+
+std::vector<DataPoint>  MZData::findClosest(DataPoint s)
+{
+	std::vector<DataPoint> found;
+
+
+	//should maybe find a way of signalling that nothing was found
+	//s.signal  < 0 ?
+	if (scans.size() == 0)
+		return found;
+
+	double range = .5;
+	do
+	{
 		found.clear();
 		auto minLc = s.lc - range;
 		auto maxLc = s.lc + range;
@@ -693,49 +757,7 @@ std::vector<DataPoint>  MZData::findClosePoints(DataPoint s)
 			}
 			lastScan = scan;
 		}
-
-	 
-	
-	return found;
-
-}
-
-std::vector<DataPoint>  MZData::findClosest(DataPoint s)
-{
-	std::vector<DataPoint> found;
-
-	//may be called while scan is loading?
-//	return found;
-
-	//should maybe find a way of signalling that nothing was found
-	//s.signal  < 0 ?
-	if (scans.size() == 0)
-		return found;
-
-	double range = .5;
-	do
-	{
-		found.clear();
-	auto minLc = s.lc - range;
-	auto maxLc = s.lc + range;
-
-
-	auto lastScan = scans[0];
-	for (auto scan : scans)
-	{
-		if (scan->getLcTime() > minLc)
-		{
-			auto add = findClosestinLine(s, scan, scans[0]);
-			for (auto p : add)
-				found.push_back(p);
- 
-
-			if (scan->getLcTime() > maxLc)
-				break;
-		}
-		lastScan = scan;
-	}
-	range *= 1.5;
+		range *= 1.5;
 
 	} while ((found.size() < 10) && (range < 52));
 
@@ -754,9 +776,9 @@ std::vector<DataPoint>  MZData::findClosest(DataPoint s)
 		dx *= MZData::xScale;
 		dy *= MZData::yScale;
 
-		
 
-		double dz = p.signal + s.signal;  
+
+		double dz = p.signal + s.signal;
 		dz *= MZData::zScale;
 		dz = Mesh::convertZ(dz);
 
@@ -764,7 +786,7 @@ std::vector<DataPoint>  MZData::findClosest(DataPoint s)
 		dy *= Settings::scale.y;
 		dz *= Settings::scale.z;
 
-		double dist = (dx*dx) + (dy*dy) + (dz*dz);
+		double dist = (dx * dx) + (dy * dy) + (dz * dz);
 		if (dist < closestDistance)
 		{
 			closestDistance = dist;
@@ -773,7 +795,7 @@ std::vector<DataPoint>  MZData::findClosest(DataPoint s)
 	}
 
 
-	std::cout << s.mz << "  " << s.lc << "  , " << result.mz << " , " << result.lc << "   " << result.signal << "  : "<< found.size() << " \n ";
+	std::cout << s.mz << "  " << s.lc << "  , " << result.mz << " , " << result.lc << "   " << result.signal << "  : " << found.size() << " \n ";
 
 	return result;
 #endif
@@ -795,13 +817,13 @@ std::vector<MZData*> MZData::new_split(int xsize, int ysize)
 {
 	std::vector<MZData*> newData;
 	MZData* table[32][32];
-	assert(xsize < 32);
-	assert(ysize < 32);
+	assert(xsize <= 32);
+	assert(ysize <= 32);
 
 	for (int i = 0; i < xsize; i++)
 		for (int j = 0; j < ysize; j++)
 		{
-			MZData * newMz = new MZData();
+			MZData* newMz = new MZData();
 
 			newData.push_back(newMz);
 			table[i][j] = newMz;
@@ -817,11 +839,11 @@ std::vector<MZData*> MZData::new_split(int xsize, int ysize)
 	for (int i = 0; i < 256; i++)
 		buckets[i] = 0;
 	int total = 0;
-	for (  int i = 0; i < num_scans; i++)
+	for (int i = 0; i < num_scans; i++)
 	{
 		double min = this->info.mzRange.min;
 		double max = this->info.mzRange.max;
-		MZScan * scan = scans[i];
+		MZScan* scan = scans[i];
 		auto mzs = scan->getMz();
 		for (auto mz : mzs)
 		{
@@ -858,7 +880,7 @@ std::vector<MZData*> MZData::new_split(int xsize, int ysize)
 
 		mzFloat max = this->info.mzRange.max;
 
-		ends[i] = min + ((cur_bucket - 0.5f) *(max - min) / 256);
+		ends[i] = min + ((cur_bucket - 0.5f) * (max - min) / 256);
 
 	}
 
@@ -868,7 +890,7 @@ std::vector<MZData*> MZData::new_split(int xsize, int ysize)
 	{
 		int ypos = i * ysize / num_scans;
 		//need to split each line up into 
-		MZScan * scan = scans[i];
+		MZScan* scan = scans[i];
 		scans[i] = NULL;
 
 		int scanSize = scan->getSize();
@@ -882,20 +904,20 @@ std::vector<MZData*> MZData::new_split(int xsize, int ysize)
 		signalFloat last_signal = 0;
 		mzFloat last_mz = mz[1] - 0.1f;
 
-		for (  int j = 0; j < xsize; j++)
+		for (int j = 0; j < xsize; j++)
 		{
 			MZScan* part;
 			if (scanSize > 0)
 			{
-			 
+
 				int startPos = j * scanSize / xsize;
 				int endPos = (j + 1) * scanSize / xsize - 1;
 
 
 				std::vector<signalFloat> signal_vals;
 				std::vector<mzFloat> mz_vals;
-				signal_vals.reserve(mzSize+1);
-				mz_vals.reserve(mzSize+1);
+				signal_vals.reserve(mzSize + 1);
+				mz_vals.reserve(mzSize + 1);
 
 				if (mzSize == 0)
 				{
@@ -914,9 +936,9 @@ std::vector<MZData*> MZData::new_split(int xsize, int ysize)
 				{
 					if (j > 0)
 					{
-				//		signal_vals.push_back(last_signal );
- 
-				//		mz_vals.push_back(last_mz  );
+						//		signal_vals.push_back(last_signal );
+
+						//		mz_vals.push_back(last_mz  );
 
 					}
 					while ((mz[xpos] < ends[j]) && (xpos < scanSize - 1))
@@ -924,24 +946,24 @@ std::vector<MZData*> MZData::new_split(int xsize, int ysize)
 
 						signal_vals.push_back(intensity[xpos]);
 						mz_vals.push_back(mz[xpos]);
- 
+
 						xpos++;
 
-	 
+
 
 					}
 
 					//small amount of tile overlap should be ok...
 					if (xpos > 0)
-					if ((xpos < mz.size()) && (mz[xpos] - mz[xpos-1] < 0.5) )
-					{
-						signal_vals.push_back(intensity[xpos]);
-						mz_vals.push_back(mz[xpos]);
-					}
+						if ((xpos < mz.size()) && (mz[xpos] - mz[xpos - 1] < 0.5))
+						{
+							signal_vals.push_back(intensity[xpos]);
+							mz_vals.push_back(mz[xpos]);
+						}
 
 				}
 
-			
+
 
 
 				//if row is empty, fill in some blanks
@@ -971,21 +993,21 @@ std::vector<MZData*> MZData::new_split(int xsize, int ysize)
 				if (scan->getMz().size() > 0)
 				{
 					part = new MZScan(mz_vals, signal_vals, scan->getLcTime(), table[j][ypos]);
- 
+
 				}
 				else
 				{
 					part = new MZScan(signal_vals, scan->getLcTime(), table[j][ypos]);
- 				}
+				}
 			}
 			else
 			{
 				part = new MZScan(scan);
- 
+
 			}
 			// split_buffer.insert((long long) part);
 
- 			table[j][ypos]->append(part);
+			table[j][ypos]->append(part);
 
 
 			//duplicate scans across parts, to create a little overlap
@@ -995,14 +1017,14 @@ std::vector<MZData*> MZData::new_split(int xsize, int ysize)
 				{
 
 					auto part2 = new MZScan(part);
- 					table[j][ypos - 1]->append(part2);
+					table[j][ypos - 1]->append(part2);
 				}
 
 		}
- 
-	 
+
+
 		delete scan;
-		 
+
 
 	}
 
@@ -1034,7 +1056,7 @@ std::vector<MZData*> MZData::old_split(int xsize, int ysize)
 
 	setRange();
 	std::vector<MZData*> newData;
-	newData.reserve(xsize*ysize);
+	newData.reserve(xsize * ysize);
 
 	//start of bucket
 	std::vector<mzFloat> mzbuckets(xsize + 1);
@@ -1043,7 +1065,7 @@ std::vector<MZData*> MZData::old_split(int xsize, int ysize)
 
 	for (int i = 0; i < xsize; i++)
 	{
-		mzbuckets[i] = (mzFloat)(info.mzRange.min + (((info.mzRange.max - info.mzRange.min) / xsize)*(i + 1)));
+		mzbuckets[i] = (mzFloat)(info.mzRange.min + (((info.mzRange.max - info.mzRange.min) / xsize) * (i + 1)));
 
 
 	}
@@ -1055,7 +1077,7 @@ std::vector<MZData*> MZData::old_split(int xsize, int ysize)
 
 	for (int i = 0; i < ysize; i++)
 	{
-		lcbuckets[i] = info.lcRange.min + (((info.lcRange.max - info.lcRange.min) / ysize)*(i + 1));
+		lcbuckets[i] = info.lcRange.min + (((info.lcRange.max - info.lcRange.min) / ysize) * (i + 1));
 
 
 	}
@@ -1080,7 +1102,7 @@ std::vector<MZData*> MZData::old_split(int xsize, int ysize)
 	//tilebuffer
 	for (int i = 0; i < height; i++)
 	{
-		MZScan *line = scans[i];
+		MZScan* line = scans[i];
 		while (line->getLcTime() > lcbuckets[y])
 		{
 			//move on to the next LC line
@@ -1117,7 +1139,7 @@ std::vector<MZData*> MZData::old_split(int xsize, int ysize)
 							for (auto data : lineScans[j])
 							{
 								delete data;
- 
+
 							}
 
 							lineScans[j].clear();
@@ -1154,7 +1176,7 @@ std::vector<MZData*> MZData::old_split(int xsize, int ysize)
 
 
 					MZScan* scan = new MZScan(lineMz, lineSignal, line->getLcTime());
-  					lineScans[x].push_back(scan);
+					lineScans[x].push_back(scan);
 
 
 					auto lastMz = lineMz.back();
@@ -1185,7 +1207,7 @@ std::vector<MZData*> MZData::old_split(int xsize, int ysize)
 		{
 
 			MZScan* scan = new MZScan(lineMz, lineSignal, line->getLcTime());
- 			lineScans[x].push_back(scan);
+			lineScans[x].push_back(scan);
 		}
 
 
@@ -1247,7 +1269,7 @@ MZData* MZData::reduce(int xsize, int ysize)
 	std::vector<mzFloat> mzbuckets(xsize + 1);
 	for (int i = 0; i < xsize; i++)
 	{
-		mzbuckets[i] = info.mzRange.min + (((info.mzRange.max - info.mzRange.min)*(i)) / xsize);
+		mzbuckets[i] = info.mzRange.min + (((info.mzRange.max - info.mzRange.min) * (i)) / xsize);
 
 
 	}
@@ -1352,24 +1374,24 @@ MZData* MZData::reduce(int xsize, int ysize)
 	// intensityVals[j] = data[i*size + j];
 
 
-	std::vector<signalFloat> counts((xsize + 1)*(ysize + 1));
+	std::vector<signalFloat> counts((xsize + 1) * (ysize + 1));
 
-	std::vector<signalFloat> data((xsize + 1)*(ysize + 1));
-
-	for (int i = 0; i < xsize + 1; i++)
-		for (int j = 0; j < ysize + 1; j++)
-			data[j*xsize + i] = 0;
+	std::vector<signalFloat> data((xsize + 1) * (ysize + 1));
 
 	for (int i = 0; i < xsize + 1; i++)
 		for (int j = 0; j < ysize + 1; j++)
-			counts[j*xsize + i] = 0;
+			data[j * xsize + i] = 0;
+
+	for (int i = 0; i < xsize + 1; i++)
+		for (int j = 0; j < ysize + 1; j++)
+			counts[j * xsize + i] = 0;
 	int y = 0;
 	int max = 0;
 	lcFloat lastYpos = 0;
 
 	for (int i = 0; i < height; i++)
 	{
-		MZScan *line = scans[i];
+		MZScan* line = scans[i];
 		while (line->getLcTime() > lcbuckets[y])
 			y++;
 
@@ -1395,8 +1417,8 @@ MZData* MZData::reduce(int xsize, int ysize)
 		{
 			std::cout << "error sizey " << y << " >= " << ysize << "\n";
 			std::cout << "error sizey " << line->getLcTime() << " >= " << info.lcRange.max << "\n";
-			
-		//	continue;
+
+			//	continue;
 			y = ysize - 1;
 		}
 
@@ -1422,10 +1444,10 @@ MZData* MZData::reduce(int xsize, int ysize)
 
 			//how far right to 'creep' the data (to avoid blanks being infilled)
 			// either close to the gap from the previous data point, .25 dalton, or up to the next datapoint)
-			mzFloat offset = std::min((mzFloat) .15f, 2 * (lineMZ[j] - lastMz));
+			mzFloat offset = std::min((mzFloat).15f, 2 * (lineMZ[j] - lastMz));
 
 
- 
+
 			if (j < width - 1)
 				offset = std::min(offset, lineMZ[j + 1] - lineMZ[j]);
 
@@ -1449,15 +1471,15 @@ MZData* MZData::reduce(int xsize, int ysize)
 				for (int xp = x; xp <= x2; xp++)
 				{
 #if reduceType == 1
-					data[yp*xsize + xp] = std::max(data[yp*xsize + xp], value);
+					data[yp * xsize + xp] = std::max(data[yp * xsize + xp], value);
 
 
 #else
 					if (xp > xsize)
 						std::cout << "xerror size " << xp << "  " << xsize << " \n";
 
-					data[yp*xsize + xp] += value;
-					counts[yp*xsize + xp] ++;
+					data[yp * xsize + xp] += value;
+					counts[yp * xsize + xp] ++;
 
 #endif
 				}
@@ -1472,8 +1494,8 @@ MZData* MZData::reduce(int xsize, int ysize)
 	if (reduceType == 0)
 		for (int i = 0; i < xsize + 1; i++)
 			for (int j = 0; j < ysize + 1; j++)
-				if (counts[j*xsize + i] > 0)
-					data[j*xsize + i] /= counts[j*xsize + i];
+				if (counts[j * xsize + i] > 0)
+					data[j * xsize + i] /= counts[j * xsize + i];
 #endif
 
 	MZData* newData = new MZData();
@@ -1488,14 +1510,14 @@ MZData* MZData::reduce(int xsize, int ysize)
 		lcFloat lcTime = lcbuckets[i];
 		std::vector<signalFloat>intensityVals(xsize);
 		for (int j = 0; j < xsize; j++)
-			intensityVals[j] = data[i*xsize + j];
+			intensityVals[j] = data[i * xsize + j];
 		MZScan* scan;
 		if (i == 0)
 			scan = new MZScan(mzVals, intensityVals, lcTime, newData);
 		else
 			scan = new MZScan(intensityVals, lcTime, newData);
 
- 		newData->append(scan);
+		newData->append(scan);
 	}
 
 	if (newData->size() == 0)
@@ -1527,7 +1549,7 @@ MZData::~MZData()
 	clear();
 	numMZData--;
 
-	
+
 
 
 
@@ -1540,12 +1562,12 @@ void MZData::clear()
 	times_cleared++;
 	if (times_cleared > 1)
 	{
-		 std::cout << "cleared again " << times_cleared << "  " << scans.size() << "\n";
+		std::cout << "cleared again " << times_cleared << "  " << scans.size() << "\n";
 	}
 
 	for (auto scan : scans)
 	{
- 
+
 		delete scan;
 	}
 	std::vector<MZScan*> tempvector;

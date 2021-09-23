@@ -1,3 +1,6 @@
+//also need to change in Render.cpp
+#define THREADED 0
+
 #include "Landscape.h"
 #include "Tile.h"
 
@@ -20,23 +23,23 @@
 
  
 //#define DISABLE_UNLOADING
-const static int maxGB = 8;
+const static int maxGB = 12;
 
-const static int TILES_PER_GB = 750;
-const static int MIN_TILES = 4000;
+const static int TILES_PER_GB = 350;
+const static int MIN_TILES = 2500;
 static int tilesInRam = MIN_TILES;
 
-static int GLtilesPerFrame = 50;
+static int GLtilesPerFrame = 1500;
 static int GLtilesThisFrame = 0;
-static int loadTilesPerFrame = 100;
+static int loadTilesPerFrame = 20000;
 static int loadTilesThisFrame = 0;
-
-const static double minSize = 0.005*2    ; // smaller for toc-ms
-
-const double minSizePreload = 0.004*2;
-
-const static double maxSize = 0.25;
-const static double maxSizePrepare = 0.22;
+//at what size to bother drawing child
+//if it's smaller than this, it will be just left empty
+const static double minSize = 0.005*2     *12 ;  
+const double minSizePreload = 0.004*2 *12;
+const double min_draw_size =  0.0001 * 1;
+const static double maxSize = 0.25 * 2 * 1;
+const static double maxSizePrepare = 0.24 * 2 *1;
 
 
 
@@ -219,7 +222,7 @@ void Landscape::prepareTile(Tile* tile)
 	
 	
 	//size will be -1 if tile can not be seen
-
+	//if this one is quite big, prepare all of its children (as long sas they can be seen)
 
 	if ((tile->getScreenSize() > maxSize) || tile->LOD == 0)
 	{
@@ -228,12 +231,13 @@ void Landscape::prepareTile(Tile* tile)
 		for (auto child : tile->getChildren())
 		{
 			child->setScreenSize(transformMatrix, viewport);
+		//	std::cout << " set size " << child->LOD << "  - " << child->getScreenSize() << "\n";
 
 		}
 
 		//test of setting each tile to the max of its siblings
 		//so that all are drawn together, preventing missing tiles from breaking the rendering
-
+		if (0)
 		for (auto child : tile->getChildren())
 		{
 			child->setScreenSizeMaxSibling(tile->getChildren());
@@ -267,6 +271,8 @@ void Landscape::prepareTile(Tile* tile)
 	{
  	if (loadCallback != NULL)
 		{
+
+	 
 
  
 				tile->drawStatus = DrawStatus::loadingData;
@@ -477,11 +483,13 @@ do
 
 	posY /= l->yScale;
 	posY += (l->worldLcRange.min + l->worldLcRange.max) / 2;
+//	posY += (l->worldSignalRange.min + l->worldSignalRange.max) / 2;
 
 	posZ = xyz.y;
 	posZ /= l->zScale;
 	posZ += (l->worldLcRange.min + l->worldLcRange.max) / 2;
-
+	//posZ += (l->worldSignalRange.min + l->worldSignalRange.max) / 2;
+	//std::cout << posX << " , " << posY << " , " << posZ << "\n";
 
 	cursorPoint.mz = posX;
 	cursorPoint.lc = posY;
@@ -510,12 +518,16 @@ return cursorPoint;
 
 
 }
+
+
+ 
 void Landscape::addMarkers()
 {
 
 	Camera* c =getCamera();
 	auto centre_mz = c->currentTarget.mz;
 	auto centre_lc = c->currentTarget.lc;
+ 
 
 	auto dist = c->distance;
 
@@ -531,13 +543,30 @@ void Landscape::addMarkers()
 
 	//don't draw too close  together (possible due to perspective)
 	float screen_gap = 20;
+	float screen_size = Globals::windowWidthActive;
 	//move it slightly so that it doesn't cover the centre of the screen
-	glm::vec3 screenpos = glm::vec3(Globals::windowWidthActive *2/5, Settings::windowHeight *3/ 5,1/100000);
-	auto data = get3dPos(screenpos, this);
+//	glm::vec3 screenpos = glm::vec3(Globals::windowWidthActive *2/5, Settings::windowHeight *3/ 5,1/100000);
 	
+	glm::vec3 screenpos = glm::vec3(Globals::windowWidthActive * 2 / 5, Settings::windowHeight * 3 / 5, 1000  );
 
-	centre_lc = data.lc;
-	centre_mz = data.mz;
+	//auto data = get3dPos(screenpos, this);
+	
+ 
+
+	centre_mz -= xscale* dist * .000001 / Settings::scale.x;
+	centre_lc -= yscale* dist * .000005 / Settings::scale.y;
+
+	if (centre_lc < worldLcRange.min)
+		centre_lc = worldLcRange.min;
+	if (centre_lc > worldLcRange.max)
+		centre_lc = worldLcRange.max;
+
+	if (centre_mz < worldMzRange.min)
+		centre_mz = worldMzRange.min;
+	if (centre_mz > worldMzRange.max)
+		centre_mz = worldMzRange.max;
+//	centre_lc = data.lc;
+//	centre_mz = data.mz;
 	//  std::cout << xs << "  " << xscale * 2 << "  " << (xs == xscale * 2) << "\n";
 	// std::cout << xscale <<"  " << xs << "\n";
 
@@ -547,9 +576,11 @@ void Landscape::addMarkers()
 	glm::vec2 last_pos = glm::vec2(-100, -100);
 
 
-	float xranges[] = {.5,1,2,5,10,20,50,100, 200, 400, 1000};
-	
-	float yranges[] = { .1, .2, .5,1,2,5,10,20,30,60 };
+	float xranges[] = {.001, .01,.1, .5,1,2,5,10,20,50,100, 200, 400, 1000};
+	float yranges[] = {.1, .5,1,2,5,10,20,50,100, 200, 400, 1000 };
+//	float yranges[] = { .1, .2, .5,1,2,5,10,20,30,60 };
+
+	 
 
 
 	auto screen1 = get2d(centre_mz, centre_lc, 0);
@@ -590,9 +621,42 @@ void Landscape::addMarkers()
 
 
 
-	float xstart = worldMzRange.min;
-	xstart = ((int)(xstart / xrange)) * xrange;
+	float xstart = centre_mz;
+ 
+	auto centreyp = c->currentTarget.lc;;
+	auto centre = get2d(c->currentTarget.mz, centreyp, 0);
 
+ 
+	{
+		float dist = 0.001;
+
+
+		while (true)
+
+		{
+			dist = dist * 2;
+			auto screen = get2d(c->currentTarget.mz - dist, centreyp, 0);
+			
+ 
+ 
+			if (screen.x < -99)
+				break;
+
+			if (glm::distance(screen, centre) > screen_size  )
+				break;
+			if (dist > worldMzRange.max)
+				break;
+		}
+ 		xstart = xstart - dist;
+		if (xstart < worldMzRange.min)
+			xstart = worldMzRange.min;
+	}
+
+	
+	xstart = ((int)(xstart / xrange + 0.5)) * xrange;
+	//std::cout << xstart << "   " << xrange << "\n";
+
+	bool drawing = false;
 	for (float xpos = xstart; xpos < worldMzRange.max; xpos += xrange)
 	{
 
@@ -600,8 +664,22 @@ void Landscape::addMarkers()
 		float ypos = centre_lc;;
 
 		auto screen = get2d(xpos, ypos, 0);
-		if (glm::distance(screen,last_pos) < screen_gap*2)
+
+		
+			if (glm::distance(screen, centre) > screen_size)
+			{
+				if (drawing)
+					break;
+				continue;
+			}
+
+
+		if (glm::distance(screen, last_pos) < screen_gap * 2)
+		{
+
 			continue;
+		}
+		drawing = true;
 		last_pos = screen;
 		
 		std::stringstream stream;
@@ -780,13 +858,16 @@ void Landscape::addSquare(float tx, float ty, float tz, float size, float sizey,
 	float ucols[] = { .05,.75,.95,.05,.25,.25,.95,.75,             .75,.95,.25,.25, .05, .95, .75, .05 };
 	float vcols[] = { .05,.25,.05,.95,.75,.25,.95,.75    ,      .75,.95,.25,.75, .95, .05, .25, .05 };
 
-	float u = ucols[col&7];
+	if (!Settings::colouredGridLines)
+		col = 0;
+
+	float u = ucols[col & 7];
 	float v = vcols[col & 7];
 	
 	
 
-	float xoffs[] = { 0, 1, 0,   0, 1, 1 };
-	float yoffs[] = { 1, 0, 0,    1,1, 0 };
+	float xoffs[] = { 0, 1, 0,    0, 1, 1 };
+	float yoffs[] = { 1, 0, 0,    1, 1, 0 };
 
 
 	for (int i = 0; i < 6; i++)
@@ -796,6 +877,8 @@ void Landscape::addSquare(float tx, float ty, float tz, float size, float sizey,
 		auto y = mid.z + yoffs[j] * sizey;
 
 		auto z = mid.y;
+	//	if (y > worldLcRange.max)
+	//		y = worldLcRange.max;
 
 		vertex_vec.push_back(glm::vec3(x, z, y));
 		uv_vec.push_back(glm::vec2(u, v));
@@ -859,7 +942,7 @@ void Landscape::add3dMarker(float tx, float ty, float tz, int type, std::string 
 
 void Landscape::appendLine()
 {
-	int steps = 150;
+	int steps = 250;
 
 	if (camera == NULL)
 		return;
@@ -903,7 +986,20 @@ void Landscape::appendLine()
 		cnt++;
 	}
 	
-	
+	{
+		static int lastRange = 0;
+		static int count = 0;
+		count++;
+		if (count & 31)
+		{
+			rangeIndex = lastRange;
+			range = ranges[rangeIndex];
+
+
+		}
+		lastRange = rangeIndex;
+
+	}
 
 
 
@@ -936,7 +1032,7 @@ void Landscape::appendLine()
 	for (int r = 0; r < 2; r++)
 	{
 		float x = (float)worldMzRange.min;
-		steps = 10;
+		steps = 30;
 		size = viewData.worldSizeMz / 50000;
 		sizey = viewData.worldSizeLc / steps;
 
@@ -955,12 +1051,23 @@ void Landscape::appendLine()
 		{
 			for (float i = 0; i < steps * 2; i++)
 			{
-				float y = (float)worldLcRange.min + ((worldLcRange.max - worldLcRange.min) / steps) * i * yscale;
+				float y = (float)worldLcRange.min + ((worldLcRange.max - worldLcRange.min) / steps) * i ;
 
-				if (y > worldLcRange.max)
+
+
+				auto draw_size_y = sizey ;
+				if ((y - draw_size_y / 2) >= worldLcRange.max)
 					continue;
+				if ((y + draw_size_y/2) >= worldLcRange.max)
+				{
 
-				addSquare(x, y, 0, size*.5, sizey * yscale, rangeIndex);
+			//		draw_size_y = (worldLcRange.max - y)  ;
+				}
+ 
+		//		y = worldLcRange.max;
+				//		 	draw_size_y = (worldLcRange.max - y)  *2;
+
+				addSquare(x, y, 0, size*.5, draw_size_y, rangeIndex);
 
 
 
@@ -1108,16 +1215,23 @@ void Landscape::setInfo()
 void Landscape::addMarker(float tx, float ty, float tz, int i, std::string text, float width, float height, float cubeSize)
 {
 	
+ 
+
 		glm::vec4  mid = transform({ tx,ty,tz });
 
-		
+		tz = 0;
+		 
+
+
 		if (cubeSize > 0)
 		{
 			add3dMarker(mid.x, mid.z, mid.y, i, text, width, height, cubeSize);
 			add3dMarker(mid.x, mid.z, mid.y, 3, text, width, height, 10);
 		}
-
+ 
 		auto m = transformMatrix * mid;
+ 
+
 		m = m / (m.w);
 
 		if (m.z < 1)
@@ -1280,7 +1394,7 @@ void Landscape::draw(Tile* tile)
 			}
   		return;
 		}
-
+		
 
 
 	//	 	if (tile->getScreenSize() > 0.01)
@@ -1292,7 +1406,7 @@ void Landscape::draw(Tile* tile)
 			|| (tile->drawStatus == DrawStatus::reCreatingGLMesh))
 		{
 		 
-//			std::cout << (int) tile->drawStatus << "  " << tile->getScreenSize() <<  "   " << tile->id <<"  : " << tile->LOD <<"\n";
+			// std::cout << " stgatus "<< (int) tile->drawStatus << "  " << tile->getScreenSize() <<  "   " << tile->id <<"  : " << tile->LOD <<"\n";
 			drawCallback(tile, false);
 
 			
@@ -1570,8 +1684,9 @@ void Landscape::manageQueue()
 		 // if it was recently loaded, don't remove it (and will assume that we need more memory)
 			if ((Globals::currentTime.time - next->lastLoaded.time) < (30*1e6))
 			{
+				
 				tilesInRam = tilesInRam * 1.4;
-
+				std::cout << " Increase ram usage " << tilesInRam << "\n";
 
 				numToClear++;
 
@@ -1609,16 +1724,27 @@ inline bool Landscape::canDraw(Tile *tile)
 	int visChildren = 0;
 	int readyChildren = 0;
 	
+	//  can we draw this one?
+	if (tile->getScreenSize() > min_draw_size)
+		if ((tile->drawStatus == DrawStatus::ready)
+			|| (tile->drawStatus == DrawStatus::reCreatingMesh)
+			|| (tile->drawStatus == DrawStatus::reCreateMesh)
+			|| (tile->drawStatus == DrawStatus::reCreateGLMesh)
+			|| (tile->drawStatus == DrawStatus::reCreatingGLMesh))
+		{
+			return true;
+		}
 
 	//only check chilren if this is quite large
- //	if ((tile->getScreenSize() > maxSize) )
+ 	if ((tile->getScreenSize() > maxSize) )
 
 
 
 	for (auto child : children)
 	{
 		 
-		if ((child->getScreenSize() >-2)) //    minSize)  )
+		//if ((child->getScreenSize() >-2)) //    minSize)  )
+			if ((child->getScreenSize() > minSize)  )
 		{
 			visChildren++;
 			if (canDraw(child))
@@ -1628,6 +1754,8 @@ inline bool Landscape::canDraw(Tile *tile)
  
 		// if any of the children were drawn recently, then we can draw them
 		// (to prevent removing children, then re-adding them moments later)
+		//may leave a blank space for a moment, but it's better than removing and re-adding
+	 
 		if (Globals::currentTime.time - child->lastDrawn.time < 2e6)
 		{
 			readyChildren += 256;
@@ -1639,16 +1767,7 @@ inline bool Landscape::canDraw(Tile *tile)
 	if ((visChildren > 0) && (visChildren == readyChildren))
 		return true;
 
-	//if can't draw children, can we draw this one?
-  	if (tile->getScreenSize() > 0.001)
-	if ((tile->drawStatus == DrawStatus::ready)
-		|| (tile->drawStatus == DrawStatus::reCreatingMesh)
-		|| (tile->drawStatus == DrawStatus::reCreateMesh)
-		|| (tile->drawStatus == DrawStatus::reCreateGLMesh)
-		|| (tile->drawStatus == DrawStatus::reCreatingGLMesh))
-	{
-			return true;
-	}
+
 	
 	return false;
 }
@@ -1827,7 +1946,7 @@ void Landscape::addPendingTiles()
 {
 	if (new_tiles.size() < 1)
 		return;
-
+	std::cout << new_tiles.size() << " new \n";
 	//adding new tiles is to buffer to prevent delays due to thread safety
 
 	tileLock.lock();
@@ -1853,12 +1972,13 @@ void Landscape::updateLandscape(glm::dmat4 matrix)
 	if (Settings::showNumbers)
 	if (readyToDrawFlag)
 		addMarkers();
+ 
+ 
+		prepareTiles(tiles);
 
 
- 	prepareTiles(tiles);
-
-	
-	addPendingTiles();
+		addPendingTiles();
+ 
 
 	return;
 
@@ -1881,7 +2001,7 @@ void Landscape::drawTiles()
 
 
 	
-	if (0)
+#ifdef THREADED 
 	{
 		std::vector<Tile*> copyTiles(tiles);
 		static int cnt = 0;
@@ -1889,8 +2009,11 @@ void Landscape::drawTiles()
 		
 
 
-		//don't need to do this every frame, it can take more than 1 frame to do
-		int freq = 3;
+		//maybe don't need to do this every frame, it can take more than 1 frame to do
+		int freq = 0;
+
+		if (0)
+		std::cout << cnt << "\n";
 		
 
 		if ((cnt &freq) == 0)
@@ -1903,8 +2026,9 @@ void Landscape::drawTiles()
 
 		}
 	}
-	else
+#else
 	drawTiles(tiles);
+#endif
 	/*
 	if (1)
 	{
@@ -1931,9 +2055,9 @@ void Landscape::drawTiles()
 
 
 	//this regenerates the meshes list every frame
+	//no longer use target
 
-
-
+	if (0)
 	if ((targetMesh == NULL))
 	{
 
@@ -2180,14 +2304,7 @@ std::vector<DataPointInfo> Landscape::findDataPoints(mzFloat mz, lcFloat lc, sig
 
 DataPoint Landscape::findDataPoint(mzFloat mz, lcFloat lc, signalFloat sig)
 {
-
-	if (0)
-	{
-		DataPoint p = { mz,lc,-1 };
-
-		return p;
-	}
-
+ 
 
 	std::deque<Tile*> q;
 	for (auto tile : tiles)
@@ -2272,6 +2389,13 @@ DataPoint Landscape::findDataPoint(mzFloat mz, lcFloat lc, signalFloat sig)
 	// std::cout << dx << " , " << dy << ", " << dz << "\n";
  	DataPoint p = { best.mz,best.lc,best.signal };
  
+	while (best.tile != NULL)
+	{
+		// std::cout << best.tile->LOD << "   " << best.tile->id << "   " << best.tile->getScreenSize() << "\n";
+		best.tile = best.tile->parent;
+	}
+	
+	
 
 	return p;
 	

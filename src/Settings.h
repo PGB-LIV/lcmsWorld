@@ -92,4 +92,8 @@ public:
 	static bool autoCorrelate;
 	static float correlateRatio;
 	static float correlateOffset;
+	static std::string noiseValue;
+	static bool noiseRemoval;
+	static bool negativeNoiseRemoval;
+	static bool colouredGridLines;
 };

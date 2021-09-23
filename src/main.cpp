@@ -398,8 +398,12 @@ char* executable_name = NULL;
 
 void restartNow()
 {
+	char path[MAX_PATH*2];
+
+ 
 	restartFlag = false;
 
+ 
 	Globals::closing = true;
 	Cache::closeCache();
 
@@ -423,9 +427,13 @@ void restartNow()
 	//
 				//		resetView();
 #ifdef _WIN32
-	char pathtofile[MAX_PATH];
 
+	
+	char pathtofile[MAX_PATH];
 	GetModuleFileName(GetModuleHandle(NULL), pathtofile, sizeof(pathtofile));
+
+
+
 #else
 
 	if (executable_name == NULL)
@@ -433,13 +441,17 @@ void restartNow()
 		exit(0);
 		return;
 	}
+	char pathtofile[MAX_PATH];
 
-	char pathtofile[PATH_MAX];
-	strcpy(pathtofile, executable_name);
+ 	strcpy(pathtofile, executable_name);
 #endif
 
-	strcat(pathtofile, " -restart");
-	system(pathtofile);
+
+	strcpy(path, "\"");
+	strcat(path, pathtofile);
+	strcat(path, "\" -restart");
+	system(path);
+
 	// (pathtofile);
 	//system(pathtofile, SW_SHOW);
 	std::this_thread::sleep_for(std::chrono::milliseconds(250));

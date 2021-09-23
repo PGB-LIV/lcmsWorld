@@ -170,10 +170,10 @@ void Tile::setScreenSize(glm::mat4 matrix, glm::vec2 view)
 	double z2 = maxSignal;
 	
 	// To reduce cpu load, don't do them all every frame (mask = 2^n-1)
-	int mask = 1;
+	int mask = 3;
 
-//	if ((random & mask) != (Globals::loopCount & mask))
-//		return;
+	if ((random & mask) != (Globals::loopCount & mask))
+		return;
  
 	//if it's  off-screen currently, eventually assume that it will not be a priority
 	screenLocation += .001f;
@@ -213,11 +213,7 @@ void Tile::setScreenSize(glm::mat4 matrix, glm::vec2 view)
 		ys = 1;
 	}
 
-	if (id != 80696)
-	{
-	//	screenArea = 0;
-//		return;
-	}
+ 
 
 	for (int k = 0; k < zs; k++)
 	{
@@ -262,8 +258,8 @@ void Tile::setScreenSize(glm::mat4 matrix, glm::vec2 view)
 
 
 
-						if (std::abs(tp.x) < 2.41)
-							if (std::abs(tp.y) < 2.31)
+						if (std::abs(tp.x) < 2.1)
+							if (std::abs(tp.y) < 2.1)
 							{
 								min_z = std::min(tp.z, min_z);
 
@@ -305,10 +301,11 @@ void Tile::setScreenSize(glm::mat4 matrix, glm::vec2 view)
 		 //a coarse approach to adjust by size of model
 		area *= Settings::detail-0.9f;
 		area *= (float) Globals::windowScale;
+ 
 
  		{
 		 
-
+	 
 			if (owner->numDataPoints < 1.5e8)
 				area *= 2;
 
@@ -320,14 +317,11 @@ void Tile::setScreenSize(glm::mat4 matrix, glm::vec2 view)
 		screenArea = (1.0f - min_z) * area;
 
  
-	 	screenArea *=  .45f;
+	 	screenArea *=  .42f;
  
  
-	
 
-				// won't so easily downsize
-
-		if ((screenArea < lastScreenArea ) && (screenArea > (lastScreenArea*2/4)) )
+		if ((screenArea < lastScreenArea ) && (screenArea > (lastScreenArea*7/8)) )
 			screenArea = lastScreenArea;
 		
 		lastScreenArea = screenArea;
@@ -342,9 +336,14 @@ void Tile::setScreenSize(glm::mat4 matrix, glm::vec2 view)
 
 	if (min_xy < 2.5)
 	{
+		
 
 		//enough to load, not enough to require display
-		screenArea = 0.004f * 2;;
+		screenArea = 0.0041 * 2 * 12; //  0.004f * 2;;
+
+
+	//	screenArea = -2;
+
 
 		if ((screenArea < lastScreenArea) )
 			screenArea = lastScreenArea;
@@ -538,7 +537,7 @@ int Tile::deserialise(byte* buffer)
 		memcpy( &childIds[i], &buffer[ptr], sizeof(id));
 		ptr += sizeof(id);
 	}
-
+	if (numChildren == 0)
 	owner->numDataPoints += numDataPoints;
 
 	return ptr;
@@ -601,6 +600,8 @@ int  Tile::serialise(byte *buffer)
 		memcpy(&buffer[ptr], &id, sizeof(id));
 		ptr += sizeof(id);
 	}
+
+	if(children.size() ==0)
 	owner->numDataPoints += numDataPoints;
  	return ptr;
 
@@ -715,6 +716,8 @@ void Tile::clearGLMesh(bool rebuild)
 {
 	if (drawStatus != DrawStatus::ready)
 		return;
+ 
+
 	drawStatus = DrawStatus::noGLMesh;
 	
 	delete wglMesh;
@@ -730,6 +733,8 @@ void Tile::clearGLMesh(bool rebuild)
 }
 void Tile::clearMesh(bool rebuild)
 {
+ 
+
 	if (rebuild)
 	{
 		if (drawStatus != DrawStatus::ready)

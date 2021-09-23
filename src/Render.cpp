@@ -1,4 +1,6 @@
 #include "gl3w/gl3w.h" // Include glfw3.h after our OpenGL definitions
+#define THREADED 0
+
 
 #include <time.h>
 #include <thread>
@@ -508,7 +510,7 @@ glm::dmat4  Render::prepareView(Landscape* l)
 inline void Render::drawMeshVB(GLDraw *drawObject, bool wireFrame)
 {
 	glBindVertexArray(drawObject->vao);
-	glDrawElements(GL_TRIANGLES, drawObject->size, GL_UNSIGNED_SHORT, nullptr);
+	glDrawElements(GL_TRIANGLES, drawObject->size, GL_UNSIGNED_INT, nullptr);
 
 }
 
@@ -904,7 +906,7 @@ void Render::drawTarget()
 	if (Settings::drawTarget < 0.05f)
 		return;
 
-#if 1
+#if 0
 
 		float width = (float) Settings::windowWidth;
 		float height = (float) Settings::windowHeight;
@@ -994,11 +996,11 @@ std::mutex render_copy_mutex;
 void Render::copyBuffer()
 {
  
-
+#ifdef THREADED
 	std::lock_guard<std::mutex> guard(render_copy_mutex);
 
 	drawTileQueue.clear();
-
+	
 	drawTileQueue = tileQueue;
 	tileQueue.clear();
 	
@@ -1006,11 +1008,21 @@ void Render::copyBuffer()
 	drawDeferredQueue = deferredQueue;
 	wireBuffer.clear();
 	deferredQueue.clear();
+#endif
+
 }
 
 
 void Render::drawDeferred()
 {
+
+//	glActiveTexture(GL_TEXTURE0);
+//	glBindTexture(GL_TEXTURE_2D, Texture);
+		//	drawMesh(drawObject, false);
+	// std::cout << " render " << temptileQueue.size() << "\n";
+	
+#ifdef THREADED
+
 	std::deque<DeferDraw>tempDeferQueue;
 	std::deque<DeferDraw>temptileQueue;
 	std::vector<GLDraw*> drawWireBufferCopy;
@@ -1022,30 +1034,38 @@ void Render::drawDeferred()
 		tempDeferQueue = drawDeferredQueue;
 
 	}
-//	glActiveTexture(GL_TEXTURE0);
-//	glBindTexture(GL_TEXTURE_2D, Texture);
-		//	drawMesh(drawObject, false);
-	// std::cout << " render " << temptileQueue.size() << "\n";
-	
-  
-	
-	for (auto dd: temptileQueue)
+	for (auto dd : temptileQueue)
 	{
 
-			glUniform1f(AlphaID, dd.alpha);
-			drawMesh(dd.drawObject, false);
-		}
-
-	
- 
- 
-	for (auto dd: tempDeferQueue)
-	
-	{
-	
 		glUniform1f(AlphaID, dd.alpha);
 		drawMesh(dd.drawObject, false);
 	}
+
+
+
+
+	for (auto dd : tempDeferQueue)
+
+	{
+
+		glUniform1f(AlphaID, dd.alpha);
+		drawMesh(dd.drawObject, false);
+	}
+
+#else
+ 
+
+	for (auto dd : deferredQueue)
+
+	{
+
+		glUniform1f(AlphaID, dd.alpha);
+		drawMesh(dd.drawObject, false);
+	}
+	deferredQueue.clear();
+
+#endif
+	
 
 	glUniform1f(AlphaID, 1.0);
 
@@ -1059,13 +1079,23 @@ void Render::drawDeferred()
 	glUniform3f(LightID, lightPos.x, lightPos.y, lightPos.z);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
  
- 
+#ifdef THREADED
 	for (auto drawObject : drawWireBufferCopy)
 	{
 		glUniform1f(AlphaID, drawObject->alpha);
 		glBindVertexArray(drawObject->vao);
-		glDrawElements(GL_LINES, drawObject->size, GL_UNSIGNED_SHORT, nullptr);
+		glDrawElements(GL_LINES, drawObject->size, GL_UNSIGNED_INT, nullptr);
+	}
+
+#else
+	for (auto drawObject : wireBuffer)
+	{
+		glUniform1f(AlphaID, drawObject->alpha);
+		glBindVertexArray(drawObject->vao);
+		glDrawElements(GL_LINES, drawObject->size, GL_UNSIGNED_INT, nullptr);
  	}
+	wireBuffer.clear();
+#endif
 	glUniform1f(AlphaID, 1.0);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -1153,10 +1183,12 @@ void Render::drawTile(Tile* tile, bool isFading)
 	}
 	else
 	{
+#ifdef THREADED
  		DeferDraw dd = { alpha, drawObject };
 		tileQueue.push_back(dd);
-
-	//	drawMesh(drawObject, false);
+#else
+	 	drawMesh(drawObject, false);
+#endif
 	}
 
 	 //	if (tile->getScreenSize() > .05)

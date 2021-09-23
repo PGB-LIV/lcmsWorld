@@ -115,12 +115,15 @@ inline bool operator <(const Annotation& lhs, const Annotation& rhs)
 	}
 	return (lhs.mz < rhs.mz);
 }
+class Tile;
 
  struct DataPointInfo {
 	mzFloat mz;
 	lcFloat lc;
 	signalFloat signal;
 	int LOD;
+	Tile* tile;
+
 }; 
 struct DataPoint {
 	mzFloat mz;

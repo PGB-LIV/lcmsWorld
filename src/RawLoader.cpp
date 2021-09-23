@@ -78,7 +78,7 @@ int curScan = 0;
 int lastScan = 0;
 FILE* child;
 //maximum length of a line
-
+long long total_size = 0;
 int buffer_size = 1024 * 1024 * 16;
 char* buffer = NULL;
 double maxVal = 0;
@@ -94,6 +94,7 @@ MZData* RawLoader::loadDataPartial()
 	// finished
 	if (status == 2)
 	{
+		std::cout << "read points " << total_size << " \n";
 		Globals::statusText = fileHandle.getFileName();
 
 		fclose(child);
@@ -145,8 +146,19 @@ MZData* RawLoader::loadDataPartial()
 #ifdef _WIN32
 				//no noise removal (file could be big!)
 				std::string cmd = "\"\"" + exe + "\" \"" + fileName + "\"\" -n";
+				
+				if (Settings::noiseRemoval)
+				{
+					if (Settings::negativeNoiseRemoval)
+						cmd = "\"\"" + exe + "\" \"" + fileName + "\"\" ";
+					else
+						if (Settings::noiseValue.size() > 1)
+							cmd = "\"\"" + exe + "\" \"" + fileName + "\"\" -t "+Settings::noiseValue;
+
+				}
+				
 				//				std::string cmd = "\"\"" + exe + "\" \"" + fileName + "\"\" ";
-				//				std::string cmd = "\"\"" + exe + "\" \"" + fileName + "\"\" -t 0.00005";
+				 				//std::string cmd = "\"\"" + exe + "\" \"" + fileName + "\"\" -t 0.0005";
 
 				std::cout << "starting " << cmd << " \n";
 
@@ -306,6 +318,7 @@ MZData* RawLoader::loadDataPartial()
 				mzData.reserve(scanSize);
 				intensityData.reserve(scanSize);
 
+				total_size += scanSize;
 
 				//read the mz valuees
 				fgets(buffer, buffer_size, child);
@@ -430,6 +443,7 @@ MZData* RawLoader::loadDataPartial()
 				assert(intensityData.size() == scanSize);
 
 				addScan();
+ 
 
 
 				readScans++;
@@ -459,6 +473,7 @@ MZData* RawLoader::loadDataPartial()
 					lineCopy = new MZScan(last_line);
 
 
+					std::cout << "read  so far points " << total_size << " \n";
 
 					return result;
 				}
@@ -484,6 +499,8 @@ MZData* RawLoader::loadDataPartial()
 			std::cout << "loaded \n";
 			Globals::statusText = fileName;
 			
+			std::cout << "read points " << total_size << " \n";
+
 			status = 2;
 			std::free(buffer);
 			buffer = NULL;

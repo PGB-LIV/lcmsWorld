@@ -36,7 +36,7 @@ Mesh::Mesh(std::vector<glm::vec3> vertex_vec, std::vector<glm::vec2> uv_vec, std
 }
 
 
-Mesh::Mesh(std::vector<glm::vec3> vertex_vec, std::vector<glm::vec2> uv_vec, std::vector<unsigned short> vb_vec, bool hd)
+Mesh::Mesh(std::vector<glm::vec3> vertex_vec, std::vector<glm::vec2> uv_vec, std::vector<unsigned int> vb_vec, bool hd)
 {
 	//may need to deal with Meshes that have no attributes (but they won't normally have a vervec buffer)
 	//assert(0);
@@ -64,7 +64,7 @@ Mesh::Mesh(std::vector<glm::vec3> vertex_vec, std::vector<glm::vec2> uv_vec, std
 
 
 
-Mesh::Mesh(std::vector<glm::vec3> vertex_vec, std::vector<glm::vec2> uv_vec, std::vector<unsigned short> vb_vec, std::vector<float> attr_vec,  bool hd)
+Mesh::Mesh(std::vector<glm::vec3> vertex_vec, std::vector<glm::vec2> uv_vec, std::vector<unsigned int> vb_vec, std::vector<float> attr_vec,  bool hd)
 {
 
 	status = MeshStatus::noData;
@@ -234,6 +234,8 @@ void Mesh::makeNormals2()
 
 Mesh::~Mesh()
 {	 
+ 
+
 	/*
 	for (int i=0; i < 5; i++)
 	if (numMeshes[i] > 1)

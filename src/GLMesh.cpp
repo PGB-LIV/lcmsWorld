@@ -97,8 +97,8 @@ GLMesh::GLMesh(Mesh* m, GLMesh* pm)
 	int size = pm->drawObject.size;
 
 	int wsize = size * 4 / 6;  //for every quad (pair of triangles), we only need two lines to make the wireframe
-	unsigned short* wirem = new unsigned short[wsize];
-	unsigned short* vbb = m->getVB();
+	unsigned int* wirem = new unsigned int[wsize];
+	unsigned int* vbb = m->getVB();
 	glm::vec3* vp = m->getVertex();
 
 	auto baseRemoval = Settings::baseRemoval;
@@ -130,7 +130,7 @@ GLMesh::GLMesh(Mesh* m, GLMesh* pm)
 	assert(j <= wsize);
 	glGenBuffers(1, &drawObject.vb);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, drawObject.vb);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, wsize * sizeof(unsigned short), wirem, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, wsize * sizeof(unsigned int), wirem, GL_STATIC_DRAW);
 
 #ifdef DEBUG_GRAM
 	glMem += wsize * sizeof(unsigned short);
@@ -201,6 +201,7 @@ GLMesh::GLMesh(Mesh* m, bool wireframe)
 				vtx[i].y = x;
 
 			}
+
 
 	glBufferData(GL_ARRAY_BUFFER, m->getSizeArray() * sizeof(glm::vec3), m->getVertex(), GL_STATIC_DRAW);
 
@@ -309,7 +310,7 @@ GLMesh::GLMesh(Mesh* m, bool wireframe)
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, drawObject.vb);
 		//glBufferData(GL_ELEMENT_ARRAY_BUFFER, m->getSize() * sizeof(unsigned short), m->getVB(), GL_STATIC_DRAW);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, m->getSize() * sizeof(unsigned short), m->getVB(), GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, m->getSize() * sizeof(unsigned int), m->getVB(), GL_STATIC_DRAW);
 #ifdef DEBUG_GRAM
 		glMem += m->getSize() * sizeof(unsigned short);
 		glMemVB += m->getSize() * sizeof(unsigned short);
@@ -361,6 +362,7 @@ GLMesh::~GLMesh()
 {
 
 	numGLMeshes--;
+
 
 	// in this order, as other buffers referenceed from vb
 	// also means wireframe should be dleted first

@@ -69,7 +69,7 @@ public:
 	void setScreenSize(glm::mat4 matrix, glm::vec2 view);
 	
  
-	double getScreenSize() { return screenArea; }
+	inline double getScreenSize() { return screenArea; }
 	void clearGLMesh(bool rebuild);
 	void clearMesh(bool rebuild);
 	void clearGLMesh() { clearGLMesh(false); }
@@ -185,7 +185,7 @@ public:
 		d.reserve(res.size());
 		for (auto p : res)
 		{
-			d.push_back(DataPointInfo{ p.mz,p.lc,p.signal,LOD });
+			d.push_back(DataPointInfo{ p.mz,p.lc,p.signal,LOD,this });
 		}
  		
 		return (d);
@@ -204,7 +204,7 @@ public:
 		d.reserve(res.size());
 		for (auto p : res)
 		{
-			d.push_back(DataPointInfo{ p.mz,p.lc,p.signal,LOD });
+			d.push_back(DataPointInfo{ p.mz,p.lc,p.signal,LOD, this });
 		}
 
 		return (d);

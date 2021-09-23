@@ -80,6 +80,13 @@ std::string Settings::autoLoadFile;
 bool Settings::expertMode = false;
 int Settings::axisMarker = 1;
 
+std::string Settings::noiseValue = "0.0005";
+bool Settings::noiseRemoval = true;
+bool Settings::negativeNoiseRemoval = false;
+
+bool Settings::colouredGridLines = true;
+
+
 std::string Settings::lastCameraString = "";
 void Settings::setup(int  argc, char ** argv)
 {
@@ -227,8 +234,12 @@ void Settings::loadSettings()
 	settings >> autoCorrelate;
 	settings >> correlateRatio;
 	settings >> correlateOffset;
+	settings >> noiseValue;
+	settings >> noiseRemoval;
+	settings >> negativeNoiseRemoval;
+	settings >> colouredGridLines;
 
-
+	
 	setMouse();
  
 
@@ -332,9 +343,13 @@ void Settings::saveSettings()
 	settings << correlateRatio << "\n";
 
 	settings << correlateOffset << "\n";
+	settings << noiseValue << "\n";
+	settings << noiseRemoval << "\n";
+	settings << negativeNoiseRemoval << "\n";
+	settings << colouredGridLines << "\n";
 
- 
 
+	
 	settings.close();
 
 }

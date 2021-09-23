@@ -48,7 +48,7 @@ int Builder::totalScans = 0;
 volatile std::atomic<int> Builder::num_threads = 0;
 std::mutex Builder::make_lock;
 
-static const int pointsPerTile = 5000  ;
+static const int pointsPerTile = 3500   ;
 static const 	int pointsPerTileWeb = 3500;
 static const int pointsPerTile0 = pointsPerTile  ;
 
@@ -98,11 +98,11 @@ Tile* Builder::makeTiles(MZData* data, int lod, int threadId)
 
 		//  trying different splits - greater splits should mean fewer levels of detail needed
 
-		int splitX = 2;
-		int splitY = 2;
+		int splitX = 5;
+		int splitY = 5;
 		if (mzSize > lcSize * 6)
 		{
-			splitX = 4;
+			splitX = 16;
 			splitY = 1;
 
 		}
@@ -113,7 +113,7 @@ Tile* Builder::makeTiles(MZData* data, int lod, int threadId)
 			splitX = 4;
 			splitY = 1;
 			if (mzSize > 100000)
-				splitX = 12;
+				splitX = 16;
 
 
 	 

@@ -13,8 +13,8 @@ class Mesh
 public:
 	Mesh(std::vector<glm::vec3> vertex, std::vector<glm::vec2> uv, std::vector<glm::vec3> normal, GLTextureID texture);
 	Mesh(std::vector<glm::vec3> vertex, std::vector<glm::vec2> uv, std::vector<glm::vec3> normal);
-	Mesh(std::vector<glm::vec3> vertex_vec, std::vector<glm::vec2> uv_vec, std::vector<unsigned short> vb_vec , std::vector<float> attr_vec, bool highDetail = false);
-	Mesh(std::vector<glm::vec3> vertex_vec, std::vector<glm::vec2> uv_vec, std::vector<unsigned short> vb_vec, bool highDetail = false);
+	Mesh(std::vector<glm::vec3> vertex_vec, std::vector<glm::vec2> uv_vec, std::vector<unsigned int> vb_vec , std::vector<float> attr_vec, bool highDetail = false);
+	Mesh(std::vector<glm::vec3> vertex_vec, std::vector<glm::vec2> uv_vec, std::vector<unsigned int> vb_vec, bool highDetail = false);
 
 	Mesh(std::vector<glm::vec3> vertex, std::vector<glm::vec2> uv, GLTextureID texture);
 	Mesh(std::vector<glm::vec3> vertex, std::vector<glm::vec2> uv);
@@ -31,7 +31,7 @@ public:
 	inline glm::vec3* getNormal() { return normal; }
 	inline float* getAttribute() { return attribute; }
 
-	inline unsigned short* getVB() { return vb; }
+	inline unsigned int* getVB() { return vb; }
 
 
 	bool useVB() { return _useVB; }
@@ -47,7 +47,7 @@ public:
 	inline void testClear()
 	{
 
-		std::vector<unsigned short>().swap(vbVec);
+		std::vector<unsigned int>().swap(vbVec);
 		std::vector<float>().swap(attributeVec);
 		std::vector<glm::vec3>().swap(normalVec);
 		std::vector<glm::vec3>().swap(vertexVec);
@@ -56,7 +56,7 @@ public:
 	}
  	static float logzscale;
 
-	std::vector<unsigned short> vbVec;
+	std::vector<unsigned int> vbVec;
 
 	std::vector<float> attributeVec;
 	std::vector<float> testVec;
@@ -85,7 +85,7 @@ private:
 	std::vector<glm::vec3> normalVec;
 
 
-	unsigned short* vb = NULL;
+	unsigned int* vb = NULL;
 
 
 	GLTextureID texture;
