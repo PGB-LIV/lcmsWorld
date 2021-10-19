@@ -317,7 +317,7 @@ void Tile::setScreenSize(glm::mat4 matrix, glm::vec2 view)
 		screenArea = (1.0f - min_z) * area;
 
  
-	 	screenArea *=  .42f;
+	 	screenArea *=  .5f;
  
  
 
@@ -339,7 +339,7 @@ void Tile::setScreenSize(glm::mat4 matrix, glm::vec2 view)
 		
 
 		//enough to load, not enough to require display
-		screenArea = 0.0041 * 2 * 12; //  0.004f * 2;;
+		screenArea = 0.0041 * 2 * 4; //  0.004f * 2;;
 
 
 	//	screenArea = -2;

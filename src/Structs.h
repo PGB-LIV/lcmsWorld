@@ -123,12 +123,15 @@ class Tile;
 	signalFloat signal;
 	int LOD;
 	Tile* tile;
+ 
+
 
 }; 
 struct DataPoint {
 	mzFloat mz;
 	lcFloat lc;
 	signalFloat signal;
+ 
 };
 //square MZdata has one mz array for each set of data - jagged has one for each scan
 enum class  MZDataType {square, jagged};

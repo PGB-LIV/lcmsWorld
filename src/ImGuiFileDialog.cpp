@@ -430,7 +430,7 @@ bool ImGuiFileDialog::FileDialog(const char* vName,  const char* vFilters, std::
 	size.y -= 175.0f;
 	
 
-	ImGui::BeginChild("##FileDialog_FileList", size);
+	ImGui::BeginChild("##FileDialog_FileList", size, false, ImGuiWindowFlags_HorizontalScrollbar);
  
 
 	for (std::vector<FileInfoStruct>::iterator it = m_FileList.begin(); it != m_FileList.end(); ++it)
@@ -485,7 +485,10 @@ bool ImGuiFileDialog::FileDialog(const char* vName,  const char* vFilters, std::
 			}
 
 			ImGui::SameLine();
-			if (ImGui::Selectable(str.c_str(), (strcasecmp(infos.fileName.c_str(), m_SelectedFileName.c_str())==0)))
+			// little bit of padding to right edge
+			// if (ImGui::Selectable(str.c_str(), (strcasecmp(infos.fileName.c_str(), m_SelectedFileName.c_str())==0)))
+			std::string strv = str + "  ";
+			if (ImGui::Selectable(strv.c_str(), (strcasecmp(infos.fileName.c_str(), m_SelectedFileName.c_str()) == 0)))
 			{
 				if (infos.type == 'd')
 				{

@@ -28,6 +28,9 @@ class Render
 	static GLuint XFilterID;
 	static GLuint YFilterID;
 	static GLuint ZFilterID;
+	static GLuint zScaleID;
+	static GLuint zMaxID;
+	
 	static GLuint zHighlightFilterID;
 
 	static float zHighlightFilterValue;
@@ -65,6 +68,7 @@ class Render
 
 public:
 	static GLuint cubeTexture2;
+	static void resetUV();
 
 	static void drawTarget();
 	static GLuint getMatrixID() { return MatrixID; }

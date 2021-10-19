@@ -10,26 +10,32 @@
 
 #define TOC_VERSION true
 
+#define CUR_VERSION_STRING "1.12"
 
 class Globals
 {
 public:
 
 #if TOC_VERSION 
-	static inline std::string x_axis_desc = "prec. m/z";
-	static inline std::string y_axis_desc = "frag. m/z";
-	static inline std::string x_axis_name = "Prec.";
-	static inline std::string y_axis_name = "Frag.";
+ 
+
+	static inline bool neg_y = true;
+
 #else
-	static inline std::string x_axis_desc = "m/z";
-	static inline std::string y_axis_desc = "RT";
-	static inline std::string x_axis_name = "m/z";
-	static inline std::string y_axis_name = "RT";
+ 
+
+	static inline bool neg_y = false;
+
 #endif
 
 
+	inline static float minPeakScale = 1.0;
+	inline static float maxPeakScale = 100.0;
+
 	static GLFWwindow* window;
-	static std::array<std::string, 5> supported_versions; 
+	
+	inline static std::string supported_versions[] = { "0.14","0.24","0.25", "0.26", "1.0","1.1","1.11", CUR_VERSION_STRING };
+
 	static TimeStamp currentTime;
 	static std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
 

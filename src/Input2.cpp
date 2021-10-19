@@ -142,7 +142,7 @@ void Input::update()
 		if (keyMask[GLFW_KEY_LEFT_CONTROL] || keyMask[GLFW_KEY_RIGHT_CONTROL])
 		{
  
-			Settings::xScale_slider += mouse_wheel_pos / 10;
+			Settings::xScale_slider += mouse_wheel_pos / 24;
 			if (Settings::xScale_slider > Settings::xScale_slider_max)
 				Settings::xScale_slider =  Settings::xScale_slider_max;
 			if (Settings::xScale_slider < Settings::xScale_slider_min)
@@ -162,7 +162,7 @@ void Input::update()
 
 	int bs = 1 << GLFW_MOUSE_BUTTON_1;
 
-	int keys[] = { GLFW_KEY_LEFT,GLFW_KEY_RIGHT ,GLFW_KEY_UP ,GLFW_KEY_DOWN };
+	int keys[] = { GLFW_KEY_LEFT,GLFW_KEY_RIGHT ,GLFW_KEY_UP ,GLFW_KEY_DOWN, GLFW_KEY_W, GLFW_KEY_S };
 	for (auto key : keys)
 	{
 		double mx = 0;
@@ -185,6 +185,10 @@ void Input::update()
 			bs = 1 << GLFW_MOUSE_BUTTON_2;
 			mx = -mx;
 		}
+		
+		
+
+		
 
 		if (mods & GLFW_MOD_CONTROL)
 		{
@@ -193,7 +197,26 @@ void Input::update()
 			Settings::zScale_slider += (float) my * deltaTime * 5.0f;
 			mx = 0;
 			my = 0;
-	 
+
+			if (key == GLFW_KEY_W)
+				Settings::peakScale = Settings::peakScale *1.01;
+			if (key == GLFW_KEY_S)
+				Settings::peakScale = Settings::peakScale * .99;
+			if (Settings::peakScale > Globals::maxPeakScale)
+				Settings::peakScale = Globals::maxPeakScale;
+			if (Settings::peakScale < Globals::minPeakScale)
+				Settings::peakScale = Globals::minPeakScale;
+
+		}
+		else
+
+		{
+			if (key == GLFW_KEY_W)
+				c->dragZoom(.4 / 100, deltaTime);
+			if (key == GLFW_KEY_S)
+				c->dragZoom(-.4 / 100, deltaTime);
+
+
 		}
 
 		mxt += mx;
@@ -206,6 +229,7 @@ void Input::update()
 	{
 		status = 1;
 	}
+ 
  
 
 
@@ -410,6 +434,9 @@ inline glm::vec4  Input::transform(glm::vec3 input, Landscape *l)
 
 	y1 *= l->yScale;
 
+
+
+
 	auto x1 = input.x;
 	x1 -= (getView()->worldMzRange.min + getView()->worldMzRange.max) / 2;
 	x1 *= (mzFloat)l->xScale;
@@ -489,7 +516,9 @@ void Input::mouseDragged(int buttonState, double mx, double my, double xp, doubl
 		//flip status of first two buttons
 		buttonState ^= 3;
 	}
- 
+	if (status)
+	 buttonState ^= 3;
+
 	if ((buttonState & 2) )
 	{
 		getView()->getCamera()->dragTranslate(mx, my, System::frameTime, status);
@@ -647,13 +676,13 @@ void Input::handleCursor(Landscape* l)
 	}
 
 
-	float posX, posY, posZ;
+	double posX, posY, posZ;
 
-	float maxZ = .9999999999f;
-	float minZ = .6f;
+	double maxZ = .9999999999f;
+	double minZ = .6f;
 
 
-	// if we aren't really sure how far away the cursor is in z distance 
+	// if we aren't really sure how far away the cursor is in z distance (e.g., not on a drawn pixel)
 	// we adjust it until we get to a point which is feasible
 	int lp = 0;
 	do
@@ -661,13 +690,21 @@ void Input::handleCursor(Landscape* l)
 
 
 
-		glm::vec4 vp4 = glm::vec4(0.0, 0.0, (GLdouble)vp.x, (GLdouble)vp.y);
-		float zScale = Settings::scale.z;
+		glm::dvec4 vp4 = glm::vec4(0.0, 0.0, (GLdouble)vp.x, (GLdouble)vp.y);
+		double zScale = Settings::scale.z;
 
-	 
-		auto 	sm = glm::scale(glm::vec3(Settings::scale.x, zScale, Settings::scale.y));
+		//zScale = zScale * (Settings::peakScale / 100.0);
 
-		auto xyz = glm::unProject(cursor3d, sm, Render::ProjectionMatrix*Render::ViewMatrix, vp4);
+		glm::dmat4 	sm = glm::scale(glm::vec3((GLdouble) Settings::scale.x, (GLdouble)zScale, (GLdouble)Settings::scale.y));
+
+
+		glm::dvec3 c3d(cursor3d);
+		glm::dmat4 pm (Render::ProjectionMatrix);
+		glm::dmat4 vm(Render::ViewMatrix);
+		glm::dmat4 pmvm = pm * vm;
+		auto xyz = glm::unProject(c3d, sm, pmvm, vp4);
+
+//		auto xyz = glm::unProject(cursor3d, sm, Render::ProjectionMatrix*Render::ViewMatrix, vp4);
 
 		posX = xyz.x;
 		posY = xyz.z;
@@ -684,7 +721,10 @@ void Input::handleCursor(Landscape* l)
 
 		cursorPoint.mz = posX;
 		cursorPoint.lc = posY;
+
 		cursorPoint.signal = posZ;
+
+
 
 		lp++;
 
@@ -705,6 +745,10 @@ void Input::handleCursor(Landscape* l)
  	} while (blankCursor && ((cursorPoint.signal < 0) || (cursorPoint.signal > 100)) && (lp < 32));
 
 	
+ 
+	// getView()->addMarker(posX, posY, posZ, col, "o", 8, 26, 0);
+
+
 	auto cursor = getView()->findDataPoint(posX, posY, posZ);
 
 
@@ -715,6 +759,7 @@ void Input::handleCursor(Landscape* l)
 
 	}
 	//	getView()->addMarker(cursorPoint.mz, cursorPoint.lc, cursorPoint.signal, 0, ".", 8, 26, 0);
+	cursor.signal = cursor.signal / (Settings::peakScale / 100.0);
 
 
 	if (cursor.signal <= 0)
@@ -740,7 +785,7 @@ void Input::handleCursor(Landscape* l)
 			getView()->addInfo("<b>Cursor Information");
 			
 #if TOC_VERSION
-			getView()->addInfo(Globals::x_axis_desc);
+			getView()->addInfo(Settings::xLabeld);
 			getView()->addInfo("<c>= " + std::to_string(cursor.mz));
 #else
 			getView()->addInfo("<i>" + Globals::x_axis_desc);
@@ -761,7 +806,7 @@ void Input::handleCursor(Landscape* l)
 
 
 #if TOC_VERSION
-			getView()->addInfo(Globals::y_axis_desc);
+			getView()->addInfo(Settings::yLabeld);
 			getView()->addInfo("<c>= " + std::to_string(cursor.lc));
 #else
 			std::ostringstream infolc;
@@ -821,6 +866,9 @@ void Input::getCursorZ()
 	{
 		status = 1;
 	}
+
+ 
+
 	if (mouse_button_state)
 	{
  		mouseDragged(mouse_button_state, m_x, m_y, xpos/xsize,ypos/ysize, status);
@@ -841,13 +889,26 @@ void Input::getCursorZ()
 	cursor2d = glm::vec2(winX, winY);
 	static int loop = 0;
 
+
+	//Label label = { winX,winY,"*",0 };
+	//if (getView())
+//	getView()->addLabel(0, label);
+
+
+	//glREad pixels reports as very slow in profiler - not sure why
+	// need to investigate 
+ 
+
 	if (0)
 	if ((loop++ & 31))
 		return;
 
+ 
+
+ 
 
 
-	double minZ = 1;
+	double minZ = 1 ;
 	 
 			glReadPixels((int)(winX -xs/2), (int)(winY -ys/2), xs, ys, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ[0]);//Reads the depth buffer
 
@@ -855,7 +916,7 @@ void Input::getCursorZ()
 			minZ = std::min(minZ, (double)winZ[i]);
 		
 	cursor3d = glm::vec3(winX, winY, minZ);
-	 
+ 
 }
 
 
@@ -932,10 +993,10 @@ void Input::showNearest(DataPoint cursorPoint)
 
 
 #ifdef TOC_VERSION
-		getView()->addInfo( Globals::x_axis_desc);
+		getView()->addInfo(Settings::xLabeld);
 		getView()->addInfo("<c>= " + std::to_string(a.mz));
 
-		getView()->addInfo(Globals::y_axis_desc);
+		getView()->addInfo(Settings::yLabeld);
 		getView()->addInfo("<c>= " + std::to_string(a.lc));
 
 #else
@@ -989,7 +1050,10 @@ void Input::key_callback(GLFWwindow* window, int key, int scancode, int action, 
 		if (key==GLFW_KEY_F5)
 			reloadFile();
 
- 
+	if (getView())
+	if (action == GLFW_PRESS)
+		if (key == GLFW_KEY_F4)
+			getView()->getCamera()->reset();
 
 
 	if (action == GLFW_REPEAT)

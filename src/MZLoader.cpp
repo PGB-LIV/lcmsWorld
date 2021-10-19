@@ -45,10 +45,12 @@ SignalMz MZLoader::insertZeros(const std::vector<mzFloat> &mz, const std::vector
 		{
 			auto lowsig = std::min(sig[i], sig[i - 1]);
 
-			newMz.push_back(mz[i-1] + 0.01);
+			lowsig = 0;
+
+			newMz.push_back(mz[i-1] + 0.05);
 			newSig.push_back(lowsig);
 
-			newMz.push_back(mz[i] - 0.01);
+			newMz.push_back(mz[i] - 0.05);
 			newSig.push_back(lowsig);
 
 		}
@@ -140,6 +142,8 @@ void MZLoader::addScan()
 	// if both sets of mz & signal exist, then we have a scan!
 
 //	std::cout << " add scan to " << result->id << " \n";
+	if (mzData.size() == 0)
+		return;
 
 
 	if (mzData.size() != intensityData.size())

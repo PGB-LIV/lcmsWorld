@@ -9,6 +9,14 @@
 #include "Camera.h"
 #include "sys/stat.h"
 
+std::string Settings::xLabel = "Precursor";
+std::string Settings::yLabel = "Fragment";;
+std::string Settings::xLabels = "Prec.";
+std::string Settings::yLabels = "Frag.";;
+std::string Settings::xLabeld = "prec. m/z";
+std::string Settings::yLabeld = "frag. m/z";
+
+
 bool Settings::flatLighting = false;
 bool Settings::displaySides = true;
 float Settings::detail = 5;
@@ -31,6 +39,7 @@ vec3<float> Settings::scale = { 1,1,1 };
 bool Settings::showNumbers = false;
 bool Settings::addGridLines = false;
 bool Settings::autoCorrelate = false;
+float Settings::peakScale = 100;
 
 
 float Settings::xScale_slider = 0;
@@ -238,6 +247,7 @@ void Settings::loadSettings()
 	settings >> noiseRemoval;
 	settings >> negativeNoiseRemoval;
 	settings >> colouredGridLines;
+	settings >> peakScale;
 
 	
 	setMouse();
@@ -347,6 +357,7 @@ void Settings::saveSettings()
 	settings << noiseRemoval << "\n";
 	settings << negativeNoiseRemoval << "\n";
 	settings << colouredGridLines << "\n";
+	settings << peakScale << "\n";
 
 
 	

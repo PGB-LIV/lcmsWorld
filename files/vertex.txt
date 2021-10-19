@@ -27,7 +27,9 @@ uniform vec2 yFilter;
 uniform	float LightPower;
 
 uniform int rootFlag;
+uniform float zMax;
 
+uniform float zScale;
 
 
 
@@ -52,6 +54,13 @@ vertexAttributeI =  0;
 
 	}
 
+
+
+ 	vp.y = vp.y / zScale;
+	if (vp.y > zMax)
+		vp.y = zMax;
+
+
 	vec3 vpi = vp;
 
  
@@ -64,11 +73,18 @@ vertexAttributeI =  0;
 		vp.y = log2(vp.y + 1);
 	}
 
+ 
+
+
 	gl_Position =  MVP * vec4(vp,1);
 	
+ 
+ 
 	// Position of the vertex, in worldspace : M * position
 	Position_worldspace = (M * vec4(vp,1)).xyz;
 	 
+	 
+
 	// Vector that goes from the vertex to the camera, in camera space.
 	// In camera space, the camera is at the origin (0,0,0).
 	vec3 vertexPosition_cameraspace = ( V * M * vec4(vp,1)).xyz;
@@ -112,7 +128,6 @@ vertexAttributeI =  0;
 
 
  
-
 }
 
 )";

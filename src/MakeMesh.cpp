@@ -17,6 +17,8 @@ const float noiseThreshold = 1; //set to +ve  to remove quads with little or no 
 							//if it's -ve, all will be included
 static std::mutex scale_lock;
 static bool mapSet = false;
+
+ 
 const float uv_u = 0.25;
 const float uv_0 = 0.25;
 const float uv_1 = 0.25;
@@ -116,6 +118,8 @@ Mesh* Landscape::getJaggedMesh(Tile* tile)
 
 		y1 -= (lcRange.min + lcRange.max) / 2;
 		y2 -= (lcRange.min + lcRange.max) / 2;
+
+ 
 
 		y1 *= yScale;
 		y2 *= yScale;
@@ -752,6 +756,8 @@ Mesh* Landscape::makeMesh(Tile* tile)
 		y1 -= (lcRange.min + lcRange.max) / 2;
 		y2 -= (lcRange.min + lcRange.max) / 2;
 
+ 
+
 		y1 *= yScale;
 		y2 *= yScale;
 
@@ -1038,6 +1044,8 @@ Mesh* Landscape::makeMesh2(Tile* tile)
 
 		y1 -= (lcRange.min + lcRange.max) / 2;
 		y2 -= (lcRange.min + lcRange.max) / 2;
+
+ 
 
 		y1 *= yScale;
 		y2 *= yScale;

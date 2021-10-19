@@ -1,5 +1,5 @@
 #include "gl3w/gl3w.h" // Include glfw3.h after our OpenGL definitions
-#define THREADED 0
+//#define THREADED 0
 
 
 #include <time.h>
@@ -60,6 +60,9 @@ GLuint Render::ModelMatrixID;
 GLuint Render::XFilterID;
 GLuint Render::YFilterID;
 GLuint Render::ZFilterID;
+GLuint Render::zScaleID;
+GLuint Render::zMaxID;
+
 GLuint Render::zHighlightFilterID;
 
 float Render::zHighlightFilterValue;
@@ -142,7 +145,9 @@ static void glfw_error_callback(int error, const char* description)
 
 #include "../files/arrowText.h"
 #include "../files/arrowTextTOC.h"
+#include "../files/arrowTextTOCr.h"
 #include "../files/arrow.h"
+#include "../files/arrowr.h"
 
 void  Render::loadTextures()
 {
@@ -171,11 +176,12 @@ void  Render::loadTextures()
 	CsvTexture = loadBMP_custom_data(csv);
 	CentreTexture = loadBMPA_custom_data(centre);
  
-	ArrowTexture = loadBMPA_custom_data(arrow);
+	
 #if TOC_VERSION
-	ArrowTextTexture = loadBMPA_custom_data(arrowTextTOC);
+	ArrowTextTexture = loadBMPA_custom_data(arrowTextTOCr);
+	ArrowTexture = loadBMPA_custom_data(arrowr);
 #else
-
+	ArrowTexture = loadBMPA_custom_data(arrow);
 	ArrowTextTexture = loadBMPA_custom_data(arrowText);
 #endif
 	
@@ -289,6 +295,11 @@ bool Render::setup()
 	XFilterID = glGetUniformLocation(programID, "xFilter");
 	YFilterID = glGetUniformLocation(programID, "yFilter");
 	ZFilterID = glGetUniformLocation(programID, "zFilter");
+	
+
+	zMaxID = glGetUniformLocation(programID, "zMax");
+	zScaleID = glGetUniformLocation(programID, "zScale");
+	
 
 	zHighlightFilterID = glGetUniformLocation(programID, "zHighlightFilter");
 
@@ -373,12 +384,18 @@ void testHUD()
 }
 */
 
+void Render::resetUV()
+{
+//	glUniform1f(zScaleID, 1);
+
+}
+
 glm::dmat4  Render::prepareView(Landscape* l)
 {
  	
 	auto clearColour = Settings::clearColour;
  
-
+	
 	glfwMakeContextCurrent(Globals::window);
 
 	glClearColor(clearColour.x, clearColour.y, clearColour.z, clearColour.w);
@@ -386,11 +403,12 @@ glm::dmat4  Render::prepareView(Landscape* l)
 
 	glBlendFunc(GL_ONE, GL_ZERO);
 
-
-	glCullFace(GL_FRONT);
- 
-	// might be better enabled
-	glDisable(GL_CULL_FACE);
+	if (Globals::neg_y)
+		glCullFace(GL_BACK);
+	else
+		glCullFace(GL_FRONT);
+	//   better enabled
+	
 	glEnable(GL_CULL_FACE);
 
 	glEnable(GL_DEPTH_TEST);
@@ -442,7 +460,10 @@ glm::dmat4  Render::prepareView(Landscape* l)
 		glUniform1i(rootFlagID, 0);
 
 
-	ModelMatrix = glm::mat4(1.0f);
+	// ModelMatrix = glm::scale(glm::vec3(1.0, 1.0, -1.0)); //  glm::mat4(1.0f);
+
+//	zScale = zScale / (Settings::peakScale / 100.0);
+
  auto 	sm = glm::scale(glm::vec3(Settings::scale.x, zScale, Settings::scale.y));
 //	ModelMatrix = glm::scale(glm::vec3(Settings::scale.x, zScale, Settings::scale.y));
 
@@ -486,6 +507,12 @@ glm::dmat4  Render::prepareView(Landscape* l)
 
 	glUniform1f(ZFilterID, f[4] - .0001f);
 
+	
+	glUniform1f(zScaleID, Settings::peakScale / 100.0);
+	if (l != NULL)
+		glUniform1f(zMaxID, l->viewData.peakHeight  );
+	else
+		glUniform1f(zMaxID, 10);
 
 
 
@@ -575,6 +602,7 @@ void Render::drawMesh(GLDraw *drawObject, bool wireFrame)
 
 #endif
  
+	glUniform1f(zScaleID, Settings::peakScale / 100.0);
 
 	if (wireFrame)
 	{
@@ -621,6 +649,7 @@ void Render::drawMesh(GLDraw *drawObject, bool wireFrame)
 
 
 
+	//glUniform1f(zScaleID, 1);
 
 
 
@@ -641,7 +670,7 @@ void  Render::drawCubeMeshDirection(GLMesh* cube, int type)
 
 
 	
-	auto translate = glm::translate(glm::vec3(-.90, .75, 0));
+	auto translate = glm::translate(glm::vec3(-.90, .7, 0));
 
 
 	//	matrix *= glm::translate(glm::vec3(100, 0, 0));
@@ -703,6 +732,8 @@ void Render::rebuildWireframe()
 
 void Render::drawCubeMesh(GLMesh* cube, int type)
 {
+	//glUniform1f(zScaleID, 1);
+
 	glUniform1f(ZFilterID, -1);
 	glUniform1f(zHighlightFilterID, -1);
 
@@ -730,7 +761,8 @@ void Render::drawCubeMesh(GLMesh* cube, int type)
 	
 
 	auto drawObject = cube->getDrawObject();
-
+	
+	 
 	drawMesh(drawObject, false);
  	glDisable(GL_POLYGON_OFFSET_LINE);
 

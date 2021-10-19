@@ -1,5 +1,5 @@
 //also need to change in Render.cpp
-#define THREADED 0
+//#define THREADED 0 
 
 #include "Landscape.h"
 #include "Tile.h"
@@ -35,8 +35,8 @@ static int loadTilesPerFrame = 20000;
 static int loadTilesThisFrame = 0;
 //at what size to bother drawing child
 //if it's smaller than this, it will be just left empty
-const static double minSize = 0.005*2     *12 ;  
-const double minSizePreload = 0.004*2 *12;
+const static double minSize = 0.005*2     *4 ;  
+const double minSizePreload = 0.004*2 *4;
 const double min_draw_size =  0.0001 * 1;
 const static double maxSize = 0.25 * 2 * 1;
 const static double maxSizePrepare = 0.24 * 2 *1;
@@ -427,7 +427,12 @@ void  Landscape::drawAnnotations()
 
 glm::vec2  Landscape::get2d(float tx, float ty, float tz)
 {
+
+
 	glm::vec4  mid = transform({ tx,ty,tz });
+
+ 
+
 
 	glm::vec2 ret = glm::vec2(-100, -100);
 
@@ -443,6 +448,8 @@ glm::vec2  Landscape::get2d(float tx, float ty, float tz)
 
 
 					int label_y = (int)(((-m.y + 1) * viewport.y / 2)  );
+ 
+
 					ret = glm::vec2(label_x, label_y);
 
 				}
@@ -461,6 +468,7 @@ DataPoint cursorPoint;
 auto vp = l->getViewport();
 
 int lp = 0;
+std::cout << " lc get3d called\n";
 
 
 do
@@ -480,6 +488,10 @@ do
 	posY = xyz.z;
 	posX /= l->xScale;
 	posX += (l->worldMzRange.min + l->worldMzRange.max) / 2;
+
+	//if (Globals::neg_y)
+//		posY = -posY;
+
 
 	posY /= l->yScale;
 	posY += (l->worldLcRange.min + l->worldLcRange.max) / 2;
@@ -1104,8 +1116,7 @@ void Landscape::drawCubes()
 
 	//this regenerates the meshes list every frame
  
-
-
+ 
 
 	if (cubeMesh != NULL)
 	{
@@ -1177,12 +1188,12 @@ void Landscape::setInfo()
 {
 	addInfo("<b>File Information");
 
-	addInfo(Globals::x_axis_name);
+	addInfo(Settings::xLabel);
 	addInfo("<c>range:");
 	std::string mzr = std::to_string(worldMzRange.min) + " - " + std::to_string(worldMzRange.max);
 
 		addInfo(mzr);
-		addInfo(Globals::y_axis_name+" range:");
+		addInfo(Settings::yLabel +" range:");
 		addInfo(std::to_string(worldLcRange.min) + " - " + std::to_string(worldLcRange.max));
 
 
@@ -1276,12 +1287,19 @@ inline glm::vec4  Landscape::transform(glm::vec3 input)
 
 	y1 *= yScale;
 
+
+
+
 	auto x1 = input.x;
 	x1 -= (float)(worldMzRange.min + worldMzRange.max) / 2;
 	x1 *= xScale;
 
 	auto z1 = input.z;
 	z1 *= zScale;
+
+	// z1 /= Settings::peakScale;
+
+
 	//then convert them - e.g., function could be logarithmic
 	//note it is already normalised into 3d world space, which is current undefined
 	z1 = Mesh::convertZ(z1);
@@ -1946,7 +1964,7 @@ void Landscape::addPendingTiles()
 {
 	if (new_tiles.size() < 1)
 		return;
-	std::cout << new_tiles.size() << " new \n";
+	//  
 	//adding new tiles is to buffer to prevent delays due to thread safety
 
 	tileLock.lock();
@@ -1999,7 +2017,7 @@ void Landscape::drawTiles()
 
 
 
-
+ 
 	
 #ifdef THREADED 
 	{
@@ -2041,15 +2059,19 @@ void Landscape::drawTiles()
 	 */
 
 
-
+ 
 	Render::drawDeferred();
 	Render::drawTarget();
 	manageQueue();
 
 	drawPinstripes();
 
+
+	Render::resetUV();
+
 	drawCubes();
 
+ 
 
 	static GLMesh* targetMesh = NULL;
 
@@ -2057,7 +2079,7 @@ void Landscape::drawTiles()
 	//this regenerates the meshes list every frame
 	//no longer use target
 
-	if (0)
+ 
 	if ((targetMesh == NULL))
 	{
 
@@ -2229,7 +2251,6 @@ void Landscape::deSerialiseData(std::vector<byte> buffer, int viewLod)
  
 		tileList.push_back(tile);
 		if (tile->LOD == viewLod)
-		
 			addTile(tile);
 	}
 	Tile::setChildren();
@@ -2315,14 +2336,14 @@ DataPoint Landscape::findDataPoint(mzFloat mz, lcFloat lc, signalFloat sig)
 	{
 		Tile* tile = q.front();
 		q.pop_front();
-		if (mz >= tile->mzRange.min)
-			if (mz <= tile->mzRange.max)
-				if (lc >= tile->lcRange.min)
-					if (lc >= tile->lcRange.min)
+		if (mz >= tile->mzRange.min - .01)
+			if (mz <= tile->mzRange.max + .01)
+				if (lc >= tile->lcRange.min-.01)
+					if (lc <= tile->lcRange.max + .01)
 					{
 						DataPoint s = { mz,lc, -sig };
 						std::vector<DataPointInfo> res = tile->findClosest(s);
-
+						 
 						for (auto f : res)
 						{
  								if (f.signal >= 0)
@@ -2386,9 +2407,12 @@ DataPoint Landscape::findDataPoint(mzFloat mz, lcFloat lc, signalFloat sig)
 	}
 
  
+	// std::cout << best.mz << " , " << best.mz2 << "\n";
+
 	// std::cout << dx << " , " << dy << ", " << dz << "\n";
  	DataPoint p = { best.mz,best.lc,best.signal };
- 
+	//p.mz2 = best.mz2;
+	//p.lc2 = best.lc2;
 	while (best.tile != NULL)
 	{
 		// std::cout << best.tile->LOD << "   " << best.tile->id << "   " << best.tile->getScreenSize() << "\n";

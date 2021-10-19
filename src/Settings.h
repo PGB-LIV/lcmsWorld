@@ -6,7 +6,7 @@
 #include <vector>
 #include "glm/glm.hpp"
 
-#define CUR_VERSION_STRING "1.00"
+
 class Settings
 {
 public:
@@ -96,4 +96,12 @@ public:
 	static bool noiseRemoval;
 	static bool negativeNoiseRemoval;
 	static bool colouredGridLines;
+	static float peakScale;
+	static std::string xLabel;
+	static std::string yLabel;
+	static std::string xLabels;
+	static std::string yLabels;
+	static std::string xLabeld;
+	static std::string yLabeld;
+	
 };

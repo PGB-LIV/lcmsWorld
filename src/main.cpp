@@ -227,6 +227,8 @@ bool reloadFile()
 			fileOpen(annotation);
 
 		std::string camString = Settings::lastCameraString;
+
+	 
 		if (camString.length() > 10)
 		{
 			
@@ -492,12 +494,12 @@ void exitApp()
 
 void drawLoop(glm::dmat4 view)
 {
+
+	
 	if (getView() != NULL)
 	{
 		
 		Render::drawBaseMesh(false);
-
-
 		glClear( GL_DEPTH_BUFFER_BIT);
 		Render::drawBaseMesh(true);
 
@@ -612,6 +614,7 @@ int cmain(int  argc, char ** argv)
  
 
 
+
 	std::set_terminate([]() {
 		std::exception_ptr eptr;
 
@@ -630,6 +633,9 @@ int cmain(int  argc, char ** argv)
 		
 		});
 
+
+
+	std::cout << "build: " << __TIMESTAMP__ << "\n";
 
 
 
@@ -719,8 +725,7 @@ int cmain(int  argc, char ** argv)
 		drawLoop(matrixView);
 
 		glDisable(GL_DEPTH_TEST);
-
-	
+ 	
 		gui::decorations();
 
 		ImGui::Render();
@@ -735,7 +740,7 @@ int cmain(int  argc, char ** argv)
 		if (restartFlag)
 			restartNow();
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(1));
+	//	std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		
 	}
 

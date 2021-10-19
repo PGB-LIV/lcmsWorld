@@ -196,6 +196,9 @@ std::vector<byte> Cache::getData(DataSource d)
 		{
 			if (loadQueue.size() == 0)
 			{
+
+				std::cout << " make thread \n";
+
 				const auto data = getDataFromFile(d);
 				std::thread t1(&loadCache);
 				t1.detach();
@@ -510,6 +513,9 @@ void Cache::saveMetaData(Landscape *l, std::string inputFileName, std::string ur
 	auto data = l->serialiseData();
 	size_t  size = data.size();
 	size_t  compressedSize = size;
+
+	std::cout << " writing meta data size " << size << "\n";
+
 	if (url.length() > 1)
 	{
 		int bufferSize = Zip::GetMaxCompressedLen(data.size());
@@ -705,7 +711,7 @@ Landscape* Cache::loadMetaData(std::string fileName)
 	l->setTexture(Render::Texture[0]);
 	std::cout << "deserialise landscape" << metaSize << "\n";
 
-	l->deSerialiseData(buffer, Builder::viewLod);
+	l->deSerialiseData(buffer,  Builder::viewLod);
 
 	metaFile.close();
 	

@@ -23,11 +23,15 @@ uniform float zFilter;
 uniform float ambient;
 uniform float zHighlightFilter;
 uniform	float LightPower;
+uniform float zScale;
 
 void main(){
 
 	if (Position_worldspace.y < zFilter)
 		discard;
+
+ 
+
 
 			vec2 inUV = UV;
 
@@ -51,6 +55,8 @@ void main(){
 	{
 		inUV.x = 1 -inUV.x;
 	}
+
+	//		inUV.y = inUV.y * zScale;
 
 	// Material properties
 		vec3 MaterialDiffuseColor = texture( TextureSampler, inUV ).rgb;

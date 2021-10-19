@@ -48,9 +48,12 @@ int Builder::totalScans = 0;
 volatile std::atomic<int> Builder::num_threads = 0;
 std::mutex Builder::make_lock;
 
-static const int pointsPerTile = 3500   ;
+static const int pointsPerTile = 3500  ;
 static const 	int pointsPerTileWeb = 3500;
-static const int pointsPerTile0 = pointsPerTile  ;
+
+//there are very few first-level tiles, they can afford to be bigger
+//and it's the first view that people see, so don't make it too rough
+static const int pointsPerTile0 = pointsPerTile *5 ;
 
 Builder::errorType Builder::error = none;
 
@@ -108,27 +111,34 @@ Tile* Builder::makeTiles(MZData* data, int lod, int threadId)
 		}
 		//tocms data can be very wide
 
+		
 		if (lod == 0)
 		{
-			splitX = 4;
-			splitY = 1;
-			if (mzSize > 100000)
-				splitX = 16;
-
-
+			if (mzSize > 1000)
+			{
+				splitX = 4;
+				splitY = 6;
+			 	if (mzSize > 50000)
+			 		splitX = 16;
+			}
+	 		std::cout << " lod 0 split " << splitX << "   " << mzSize << "\n";
 	 
 
 		}
 
 		//not sure about this, but reduces the very long y ranges you can get due to all splits being better in X
 		// for extremely wide data sets
-
+		// somewhat alleviated now by smaller block sizes
  
+
 		if (lod == 1)
 		{
-			splitX = 1;
-			splitY =  8;
-
+			if (lcSize > 32)
+			{
+				splitX = 1;
+				splitY = 12;
+			}
+ 			std::cout << " lod 1 split " << splitY << "    " << lcSize << "\n";
 		}
 
 
@@ -158,8 +168,10 @@ Tile* Builder::makeTiles(MZData* data, int lod, int threadId)
 		}
 
 
-		if (lod == viewLod)
+		if (lod ==  viewLod)
 		{
+
+		//	std::cout << " added tile " << tile->id << "  " << tile->LOD << " \n";
 
 			System::primary->addTile(tile);
 			totalScans += tile->getMZData()->getScans().size();
@@ -167,6 +179,7 @@ Tile* Builder::makeTiles(MZData* data, int lod, int threadId)
 		}
 		else
 		{
+ 
 
 			tile->clearRAM();
 
@@ -245,6 +258,8 @@ Tile* Builder::makeTilesBase(MZData* data, int threadId)
 
 void Builder::makeLandscapeFromCache(std::string filename)
 {
+ 
+
 	Landscape* l = Cache::loadMetaData(filename);
 	if (l != NULL)
 	{

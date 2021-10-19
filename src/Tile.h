@@ -185,8 +185,11 @@ public:
 		d.reserve(res.size());
 		for (auto p : res)
 		{
-			d.push_back(DataPointInfo{ p.mz,p.lc,p.signal,LOD,this });
+//			d.push_back(DataPointInfo{ p.mz,p.lc,p.signal,LOD,this,p.mz2,p.lc2 });
+			d.push_back(DataPointInfo{ p.mz,p.lc,p.signal,LOD,this  });
+
 		}
+
  		
 		return (d);
 	}

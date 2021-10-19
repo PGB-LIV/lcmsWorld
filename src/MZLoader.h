@@ -10,7 +10,7 @@ public:
 	size_t getFileSize();
 	double getProgress();
 protected:
-	const int linesPerChunk = 660;
+	const int linesPerChunk = 990*3;
 
 
 	SignalMz insertZeros(const std::vector<mzFloat> &mz, const std::vector<signalFloat> &sig);

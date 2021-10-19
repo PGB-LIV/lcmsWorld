@@ -8,6 +8,7 @@ int delMZScans = 0;
  
 MZScan::MZScan(MZScan* ptr)
 {
+	
 	parent = NULL;
 	intensity = ptr->intensity;
 
@@ -16,7 +17,7 @@ MZScan::MZScan(MZScan* ptr)
 	type = ptr->type;
 	lcTime = ptr->lcTime;
 	size = ptr->size;
-	numMZScans++;
+	id = numMZScans++;
 
 }
 MZScan::MZScan(  std::vector<signalFloat> intensityVals, lcFloat time )
@@ -27,7 +28,7 @@ MZScan::MZScan(  std::vector<signalFloat> intensityVals, lcFloat time )
 	type = MZDataType::square;
 	lcTime = time;
 
-	numMZScans++;
+	id = numMZScans++;
 
 }
 MZScan::MZScan(  std::vector<mzFloat> mzVals, std::vector<signalFloat> intensityVals, lcFloat time)
@@ -36,9 +37,30 @@ MZScan::MZScan(  std::vector<mzFloat> mzVals, std::vector<signalFloat> intensity
 	intensity = intensityVals;
 	mz = mzVals;
 
+
 	type = MZDataType::jagged;
 	lcTime = time;
-	numMZScans++;
+	id = numMZScans++;
+
+#ifdef FINAL
+	// no need to check for these errors in build
+#else
+
+	if (true)
+	{
+		double lastmz = -1e22;
+		for (auto mz : mzVals)
+		{
+			if (mz < lastmz)
+			{
+				std::cout << "MZ ordering error \n";
+			}
+			lastmz = mz;
+
+		}
+	
+	}
+#endif
 }
 
 
@@ -51,7 +73,7 @@ MZScan::MZScan(std::vector<signalFloat> intensityVals, lcFloat time, MZData* p)
 
 	type = MZDataType::square;
 	lcTime = time;
-	numMZScans++;
+	id = numMZScans++;
 
 }
 MZScan::MZScan(std::vector<mzFloat> mzVals, std::vector<signalFloat> intensityVals, lcFloat time, MZData* p)
@@ -61,7 +83,26 @@ MZScan::MZScan(std::vector<mzFloat> mzVals, std::vector<signalFloat> intensityVa
 	mz = mzVals;
 	type = MZDataType::jagged;
 	lcTime = time;
-	numMZScans++;
+	id = numMZScans++;
+
+
+
+	if (true)
+	{
+		double lastmz = -1e22;
+		for (auto mz : mzVals)
+		{
+			if (mz < lastmz)
+			{
+				std::cout << "MZ ordering error \n";
+			}
+			lastmz = mz;
+
+		}
+
+	}
+
+
 }
 
 MZScan::~MZScan()

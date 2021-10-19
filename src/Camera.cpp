@@ -125,6 +125,27 @@ DataPoint Camera::from_string(std::string in_string)
 	return cursor;
 }
 
+void Camera::reset()
+{
+	Landscape* l = owner;
+
+		status = targeted;
+
+		std::cout << " Camera reset called \n";
+		mzFloat centreMz = (l->worldMzRange.max - l->worldMzRange.min) * 2 / 4 + l->worldMzRange.min;
+		lcFloat centreLc = (l->worldLcRange.max + l->worldLcRange.min) / 2;
+
+		target = DataPoint{ centreMz, centreLc, 0 };
+		currentTarget = target;
+		timeToTarget = 0;
+		distance = 62000;
+		aimAngle = 0;
+		elevation = 11000;
+		elevationAngle = 0.95;
+
+		owner = l;
+
+}
 Camera::Camera(Landscape* l)
 {
 	status = targeted;
@@ -433,7 +454,7 @@ void Camera::updateCamera(double time)
 		target_p.z *= Settings::scale.y;
 
  
-		glm::vec3 up(0, 1, 0);
+		glm::vec3 up(0,1, 0);
 
 		currentPos = target_p + direction;
 
@@ -451,7 +472,10 @@ void Camera::updateCamera(double time)
 			up                  // Head is up (set to 0,-1,0 to look upside-down)
 		);
 
-	 
+	//	glm::vec3 sc(1, 1, -1);
+
+	//	GlobalViewMatrix = glm::scale(GlobalViewMatrix,sc);
+
 
 	}
 

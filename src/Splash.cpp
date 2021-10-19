@@ -134,7 +134,8 @@ Splash::Splash()
 	
 		glfwWindowHint(GLFW_FLOATING, true);
 		window = glfwCreateWindow(width, height, "tocmsWorld Starting", NULL, NULL);
-		
+		if (window == NULL)
+			return;
 
 		glfwSetMouseButtonCallback(window, Input::mouse_button_callback);
 		startTime = Globals::currentTime;

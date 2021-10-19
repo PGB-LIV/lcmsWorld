@@ -624,6 +624,16 @@ std::vector<DataPoint> findClosestinLine(DataPoint s, MZScan* line, MZScan* base
 				if (signal > 0)
 				{
 					DataPoint next = { mz, line->getLcTime(), signal };
+					/*
+					if (mid < useMz.size() - 1)
+						next.mz2 = useMz[mid + 1];
+					else
+						if (mid > 0)
+							next.mz2 = next.mz + (useMz[mid] - useMz[mid - 1]);
+						else
+							next.mz2 = next.mz + .5;
+					 */
+
 					found.push_back(next);
 				}
 				if (mz > maxMz)
@@ -743,13 +753,24 @@ std::vector<DataPoint>  MZData::findClosest(DataPoint s)
 
 
 		auto lastScan = scans[0];
+		int i = 0;
+		int size = scans.size();
 		for (auto scan : scans)
 		{
+			i++;
 			if (scan->getLcTime() > minLc)
 			{
 				auto add = findClosestinLine(s, scan, scans[0]);
 				for (auto p : add)
+				{
+					/*
+					p.lc2 = p.lc+0.5;
+					if (i < size)
+						p.lc2 = scans[i]->getLcTime();
+						*/
+
 					found.push_back(p);
+				}
 
 
 				if (scan->getLcTime() > maxLc)
@@ -838,7 +859,7 @@ std::vector<MZData*> MZData::new_split(int xsize, int ysize)
 	int buckets[256 * 2];
 	for (int i = 0; i < 256; i++)
 		buckets[i] = 0;
-	int total = 0;
+	long long total = 0;
 	for (int i = 0; i < num_scans; i++)
 	{
 		double min = this->info.mzRange.min;
@@ -852,7 +873,7 @@ std::vector<MZData*> MZData::new_split(int xsize, int ysize)
 			if (bucket < 0)
 			{
 				bucket = 0;
-				std::cout << " Error - mz less than min, check ordering of points \n";
+				std::cout << " Error - mz less than min, check ordering of points " << min <<" " << mz << " \n";
 
 			}
 			if (bucket > 255)
@@ -867,10 +888,10 @@ std::vector<MZData*> MZData::new_split(int xsize, int ysize)
 
 	for (int i = 0; i < xsize; i++)
 	{
-		int find = ((i + 1) * total) / xsize;
+		long long find = ((i + 1) * total) / xsize;
 
-		int sum = 0;
-		int cur_bucket = 0;
+		long long sum = 0;
+		long long cur_bucket = 0;
 		while (sum < find)
 		{
 			sum += buckets[cur_bucket];
@@ -881,6 +902,7 @@ std::vector<MZData*> MZData::new_split(int xsize, int ysize)
 		mzFloat max = this->info.mzRange.max;
 
 		ends[i] = min + ((cur_bucket - 0.5f) * (max - min) / 256);
+	 //	std::cout << " set end " << i << "  " << ends[i] << "  at bct " << cur_bucket << " with sum " << sum << " < " << find << "\n";
 
 	}
 
@@ -964,12 +986,11 @@ std::vector<MZData*> MZData::new_split(int xsize, int ysize)
 				}
 
 
-
-
+ 
 				//if row is empty, fill in some blanks
 				if (signal_vals.size() < 2)
 				{
-					//	std::cout << " size 0 row\n";
+		 
 					if (signal_vals.size() == 0)
 					{
 						signal_vals.push_back(0);
@@ -981,10 +1002,21 @@ std::vector<MZData*> MZData::new_split(int xsize, int ysize)
 					signal_vals.push_back(0);
 					mz_vals.push_back(ends[j]);
 
-
+					//it can be marginally over the end of the split
+					if (mz_vals[1] < mz_vals[0])
+					{
+						auto t1 = mz_vals[1];
+						mz_vals[1] = mz_vals[0];
+						mz_vals[0] = t1;
+			 
+					}
+					
 
 
 				}
+		 
+
+		
 
 				last_signal = signal_vals.back();
 				last_mz = mz_vals.back();
@@ -999,6 +1031,7 @@ std::vector<MZData*> MZData::new_split(int xsize, int ysize)
 				{
 					part = new MZScan(signal_vals, scan->getLcTime(), table[j][ypos]);
 				}
+
 			}
 			else
 			{
@@ -1006,8 +1039,8 @@ std::vector<MZData*> MZData::new_split(int xsize, int ysize)
 
 			}
 			// split_buffer.insert((long long) part);
-
-			table[j][ypos]->append(part);
+			
+							table[j][ypos]->append(part);
 
 
 			//duplicate scans across parts, to create a little overlap

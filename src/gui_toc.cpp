@@ -37,7 +37,7 @@ inline bool ends_with(std::string const& value, std::string const& ending)
 	return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
 }
 
-std::string aboutText[] = { "ToC-msWorld","  " CUR_VERSION_STRING ,"","This version is for testing, it is not guaranteed to perform correctly","","(c) University of Liverpool 2021","",
+std::string aboutText[] = { "ToC-msWorld " CUR_VERSION_STRING ," 12/10","This version is for testing, it is not guaranteed to perform correctly","","(c) University of Liverpool 2021","",
 "For any issues, please go to the github page",
 "github.com/PGB-LIV/lcmsWorld"
 };
@@ -137,7 +137,12 @@ void gui::setupReaders()
 						description = value;
 						
 					}
-				}
+					if (key == "build" || key == "version")
+					{
+						std::cout << key << " : " << value << "\n";
+
+					}
+ 				}
 
 				if (extension != "")
 				{
@@ -292,7 +297,10 @@ void gui::setSliderValues()
 		{
 			Settings::scale.x = 10 + (xScale - 10) * (xScale - 10);
 		}
-		Settings::scale.y = yScale < 0 ? -1 / (yScale - 1) : yScale + 1;
+		if (Globals::neg_y)
+			Settings::scale.y =   - (yScale < 0 ? -1 / (yScale - 1) : yScale + 1);
+		else
+			Settings::scale.y = (yScale < 0 ? -1 / (yScale - 1) : yScale + 1);
 
 		Settings::scale.z = zScale < 0 ? -1 / (zScale - 1) : zScale + 1;
 		Settings::scale.z = std::pow(Settings::scale.z, 1.55f);
@@ -317,15 +325,20 @@ void gui::SlidersMenu()
 {
 	float transformWidth = 230;
 	bool rebuild = false;
-	if (ImGui::SliderFloat("fragment scale", &Settings::xScale_slider, Settings::xScale_slider_min, Settings::xScale_slider_max, "%.1f"))
+	if (ImGui::SliderFloat((Settings::xLabel + " scale").c_str(), &Settings::xScale_slider, Settings::xScale_slider_min, Settings::xScale_slider_max, "%.1f"))
 		rebuild = true;
 
 
-	if (ImGui::SliderFloat("precursor scale", &Settings::yScale_slider, -10.0f, 10.0f, "%.1f"))
+	if (ImGui::SliderFloat( (Settings::yLabel+" scale").c_str(), &Settings::yScale_slider, -10.0f, 10.0f, "%.1f"))
 		rebuild = true;
 
 	if (ImGui::SliderFloat("intensity scale", &Settings::zScale_slider, -10.0f, 10.0f, "%.1f"))
 		rebuild = true;
+
+	
+	if (ImGui::SliderFloat("maximum peak height", &Settings::peakScale, Globals::minPeakScale, Globals::maxPeakScale, "%.1f"))
+		rebuild = true;
+
 
 	setSliderValues();
 	ImGui::PushItemWidth(transformWidth);
@@ -357,7 +370,7 @@ void gui::SlidersMenu()
 
 bool gui::numbersBox()
 {
-	auto buttonText = "Fragment m/z Lines";
+	auto buttonText = (Settings::xLabel+" m/z Lines").c_str();
 	if (ImGui::Checkbox(buttonText, &Settings::addGridLines))
 	{
 	
@@ -808,13 +821,13 @@ void gui::filters(Landscape* l)
 
 
 	//todo - tidy this up
-	singleFilter("min. prec. m/z", minmz, l->worldMzRange, l->filter.mzRange, 0);
+	singleFilter( ("min. "+Settings::xLabels+" m/z").c_str(), minmz, l->worldMzRange, l->filter.mzRange, 0);
 	ImGui::SameLine();
-	singleFilter("max. prec. m/z", maxmz, l->worldMzRange, l->filter.mzRange, 1);
+	singleFilter( ("max. " + Settings::xLabels + " m/z").c_str(), maxmz, l->worldMzRange, l->filter.mzRange, 1);
 
-	singleFilter("min. frag. m/z", minlc, l->worldLcRange, l->filter.lcRange, 0);
+	singleFilter(("min. " + Settings::yLabels + " m/z").c_str(), minlc, l->worldLcRange, l->filter.lcRange, 0);
 	ImGui::SameLine();
-	singleFilter("max.  frag. m/z", maxlc, l->worldLcRange, l->filter.lcRange, 1);
+	singleFilter(("max. " + Settings::yLabels + " m/z").c_str(), maxlc, l->worldLcRange, l->filter.lcRange, 1);
 
 	// using logarithmic slider, so avoid 0 
 	//but don't forget that values could be less than 1
@@ -955,8 +968,33 @@ void gui::fileOpenMenu()
 				ImGuiFileDialog::Instance()->clear(NULL);
 			}
 
+
+
 			openFileDialog = true;
 		}
+
+
+	ImGui::Checkbox("Noise Removal", &Settings::noiseRemoval);
+	if (Settings::noiseRemoval)
+	{
+		ImGui::Checkbox("Negative Noise Removal", &Settings::negativeNoiseRemoval);
+		if (!Settings::negativeNoiseRemoval)
+		{
+			char noiseString[128];
+			sprintf(noiseString, "%s", (char*)Settings::noiseValue.c_str());
+
+			if (ImGui::InputText("Noise Threshold", noiseString, 10))
+			{
+				std::string newString(noiseString);
+				Settings::noiseValue = newString;
+
+			}
+		}
+
+
+		ImGui::Separator();
+	}
+
 
 	if (getView() != NULL)
 	{
@@ -969,6 +1007,9 @@ void gui::fileOpenMenu()
 
 		ImGui::PopStyleVar();
 		ImGui::PopItemFlag();
+
+
+
 	}
 
 
@@ -1071,27 +1112,7 @@ void gui::fileOpenMenu()
 	if (Settings::expertMode)
 		ImGui::Checkbox("Use experimental mzml Reader", &Settings::experimentalMzml);
 
-	ImGui::Separator();
-	ImGui::Checkbox("Noise Removal", &Settings::noiseRemoval);
-	if (Settings::noiseRemoval)
-	{
-		ImGui::Checkbox("Negative Noise Removal", &Settings::negativeNoiseRemoval);
-		if (!Settings::negativeNoiseRemoval)
-		{
-			char noiseString[128];
-			sprintf(noiseString, "%s", &Settings::noiseValue);
-			if (ImGui::InputText("Noise Value", noiseString, 10))
-			{
-				std::string newString(noiseString);
-				Settings::noiseValue = newString;
-
-			}
-		}
-		
-
-
-	}
-
+	
 
 
 
@@ -1270,7 +1291,7 @@ void  gui::viewMenu(glm::mat4 view)
 
 	}
 	ImGui::Checkbox("Uniform Lighting", &Settings::flatLighting);
-	if (1)
+	if (0)
 	{
 		ImGui::SameLine();
 
@@ -1454,6 +1475,8 @@ void nextAnnotation(Landscape* l, bool reset = false)
 	DataPoint d{ useAnnotations[i]->mz, useAnnotations[i]->lc, 0 };
 
 	shotDistance = 125; // +useAnnotations[i]->signal / 5e5;
+
+	
 
 	l->getCamera()->updateCameraTarget(d, 3, 0, false);
 	//	l->getCamera()->updateCameraTarget(d, 2, 0, false);

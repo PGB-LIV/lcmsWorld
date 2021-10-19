@@ -14,6 +14,8 @@ class MZScan
 {
 public:
  
+	int id;
+ 
 
 	MZScan(std::vector<signalFloat> intensityVals, lcFloat time);
 

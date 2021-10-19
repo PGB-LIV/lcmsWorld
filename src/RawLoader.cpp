@@ -83,6 +83,8 @@ int buffer_size = 1024 * 1024 * 16;
 char* buffer = NULL;
 double maxVal = 0;
 
+static int lines_to_print = 30;
+
 MZData* RawLoader::loadDataPartial()
 {
 
@@ -90,25 +92,39 @@ MZData* RawLoader::loadDataPartial()
 		buffer = (char*)std::malloc(buffer_size);
 	if (Globals::closing)
 		return NULL;
-
-	// finished
-	if (status == 2)
-	{
-		std::cout << "read points " << total_size << " \n";
-		Globals::statusText = fileHandle.getFileName();
-
-		fclose(child);
-		std::free(buffer);
-		buffer = NULL;
-		return NULL;
-	}
 	static std::chrono::system_clock::time_point start;
 	int max = 0;
+
+
+	
 
 
 	try
 	{
 		std::string fileName = fileHandle.getFileName();
+		// finished - load gets called until it returns NULL
+		if (status == 2)
+		{
+
+ 
+
+
+			std::chrono::system_clock::time_point end = std::chrono::system_clock::now();
+
+			std::cout << " load took " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << " \n";
+			std::cout << "for parsing " << readScans << " ms1 spectra \n";
+
+			std::cout << "loaded \n";
+			Globals::statusText = fileName;
+
+			std::cout << "read points " << total_size << " \n";
+ 
+
+			fclose(child);
+			std::free(buffer);
+			buffer = NULL;
+			return NULL;
+		}
 
 		//startup
 		if (status == 0)
@@ -143,25 +159,28 @@ MZData* RawLoader::loadDataPartial()
 
 			try
 			{
-#ifdef _WIN32
 				//no noise removal (file could be big!)
 				std::string cmd = "\"\"" + exe + "\" \"" + fileName + "\"\" -n";
-				
+				//std::string cmd = "\"\"" + exe + "\" \"" + fileName + "\"\" -n";
+
 				if (Settings::noiseRemoval)
 				{
 					if (Settings::negativeNoiseRemoval)
 						cmd = "\"\"" + exe + "\" \"" + fileName + "\"\" ";
 					else
 						if (Settings::noiseValue.size() > 1)
-							cmd = "\"\"" + exe + "\" \"" + fileName + "\"\" -t "+Settings::noiseValue;
+							cmd = "\"\"" + exe + "\" \"" + fileName + "\"\" -t " + Settings::noiseValue;
 
 				}
-				
-				//				std::string cmd = "\"\"" + exe + "\" \"" + fileName + "\"\" ";
-				 				//std::string cmd = "\"\"" + exe + "\" \"" + fileName + "\"\" -t 0.0005";
 
+				//				std::string cmd = "\"\"" + exe + "\" \"" + fileName + "\"\" ";
+								//std::string cmd = "\"\"" + exe + "\" \"" + fileName + "\"\" -t 0.0005";
+				// cmd = cmd + " -s";  // switch the axes
 				std::cout << "starting " << cmd << " \n";
 
+
+
+#ifdef _WIN32
 
 				child = _popen(cmd.c_str(), "r");
 #else
@@ -191,10 +210,13 @@ MZData* RawLoader::loadDataPartial()
 			try
 			{
 				fgets(buffer, buffer_size, child);
+				std::cout << "IN: " << buffer << "\n";
 				//ignore comments
 				while (buffer[0] == '#')
+				{
 					fgets(buffer, buffer_size, child);
-
+					std::cout << "IN: " << buffer << "\n";
+				}
 
 				size = atoi(buffer);
 
@@ -244,7 +266,7 @@ MZData* RawLoader::loadDataPartial()
 				//should havebeen copied
 				if (lineCopy != NULL)
 				{
-					std::cout << " copy line across chunk boundary \n";
+					std::cout << " copy last scan line across chunk boundary \n";
 					result->append(lineCopy);
 				}
 				lineCopy = NULL;
@@ -274,6 +296,8 @@ MZData* RawLoader::loadDataPartial()
 				}
 
 				fgets(buffer, buffer_size, child);
+				if (lines_to_print-- > 0)
+					std::cout << "IN: " << buffer << "\n";
 				if (buffer[0] == '#')
 					continue;
 
@@ -291,6 +315,8 @@ MZData* RawLoader::loadDataPartial()
 				lastScan = curScan;
 
 				fgets(buffer, buffer_size, child);
+				if (lines_to_print-- > 0)
+					std::cout << "IN: " << buffer << "\n";
 				lcTime = (lcFloat)atof(buffer);
 
 
@@ -302,6 +328,8 @@ MZData* RawLoader::loadDataPartial()
 
 				//read scan length
 				fgets(buffer, buffer_size, child);
+				if (lines_to_print-- > 0)
+					std::cout << "IN: " << buffer << "\n";
 				int scanSize = atoi(buffer);
 
 
@@ -342,6 +370,14 @@ MZData* RawLoader::loadDataPartial()
 
 					}
 				std::string mz(buffer);
+				if (lines_to_print-- > 0)
+				{
+					char tp = buffer[100];
+					buffer[100] = 0;
+					std::cout << "IN: " << buffer << "\n";
+					buffer[100] = tp;
+				}
+
 
 				char* np = buffer;
 				char* ptr = buffer;
@@ -401,7 +437,13 @@ MZData* RawLoader::loadDataPartial()
 					}
 
 				//		std::cout << " strlen " << strlen(buffer) << "  " << buffer_size << "\n";
-
+				if (lines_to_print-- > 0)
+				{
+					char tp = buffer[100];
+					buffer[100] = 0;
+					std::cout << "IN: " << buffer << "\n";
+					buffer[100] = tp;
+				}
 
 				np = buffer;
 
@@ -448,28 +490,44 @@ MZData* RawLoader::loadDataPartial()
 
 				readScans++;
 
-
+				auto lineSize = mzData.size();
 
 				//amend thhis to take into account size of lines
 
 				int maxChunkSize = linesPerChunk;
-				if (buffer_size > 100000)
+
+				if (lineSize > 5000)
 					maxChunkSize /= 2;
-				if (buffer_size > 250000)
+
+				if (lineSize > 25000)
 					maxChunkSize /= 2;
-				if (buffer_size > 500000)
+
+
+				if (lineSize > 60000)
 					maxChunkSize /= 2;
+
+				if (lineSize > 120000)
+					maxChunkSize /= 2;
+				if (lineSize > 250000)
+					maxChunkSize /= 2;
+				if (lineSize > 500000)
+					maxChunkSize /= 2;
+
+				//don't make them too small, it's hard to make them look good in low detail
+				if (maxChunkSize < 20)
+					maxChunkSize = 20;
 
 				//now evenly distribute the chunks
 				int sections = 1 + (size / maxChunkSize);
 
-				maxChunkSize = 1 + (size / sections);
+				//add one more due to copying line
+				maxChunkSize = 2 + (size / sections);
 				//temp test - trying to check when it goes wrong
-	 
-
+		
+			 
 				if (result->size() >= maxChunkSize)
 				{
-					std::cout << result->size() << " returning buffer \n";
+					std::cout <<   " returning buffer of " << result->size() << "\n";
 					lineCopy = new MZScan(last_line);
 
 
@@ -483,24 +541,19 @@ MZData* RawLoader::loadDataPartial()
 
 			if (lcTime < -1)
 			{
+				if (result)
+					result->clear();
+
 				std::free(buffer);
 				buffer = NULL;
 				new Error(Error::ErrorType::file, "There was an error while loading file.");
 				return NULL;
 
 			}
+			std::cout << " returning buffer of " << result->size() << "\n";
 
 
-			std::chrono::system_clock::time_point end = std::chrono::system_clock::now();
-
-			std::cout << " load took " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << " \n";
-			std::cout << "for parsing " << readScans << " ms1 spectra \n";
-
-			std::cout << "loaded \n";
-			Globals::statusText = fileName;
-			
-			std::cout << "read points " << total_size << " \n";
-
+	
 			status = 2;
 			std::free(buffer);
 			buffer = NULL;

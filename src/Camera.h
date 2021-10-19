@@ -31,6 +31,7 @@ public:
 	double distance = 0;
 
 	DataPoint currentTarget = { 0,0,0 };
+	void reset();
 
 private:
 	enum statusType { free, targeted, targeting, zooming, zoomTargeting };
