@@ -268,7 +268,7 @@ public:
 	// a tile may be visible, but too large/small to be drawn itself - this is when it was actually drawn
 	TimeStamp lastDrawn = { 0 };
 	void setScreenSizeMaxSibling(std::vector<Tile*> sibs);
-
+	float screenArea = -1;
 private:
 	signalFloat maxSignal;
 	float screenLocation = 20;
@@ -277,7 +277,7 @@ private:
 	
 	bool hasMzData = false;
 
-	float screenArea = -1;
+
 	float lastScreenArea = -2;
 	int random;
 

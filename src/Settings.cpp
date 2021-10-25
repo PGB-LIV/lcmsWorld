@@ -1,3 +1,4 @@
+#include "Globals.h"
 #include "Settings.h"
 #include <algorithm>
 #include <string>
@@ -9,13 +10,22 @@
 #include "Camera.h"
 #include "sys/stat.h"
 
-std::string Settings::xLabel = "Precursor";
-std::string Settings::yLabel = "Fragment";;
-std::string Settings::xLabels = "Prec.";
-std::string Settings::yLabels = "Frag.";;
-std::string Settings::xLabeld = "prec. m/z";
-std::string Settings::yLabeld = "frag. m/z";
+#if TOC_VERSION
+std::string Settings::yLabel = "Precursor";
+std::string Settings::xLabel = "Fragment";;
+std::string Settings::yLabels = "Prec.";
+std::string Settings::xLabels = "Frag.";;
+std::string Settings::yLabeld = "prec. m/z";
+std::string Settings::xLabeld = "frag. m/z";
 
+#else
+std::string Settings::xLabel = "m/z";
+std::string Settings::yLabel = "Retention time";;
+std::string Settings::xLabels = "m/z";
+std::string Settings::yLabels = "RT";;
+std::string Settings::xLabeld = "m/z";
+std::string Settings::yLabeld = "RT";
+#endif
 
 bool Settings::flatLighting = false;
 bool Settings::displaySides = true;
@@ -53,7 +63,7 @@ float Settings::mouseSpeed = 50;
 
 float Settings::drawTarget = 0;
 
-float Settings::correlateRatio = 1;
+float Settings::correlateRatio = 0;
 float Settings::correlateOffset = 0;
 
 
@@ -89,8 +99,8 @@ std::string Settings::autoLoadFile;
 bool Settings::expertMode = false;
 int Settings::axisMarker = 1;
 
-std::string Settings::noiseValue = "0.0005";
-bool Settings::noiseRemoval = true;
+std::string Settings::noiseValue = "1000";
+bool Settings::noiseRemoval = false;
 bool Settings::negativeNoiseRemoval = false;
 
 bool Settings::colouredGridLines = true;

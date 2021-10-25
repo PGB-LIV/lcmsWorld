@@ -84,8 +84,12 @@ std::string gui::getFileReader(std::string filename)
 	return "";
 }
 
+
+//note - run in background thread to not delay startup
 void gui::setupReaders()
 {
+
+
 	//going to look for executables
 	std::string path = RawLoader::rawReaderFolder;
 	DIR* dir = opendir(path.c_str());
@@ -95,29 +99,61 @@ void gui::setupReaders()
 		return;
 	}
 	struct dirent* ent;
+
+	std::vector <std::string> newFileFilters = { ".tocms" };
+
+
 	while ((ent = readdir(dir)) != NULL) {
 		std::string filename(ent->d_name);
 
 		if (ends_with(filename, ".exe"))
 		{
-			std::cout << "found .exe " + filename << " \n";
-			auto parts = Utils::split(filename, '.');
-			std::cout << parts.size() << "\n";
 
-			//register a file extension
-			//for now we assume the executable indicates the extension it can load
-			//as in reader.raw.exe, reader.hdf5.exe, etc.
-			if (parts.size() == 3)
+
+			auto lines = Utils::readFromExecutable(path + "/" + filename);
+			for (auto parts : lines)
 			{
-				std::string extension = "." + parts[1];
-				std::string executable = path + "/" + filename;
-				fileReaders.push_back(extension);
-				fileReaders.push_back(executable);
-				lcmsFileFilters.push_back(extension);
+				std::cout << "found .exe " + filename << " \n";
 
+
+				//register a file extension
+				//for now we assume the executable indicates the extension it can load
+				//as in reader.raw.exe, reader.hdf5.exe, etc.
+				std::string extension = "";
+				std::string executable = path + "/" + filename;
+				std::string description = "";
+				for (int i = 0; i < parts.size() - 1; i += 2)
+				{
+					auto key = parts[i];
+					auto value = parts[i + 1];
+
+
+					if (key == "extension")
+					{
+						extension = value;
+
+					}
+					if (key == "description")
+					{
+						description = value;
+
+					}
+					if (key == "build" || key == "version")
+					{
+						std::cout << key << " : " << value << "\n";
+
+					}
+				}
+
+				if (extension != "")
+				{
+					std::cout << "adding parser for extension " + extension << "  for " << description << "  \n";
+					fileReaders.push_back(extension);
+					fileReaders.push_back(executable);
+					newFileFilters.push_back(extension);
+				}
 
 			}
-
 		}
 
 
@@ -125,15 +161,30 @@ void gui::setupReaders()
 
 
 	int length = 1;
-	for (auto ext : lcmsFileFilters)
-	{
-		length += ext.length() + 1;
 
+	std::string allFilters = "";
+	for (auto ext : newFileFilters)
+	{
+		if (length == 1)
+			allFilters = ext;
+		else
+			allFilters = allFilters + " " + ext;
+
+		length += ext.length() + 1;
 	}
+	length += allFilters.length() + 1;
+
+	if (newFileFilters.size() > 1)
+		newFileFilters.insert(newFileFilters.begin(), allFilters);
+
+
 	char* buffer = (char*)std::malloc(length);
 
+
+
+
 	int idx = 0;
-	for (auto ext : lcmsFileFilters)
+	for (auto ext : newFileFilters)
 	{
 		const char* str = ext.c_str();
 		while (*str != 0)
@@ -143,12 +194,20 @@ void gui::setupReaders()
 			str++;
 		}
 		buffer[idx++] = 0;
-		std::cout << " add " << ext << "\n";
+
 
 	}
 	buffer[idx++] = 0;
+
+
+	lcmsFileFilters = newFileFilters;
+
+
+	//this should be atomic - fileReaders  is used when loading, but you can't load new types until the extension is added to the ui
+	// (and this function  should not take multiple seconds anyway)
 	lcmsFilters = buffer;
 }
+
 
 
 void gui::setup(const char* glsl_version)
@@ -259,15 +318,20 @@ void gui::SlidersMenu()
 {
 	float transformWidth = 230;
 	bool rebuild = false;
-	if (ImGui::SliderFloat("m/z scale", &Settings::xScale_slider, -10.0f, 10.0f, "%.1f"))
+	if (ImGui::SliderFloat((Settings::xLabel + " scale").c_str(), &Settings::xScale_slider, Settings::xScale_slider_min, Settings::xScale_slider_max, "%.1f"))
 		rebuild = true;
 
 
-	if (ImGui::SliderFloat("lc scale", &Settings::yScale_slider, -10.0f, 10.0f, "%.1f"))
+	if (ImGui::SliderFloat((Settings::yLabel + " scale").c_str(), &Settings::yScale_slider, -10.0f, 10.0f, "%.1f"))
 		rebuild = true;
 
 	if (ImGui::SliderFloat("intensity scale", &Settings::zScale_slider, -10.0f, 10.0f, "%.1f"))
 		rebuild = true;
+
+
+	if (ImGui::SliderFloat("maximum peak height", &Settings::peakScale, Globals::minPeakScale, Globals::maxPeakScale, "%.1f"))
+		rebuild = true;
+
 
 	setSliderValues();
 	ImGui::PushItemWidth(transformWidth);
@@ -296,13 +360,17 @@ void gui::SlidersMenu()
 
 
 }
-
+ 
 bool gui::numbersBox()
 {
 	auto buttonText = "Show Grid Lines";
 	if (ImGui::Checkbox(buttonText, &Settings::addGridLines))
 	{
+
 	}
+
+ 
+
 	buttonText = "Axis Numbering";
 	if (ImGui::Checkbox(buttonText, &Settings::showNumbers))
 	{
@@ -776,11 +844,13 @@ void gui::infoPanel(ImVec2 menuSize)
 }
 
 int timesRun = 0;
+
+
 void gui::fileOpenMenu()
 {
 
 	if (getView() == NULL)
-		if (ImGui::Button("Load LC-MS File"))
+		if (ImGui::Button("Load ToC-MS File"))
 		{
 			if (timesRun++ == 0)
 				ImGuiFileDialog::Instance()->clear(lcmsFilters);
@@ -789,20 +859,48 @@ void gui::fileOpenMenu()
 				ImGuiFileDialog::Instance()->clear(NULL);
 			}
 
+
+
 			openFileDialog = true;
 		}
+
+
+	ImGui::Checkbox("Remove small values", &Settings::noiseRemoval);
+	if (Settings::noiseRemoval)
+	{
+		ImGui::Checkbox("Negative Threshold", &Settings::negativeNoiseRemoval);
+		if (!Settings::negativeNoiseRemoval)
+		{
+			char noiseString[128];
+			sprintf(noiseString, "%s", (char*)Settings::noiseValue.c_str());
+
+			if (ImGui::InputText("Threshold", noiseString, 10))
+			{
+				std::string newString(noiseString);
+				Settings::noiseValue = newString;
+
+			}
+		}
+
+
+		ImGui::Separator();
+	}
+
 
 	if (getView() != NULL)
 	{
 		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 		ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
-		if (ImGui::Button("Load LC-MS File"))
+		if (ImGui::Button("Load ToC-MS File"))
 		{
 
 		}
 
 		ImGui::PopStyleVar();
 		ImGui::PopItemFlag();
+
+
+
 	}
 
 
@@ -856,7 +954,7 @@ void gui::fileOpenMenu()
 #ifdef _WIN32
 
 	if (getView() != NULL)
-		if (ImGui::Button("Close File & Restart"))
+		if (ImGui::Button("Close File"))
 		{
 
 
@@ -867,6 +965,8 @@ void gui::fileOpenMenu()
 			char pathtofile[MAX_PATH];
 
 			GetModuleFileName(GetModuleHandle(NULL), pathtofile, sizeof(pathtofile));
+			strcat(pathtofile, " -n");
+
 			WinExec(pathtofile, SW_SHOW);
 
 
@@ -902,6 +1002,7 @@ void gui::fileOpenMenu()
 	ImGui::Checkbox("Enable Advanced Settings", &Settings::expertMode);
 	if (Settings::expertMode)
 		ImGui::Checkbox("Use experimental mzml Reader", &Settings::experimentalMzml);
+
 
 
 
@@ -981,6 +1082,7 @@ bool gui::openFileDialogMenu(const char* filters)
 	return ret;
 }
 
+
 bool gui::openFileDialog = false;
 bool gui::openMzTABFileDialog = false;
 
@@ -1058,11 +1160,7 @@ void  gui::viewMenu(glm::mat4 view)
 
 	}
 	ImGui::Checkbox("Uniform Lighting", &Settings::flatLighting);
-	ImGui::SameLine();
-	ImGui::PushItemWidth(100);
-
-	ImGui::SliderFloat("Show reticule", &Settings::drawTarget, 0, 100, "%.0f");
-	ImGui::PopItemWidth();
+	
 	if (Settings::expertMode)
 	{
 		gui::SlidersMenu();

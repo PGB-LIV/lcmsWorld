@@ -76,10 +76,10 @@ private:
 	//if the data is 'square'- i.e., every scan gas the same mz values
 	// then only the first scan will contain them
 	void copyRange(MZData* source);
-	int space[1024];
+ 
 
 	std::vector<MZScan*> scans;
-	int space2[1024];
+ 
 	MZDataType type = MZDataType::jagged;
 //	const static double scaleFactor;
 

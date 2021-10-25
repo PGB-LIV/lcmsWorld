@@ -464,29 +464,34 @@ void restartNow()
 void exitApp()
 {
 	Globals::closing = true;
+	std::cout << " close cache\n";
 	Cache::closeCache();
-	
+	std::cout << " save settings\n";
 	Settings::saveSettings();
+	
+	std::cout << " stop sharing\n";
 	concurrent_end();
  
-	
+	std::cout << " UI shutdown\n";
 
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
 
+	std::cout << " GL shutdown\n";
 
  	glfwDestroyWindow(Globals::window);
 	glfwTerminate();
 
-
+	std::cout << " HTTP shutdown\n";
 	LCHttp::finish();
 
 	//give threads a little more time to exit cleanly
 	//
+	std::cout << " shutdown in .25\n";
 	std::this_thread::sleep_for(std::chrono::milliseconds(250));
 
-
+	// std::terminate();
 	exit(0);
 }
 
@@ -633,10 +638,9 @@ int cmain(int  argc, char ** argv)
 		
 		});
 
-
-
+#ifdef _WIN32
 	std::cout << "build: " << __TIMESTAMP__ << "\n";
-
+#endif
 
 
 	std::cout << sizeof(size_t) * 8 << " bit version.\n";

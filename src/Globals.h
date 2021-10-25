@@ -34,7 +34,7 @@ public:
 
 	static GLFWwindow* window;
 	
-	inline static std::string supported_versions[] = { "0.14","0.24","0.25", "0.26", "1.0","1.1","1.11", CUR_VERSION_STRING };
+	inline static std::string supported_versions[] = { "1.11", CUR_VERSION_STRING };
 
 	static TimeStamp currentTime;
 	static std::chrono::time_point<std::chrono::high_resolution_clock> startTime;

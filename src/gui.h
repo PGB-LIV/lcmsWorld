@@ -33,7 +33,8 @@ private:
 	static void displayPopup(std::string title, std::string text);
 
 	static TimeStamp lastMenuTime;
-
+	
+		static void ScaleMenu();
 	static void MouseMenu();
 	static void SlidersMenu();
 	static bool numbersBox();

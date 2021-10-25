@@ -822,17 +822,8 @@ std::vector<DataPoint>  MZData::findClosest(DataPoint s)
 #endif
 
 }
-
-/*
-std::vector<MZData*> & MZData::split(int xsize, int ysize)
-{
-	setRange();
-
-}
-*/
-
-// for ragged arrays, this could produce weird effects
-// worry about later!
+ 
+// splits the dataset into smaller chunks
 
 std::vector<MZData*> MZData::new_split(int xsize, int ysize)
 {
@@ -851,6 +842,10 @@ std::vector<MZData*> MZData::new_split(int xsize, int ysize)
 		}
 
 	int num_scans = scans.size();
+
+	if (num_scans < 12)
+		ysize = 1;
+
 	std::vector<mzFloat> ends;
 	ends.resize(xsize);
 
@@ -1294,8 +1289,13 @@ MZData* MZData::reduce(int xsize, int ysize)
 
 	setRange();
 	//start of bucket
+	if (0)
+	if (xsize * ysize < 100)
+	{
 
+		std::cout << " reducing small? " << xsize << ", " << ysize << " from " << scans.front()->getSize() << " , " << scans.size() << "\n";
 
+	}
 
 	double sum = 0;
 	//midpoint
@@ -1338,9 +1338,10 @@ MZData* MZData::reduce(int xsize, int ysize)
 
 
 	// don't resize in y dimension
-	if (0)
+	if (1)
 		if (ysize >= scans.size())
 		{
+			ysize = scans.size();
 			lcbuckets.resize(scans.size());
 			int i = 0;
 			for (auto scan : scans)

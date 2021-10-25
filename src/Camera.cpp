@@ -133,14 +133,14 @@ void Camera::reset()
 
 		std::cout << " Camera reset called \n";
 		mzFloat centreMz = (l->worldMzRange.max - l->worldMzRange.min) * 2 / 4 + l->worldMzRange.min;
-		lcFloat centreLc = (l->worldLcRange.max + l->worldLcRange.min) / 2;
+		lcFloat centreLc = (l->worldLcRange.max + l->worldLcRange.min) *.34 + l->worldLcRange.min;
 
 		target = DataPoint{ centreMz, centreLc, 0 };
 		currentTarget = target;
 		timeToTarget = 0;
-		distance = 62000;
+		distance = 45000;
 		aimAngle = 0;
-		elevation = 11000;
+		elevation = 9000;
 		elevationAngle = 0.95;
 
 		owner = l;
@@ -151,14 +151,14 @@ Camera::Camera(Landscape* l)
 	status = targeted;
 
 	mzFloat centreMz = (l->worldMzRange.max - l->worldMzRange.min) * 2/ 4 + l->worldMzRange.min;
-	lcFloat centreLc = (l->worldLcRange.max + l->worldLcRange.min) / 2;
+	lcFloat centreLc = (l->worldLcRange.max + l->worldLcRange.min) * .34 + l->worldLcRange.min;
 
 	target = DataPoint{ centreMz, centreLc, 0 };
 	currentTarget = target;
 	timeToTarget = 0;
-	distance = 62000;
+	distance = 52000;
 	aimAngle = 0;
-	elevation = 11000;
+	elevation = 9000;
 	elevationAngle = 0.95;
 
 	owner = l;

@@ -591,7 +591,8 @@ void Annotations::loadTextBased(std::string filename, char delim, Landscape* l)
 		int mz_col = -1;
 		int lc_col = -1;
 		int intensity_col = -1;
-
+		int xsize_col = -1;
+		int ysize_col = -1;
 		int ptm_col = -1;
 		int accession_col = -1;
 		for (unsigned int i = 0; i < header.size(); i++)
@@ -603,6 +604,7 @@ void Annotations::loadTextBased(std::string filename, char delim, Landscape* l)
 
 			if ((header[i] == "peptide")
 				|| (header[i] == "sequence")
+				|| (header[i] == "name")
 				|| (header[i] == "modified sequence")
 				)
 				pep_col = i;
@@ -615,10 +617,29 @@ void Annotations::loadTextBased(std::string filename, char delim, Landscape* l)
 
 				score_col = i;
 
-			if (header[i] == "m/z")
+
+			if ((header[i] == "xsize")
+				|| (header[i] == "m/z size")
+				|| (header[i] == "fragment size")
+				)
+
+				xsize_col = i;
+			if ((header[i] == "ysize")
+				|| (header[i] == "rt size")
+				|| (header[i] == "precursor size")
+				)
+				ysize_col = i;
+
+			if ((header[i] == "m/z")
+				|| (header[i] == "fragment")
+				|| (header[i] == "fragment m/z")
+				)
 				mz_col = i;
 			if ((header[i] == "rt")
-				|| (header[i] == "retention time"))
+				|| (header[i] == "retention time")
+				|| (header[i] == "precursor")
+				|| (header[i] == "precursor m/z")
+				)
 				lc_col = i;
 			if (header[i] == "intensity")
 				intensity_col = i;
@@ -635,8 +656,15 @@ void Annotations::loadTextBased(std::string filename, char delim, Landscape* l)
 		int numAnnotations = 0;
 		if ((mz_col < 0) || (lc_col < 0) || (pep_col < 0))
 		{
+#if TOC_VERSION
+			new Error(Error::ErrorType::file, "This file does not have the required information\nto support annotations.\
+\nname, m/z, and RT are required.");
+#else
 			new Error(Error::ErrorType::file, "This file does not have the required information\nto support annotations.\
 \npeptide, m/z, and RT are required.");
+#endif
+
+
 			try
 			{
 				f.close();
@@ -666,6 +694,13 @@ void Annotations::loadTextBased(std::string filename, char delim, Landscape* l)
 				std::string ptm;
 				if (ptm_col > -1)
 					ptm = cells[ptm_col];
+
+				std::string xsize="0";
+				if (xsize_col > -1)
+					xsize = cells[xsize_col];
+				std::string ysize = "0";
+				if (ysize_col > -1)
+					ysize = cells[ysize_col];
 
 				std::string accession;
 				if (accession_col > -1)
@@ -709,6 +744,20 @@ void Annotations::loadTextBased(std::string filename, char delim, Landscape* l)
 
 
 				Annotation a = { mz, lc, intensity, score, text,ptm,accession,"", size.x,size.y, 0 };
+
+				try
+				{
+					mzFloat xsize_f = std::stof(xsize.c_str());
+					a.xsize = xsize_f;
+
+					lcFloat ysize_f = std::stof(ysize.c_str());
+					a.ysize = ysize_f;
+
+
+				}
+				catch (...) {}
+
+
 				l->addAnnotation(a);
 				numAnnotations++;
 

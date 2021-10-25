@@ -484,13 +484,15 @@ MZData* RawLoader::loadDataPartial()
 				assert(intensityData.size() == mzData.size());
 				assert(intensityData.size() == scanSize);
 
-				addScan();
+
  
 
 
 				readScans++;
 
 				auto lineSize = mzData.size();
+				//addscan resets mzdata size
+				addScan();
 
 				//amend thhis to take into account size of lines
 
@@ -510,7 +512,7 @@ MZData* RawLoader::loadDataPartial()
 					maxChunkSize /= 2;
 				if (lineSize > 250000)
 					maxChunkSize /= 2;
-				if (lineSize > 500000)
+ 
 					maxChunkSize /= 2;
 
 				//don't make them too small, it's hard to make them look good in low detail
@@ -524,7 +526,6 @@ MZData* RawLoader::loadDataPartial()
 				maxChunkSize = 2 + (size / sections);
 				//temp test - trying to check when it goes wrong
 		
-			 
 				if (result->size() >= maxChunkSize)
 				{
 					std::cout <<   " returning buffer of " << result->size() << "\n";

@@ -142,7 +142,7 @@ void Input::update()
 		if (keyMask[GLFW_KEY_LEFT_CONTROL] || keyMask[GLFW_KEY_RIGHT_CONTROL])
 		{
  
-			Settings::xScale_slider += mouse_wheel_pos / 24;
+			Settings::xScale_slider += mouse_wheel_pos * Settings::wheelSpeed/ 2048.0;
 			if (Settings::xScale_slider > Settings::xScale_slider_max)
 				Settings::xScale_slider =  Settings::xScale_slider_max;
 			if (Settings::xScale_slider < Settings::xScale_slider_min)
@@ -183,7 +183,9 @@ void Input::update()
 		if (mods & GLFW_MOD_SHIFT)
 		{
 			bs = 1 << GLFW_MOUSE_BUTTON_2;
-			mx = -mx;
+			mx = -mx*.5;
+			my = my * .5;
+
 		}
 		
 		
@@ -192,16 +194,24 @@ void Input::update()
 
 		if (mods & GLFW_MOD_CONTROL)
 		{
-			mouseWheelMove(my, mx);
+		//  mouseWheelMove(my, mx);
+		//	mouse_wheel_pos += my * .5;
 
-			Settings::zScale_slider += (float) my * deltaTime * 5.0f;
+			Settings::xScale_slider += mx * 0.1 ;
+			if (Settings::xScale_slider > Settings::xScale_slider_max)
+				Settings::xScale_slider = Settings::xScale_slider_max;
+			if (Settings::xScale_slider < Settings::xScale_slider_min)
+				Settings::xScale_slider = Settings::xScale_slider_min;
+
+
+		 	Settings::zScale_slider += (float) (my * deltaTime * Settings::wheelSpeed /20.0);
 			mx = 0;
 			my = 0;
 
 			if (key == GLFW_KEY_W)
-				Settings::peakScale = Settings::peakScale *1.01;
-			if (key == GLFW_KEY_S)
 				Settings::peakScale = Settings::peakScale * .99;
+			if (key == GLFW_KEY_S)
+				Settings::peakScale = Settings::peakScale * 1.01;
 			if (Settings::peakScale > Globals::maxPeakScale)
 				Settings::peakScale = Globals::maxPeakScale;
 			if (Settings::peakScale < Globals::minPeakScale)
@@ -212,9 +222,9 @@ void Input::update()
 
 		{
 			if (key == GLFW_KEY_W)
-				c->dragZoom(.4 / 100, deltaTime);
+				c->dragZoom(.1/Settings::wheelSpeed, deltaTime);
 			if (key == GLFW_KEY_S)
-				c->dragZoom(-.4 / 100, deltaTime);
+				c->dragZoom(-.1 / Settings::wheelSpeed, deltaTime);
 
 
 		}
@@ -234,7 +244,7 @@ void Input::update()
 
 
 
-	mouseDragged(bs, mxt*deltaTime, myt*deltaTime ,.5,.75, status);
+	mouseDragged(bs, 50*mxt*deltaTime / Settings::mouseSpeed, 50*myt*deltaTime / Settings::mouseSpeed,.5,.75, status);
 	gui::setSliderValues();
 
 
@@ -313,6 +323,20 @@ void Input::computeViewMatrices() {
 				Settings::farPlane /= 2;
 				Settings::nearPlane /= 2;
 			}
+
+
+
+		if (1)
+			if (Settings::scale.x > 10)
+			{
+				Settings::farPlane *= 2;
+				Settings::nearPlane *= 2;
+			}
+		if (Settings::scale.x > 20)
+		{
+			Settings::farPlane *= 2;
+			Settings::nearPlane *= 2;
+		}
 					   // Projection matrix : 45 Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
 	Render::GlobalProjectionMatrix = glm::perspective(FoV / aspect, aspect, Settings::nearPlane, Settings::farPlane);
 
@@ -788,7 +812,7 @@ void Input::handleCursor(Landscape* l)
 			getView()->addInfo(Settings::xLabeld);
 			getView()->addInfo("<c>= " + std::to_string(cursor.mz));
 #else
-			getView()->addInfo("<i>" + Globals::x_axis_desc);
+			getView()->addInfo("<i>" + Settings::xLabeld);
 			getView()->addInfo("<c>= " + std::to_string(cursor.mz));
 #endif
 

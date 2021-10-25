@@ -37,7 +37,7 @@ inline bool ends_with(std::string const& value, std::string const& ending)
 	return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
 }
 
-std::string aboutText[] = { "ToC-msWorld " CUR_VERSION_STRING ," 12/10","This version is for testing, it is not guaranteed to perform correctly","","(c) University of Liverpool 2021","",
+std::string aboutText[] = { "ToC-msWorld " CUR_VERSION_STRING ," 22/10","This version is for testing, it is not guaranteed to perform correctly","","(c) University of Liverpool 2021","",
 "For any issues, please go to the github page",
 "github.com/PGB-LIV/lcmsWorld"
 };
@@ -320,27 +320,44 @@ void gui::MouseMenu()
 
 }
 
-
-void gui::SlidersMenu()
+void gui::ScaleMenu()
 {
-	float transformWidth = 230;
 	bool rebuild = false;
 	if (ImGui::SliderFloat((Settings::xLabel + " scale").c_str(), &Settings::xScale_slider, Settings::xScale_slider_min, Settings::xScale_slider_max, "%.1f"))
 		rebuild = true;
 
 
-	if (ImGui::SliderFloat( (Settings::yLabel+" scale").c_str(), &Settings::yScale_slider, -10.0f, 10.0f, "%.1f"))
+	if (ImGui::SliderFloat((Settings::yLabel + " scale").c_str(), &Settings::yScale_slider, -10.0f, 10.0f, "%.1f"))
 		rebuild = true;
 
 	if (ImGui::SliderFloat("intensity scale", &Settings::zScale_slider, -10.0f, 10.0f, "%.1f"))
 		rebuild = true;
 
-	
-	if (ImGui::SliderFloat("maximum peak height", &Settings::peakScale, Globals::minPeakScale, Globals::maxPeakScale, "%.1f"))
-		rebuild = true;
+	static float peakScaleSlider = -1;
 
+	auto l = getView();
+	if (l)
+	{
+		if (peakScaleSlider <= 0)
+			peakScaleSlider = Settings::peakScale * l->worldSignalRange.max / 100.0;
+
+		if (peakScaleSlider > l->worldSignalRange.max)
+			peakScaleSlider = l->worldSignalRange.max;
+
+
+		if (ImGui::SliderFloat("maximum peak height", &peakScaleSlider, l->worldSignalRange.max / 1000, l->worldSignalRange.max, "%.3e"))
+			rebuild = true;
+		Settings::peakScale = peakScaleSlider / l->worldSignalRange.max * 100.0;
+
+	}
 
 	setSliderValues();
+
+}
+void gui::SlidersMenu()
+{
+	float transformWidth = 230;
+	
 	ImGui::PushItemWidth(transformWidth);
 
 	if (ImGui::BeginCombo("Transform Intensity", Settings::transformTypes[Settings::transformType].c_str()))
@@ -379,7 +396,7 @@ bool gui::numbersBox()
 	if (Settings::addGridLines)
 	{
 		ImGui::SameLine();
-		buttonText = "Coloured Grid Lines";
+		buttonText = "Rainbow colours";
 		if (ImGui::Checkbox(buttonText, &Settings::colouredGridLines))
 		{
 		}
@@ -974,16 +991,16 @@ void gui::fileOpenMenu()
 		}
 
 
-	ImGui::Checkbox("Noise Removal", &Settings::noiseRemoval);
+	ImGui::Checkbox("Remove small values", &Settings::noiseRemoval);
 	if (Settings::noiseRemoval)
 	{
-		ImGui::Checkbox("Negative Noise Removal", &Settings::negativeNoiseRemoval);
+		ImGui::Checkbox("Negative Threshold", &Settings::negativeNoiseRemoval);
 		if (!Settings::negativeNoiseRemoval)
 		{
 			char noiseString[128];
 			sprintf(noiseString, "%s", (char*)Settings::noiseValue.c_str());
 
-			if (ImGui::InputText("Noise Threshold", noiseString, 10))
+			if (ImGui::InputText("Threshold", noiseString, 10))
 			{
 				std::string newString(noiseString);
 				Settings::noiseValue = newString;
@@ -992,10 +1009,10 @@ void gui::fileOpenMenu()
 		}
 
 
-		ImGui::Separator();
+		
 	}
 
-
+	ImGui::Separator();
 	if (getView() != NULL)
 	{
 		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
@@ -1249,9 +1266,9 @@ void  gui::viewMenu(glm::mat4 view)
 			Range<float> offsetRange = { -1,1 };
 
 
-			correlateFilter("ratio", correlateratio, correlateRange, Settings::correlateRatio);
+			correlateFilter("ratio offset", correlateratio, correlateRange, Settings::correlateRatio);
 
-			correlateFilter("offset", correlateoffset, offsetRange, Settings::correlateOffset);
+			correlateFilter( (Settings::xLabels+" offset").c_str(), correlateoffset, offsetRange, Settings::correlateOffset);
 
 
 
@@ -1302,6 +1319,9 @@ void  gui::viewMenu(glm::mat4 view)
 
 	}
  
+	if (getView())
+		if (getView()->getCamera())
+	ScaleMenu();
 
 	if (Settings::expertMode)
 	{

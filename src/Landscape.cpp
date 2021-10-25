@@ -29,14 +29,14 @@ const static int TILES_PER_GB = 350;
 const static int MIN_TILES = 2500;
 static int tilesInRam = MIN_TILES;
 
-static int GLtilesPerFrame = 1500;
+static int GLtilesPerFrame = 500;
 static int GLtilesThisFrame = 0;
-static int loadTilesPerFrame = 20000;
+static int loadTilesPerFrame = 2500;
 static int loadTilesThisFrame = 0;
 //at what size to bother drawing child
 //if it's smaller than this, it will be just left empty
 const static double minSize = 0.005*2     *4 ;  
-const double minSizePreload = 0.004*2 *4;
+const double minSizePreload = 0.002*2 *4;
 const double min_draw_size =  0.0001 * 1;
 const static double maxSize = 0.25 * 2 * 1;
 const static double maxSizePrepare = 0.24 * 2 *1;
@@ -212,6 +212,7 @@ void Landscape::prepareTile(Tile* tile)
 	
 	double maxSize = maxSizePrepare;
 
+	
  
 	
 	if (tile->LOD == 0)
@@ -272,7 +273,8 @@ void Landscape::prepareTile(Tile* tile)
  	if (loadCallback != NULL)
 		{
 
-	 
+		if (loadTilesThisFrame-- < 0)
+			return;
 
  
 				tile->drawStatus = DrawStatus::loadingData;
@@ -850,7 +852,7 @@ void Landscape::addDSquare(float tx, float ty, float tz, float size, float sizey
 	for (int i = 0; i < 6; i++)
 	{
 		int j = i;
-		auto x = mid.x + xoffs[j]*size;
+		auto x = mid.x + ( xoffs[j])*size;
 		auto y = mid.z + yoffs[j] * sizey;
 		
 		auto z = mid.y ;
@@ -871,7 +873,7 @@ void Landscape::addSquare(float tx, float ty, float tz, float size, float sizey,
 	float vcols[] = { .05,.25,.05,.95,.75,.25,.95,.75    ,      .75,.95,.25,.75, .95, .05, .25, .05 };
 
 	if (!Settings::colouredGridLines)
-		col = 0;
+		col = 2;
 
 	float u = ucols[col & 7];
 	float v = vcols[col & 7];
@@ -912,7 +914,7 @@ void Landscape::add3dMarker(float tx, float ty, float tz, int type, std::string 
 		if (g_vertex_buffer_data[i+0] < 0)
 			x = tx ;
 		else
-			x = tx + cubeSize / Settings::scale.x;
+			x = tx + cubeSize / Settings::scale.x *.75;
 
 		if (g_vertex_buffer_data[i + 1] < 0)
 			y = ty; //  -cubeSize / Settings::scale.y / 2;
@@ -952,12 +954,66 @@ void Landscape::add3dMarker(float tx, float ty, float tz, int type, std::string 
 
 
 
+void Landscape::add3dMarker(float tx, float ty, float tz, int type, std::string text, float width, float height, float cubeXSize, float cubeYSize)
+{
+	//this version has specific sizes, so it is definitely not to be centered
+	float cubeSize = std::min(cubeXSize, cubeYSize);
+	tz += 0;
+	for (int i = 0; i < sizeof(g_vertex_buffer_data) / sizeof(g_vertex_buffer_data[0]); i += 3)
+	{
+		float x, y, z;
+		if (g_vertex_buffer_data[i + 0] < 0)
+			x = tx;
+		else
+			x = tx + cubeXSize  ;
+
+		if (g_vertex_buffer_data[i + 1] < 0)
+			y = ty; //  -cubeSize / Settings::scale.y / 2;
+		else
+			y = ty + cubeYSize ;
+
+		if (g_vertex_buffer_data[i + 2] < 0)
+			z = tz;
+		else
+			z = tz + 50 / Settings::scale.z;
+
+
+		vertex_vec.push_back(glm::vec3(x, z, y));
+		//yellow (type 2)
+		float u = 0.25f;
+		float v = 0.25f;
+
+		//red
+		if (type == 1)
+		{
+			u = 0.75f;
+			v = 0.75f;
+		}
+
+		if (type == 3)
+		{
+			v = 0.75f;
+		}
+
+		uv_vec.push_back(glm::vec2(u, v));
+
+	}
+}
+
+
 void Landscape::appendLine()
 {
 	int steps = 250;
 
+
+
+#if TOC_VERSION
 	if (camera == NULL)
 		return;
+#else
+	return;
+#endif
+
 
 	float size = viewData.worldSizeMz / steps;
 	float sizey = viewData.worldSizeLc / steps;
@@ -1015,31 +1071,49 @@ void Landscape::appendLine()
 
 
 
-
 	float xoff = (worldMzRange.max - worldMzRange.min) * Settings::correlateOffset;
+
 
 	// goes to *2 just because can start below 0, and it's easier
 
+	double world_ratio = (worldMzRange.max - worldMzRange.min) / (worldLcRange.max - worldLcRange.min);
+ 	yscale *= world_ratio;
+
+	
+
+	 float yoff = (worldMzRange.min - worldLcRange.min)  ;
+ 
+
 	if (Settings::autoCorrelate)
-	for (float i = 0; i < steps * 2; i++)
+	for (int i = -steps; i < steps * 2; i++)
 	{
-		float x = (float)worldMzRange.min + ((worldMzRange.max - worldMzRange.min) / steps) * i + xoff;
+		float x1 = (float)worldMzRange.min + ((worldMzRange.max - worldMzRange.min) / steps) * i;
+		float y1 = (float) ((worldLcRange.max - worldLcRange.min) / steps) * i ;
+
+		float pos = std::min(x1, y1);
+
+		float x = x1 + xoff;
+	//	float y = (float)worldLcRange.min + ((worldLcRange.max - worldLcRange.min) / steps) * i * yscale;
+		float y = y1 * yscale  + worldLcRange.min + yoff;
+
+
 		if ((x < worldMzRange.min) || x > worldMzRange.max)
 			continue;
-		float y = (float)worldLcRange.min + ((worldLcRange.max - worldLcRange.min) / steps) * i * yscale;
 
 		if (y > worldLcRange.max)
 			break;
 
-		addDSquare(x, y, 0, size, sizey * yscale);
+		addDSquare(x, y, 0, size * 1, sizey * yscale);
 		
 
 
 	}
 
-	if (Settings::addGridLines == false)
-	return;
 
+ 
+	if (Settings::addGridLines == false)
+		return;
+ 
  
 	for (int r = 0; r < 2; r++)
 	{
@@ -1191,9 +1265,16 @@ void Landscape::setInfo()
 	addInfo(Settings::xLabel);
 	addInfo("<c>range:");
 	std::string mzr = std::to_string(worldMzRange.min) + " - " + std::to_string(worldMzRange.max);
+	if (worldSignalRange.max < 0.1)
+		mzr = "  ";
 
 		addInfo(mzr);
 		addInfo(Settings::yLabel +" range:");
+
+		if (worldSignalRange.max < 0.1)
+			addInfo("  ");
+		else
+
 		addInfo(std::to_string(worldLcRange.min) + " - " + std::to_string(worldLcRange.max));
 
 
@@ -1223,6 +1304,8 @@ void Landscape::setInfo()
 	addInfo("");
 
 }
+
+
 void Landscape::addMarker(float tx, float ty, float tz, int i, std::string text, float width, float height, float cubeSize)
 {
 	
@@ -1260,6 +1343,45 @@ void Landscape::addMarker(float tx, float ty, float tz, int i, std::string text,
 							addLabel(i+1, label);
 					}
 	 
+}
+
+void Landscape::addMarker(float tx, float ty, float tz, int i, std::string text, float width, float height, float cubeSize, float cubeXSize, float cubeYSize)
+{
+
+
+
+	glm::vec4  mid = transform({ tx,ty,tz });
+
+	tz = 0;
+
+
+
+	if (cubeXSize > 0)
+	{
+		add3dMarker(mid.x, mid.z, mid.y, i, text, width, height, cubeSize);
+		add3dMarker(mid.x, mid.z, mid.y, 3, text, width, height, cubeXSize, cubeYSize);
+	}
+
+	auto m = transformMatrix * mid;
+
+
+	m = m / (m.w);
+
+	if (m.z < 1)
+		if (m.z > 0.0001)
+			if (std::abs(m.x) < 1.1)
+				if (std::abs(m.y) < 1.1)
+				{
+					int label_x = (int)(((m.x + 1) * viewport.x / 2) - (width / 2));
+
+
+					int label_y = (int)(((-m.y + 1) * viewport.y / 2) - (height / 2));
+
+					Label label = { label_x,label_y,text,0 };
+
+					addLabel(i + 1, label);
+				}
+
 }
 
 std::vector<float>  Landscape::getFilterModelSpace()

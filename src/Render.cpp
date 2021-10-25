@@ -178,7 +178,7 @@ void  Render::loadTextures()
  
 	
 #if TOC_VERSION
-	ArrowTextTexture = loadBMPA_custom_data(arrowTextTOCr);
+	ArrowTextTexture = loadBMPA_custom_data(arrowTextTOC);
 	ArrowTexture = loadBMPA_custom_data(arrowr);
 #else
 	ArrowTexture = loadBMPA_custom_data(arrow);
@@ -849,9 +849,11 @@ void Render::drawBaseMesh(bool wire)
 	static GLMesh* baseQ = NULL;
 
 	//not used in toc-ms?
+#if TOC_VERSION
 	if (wire)
-	return;
-	 
+		return;
+#endif
+
 	if (wire)
 		if (Settings::addGridLines == false)
 
@@ -880,18 +882,20 @@ void Render::drawBaseMesh(bool wire)
 	{
 		if (wire)
 		{
-
+			glUniform1f(AlphaID, 0.2f);
 
 			glEnable(GL_POLYGON_OFFSET_LINE);
 			glPolygonOffset(0, 0);
 
 			auto drawObject = base->getDrawObject();
-			glBindTexture(GL_TEXTURE_2D, PlainTexture);
+			  glBindTexture(GL_TEXTURE_2D, PlainTexture);
+
+			 
 			drawMesh(drawObject, true);
 
 			glDisable(GL_POLYGON_OFFSET_LINE);
 
-
+			glUniform1f(AlphaID, 1.0f);
 		}
 		else
 		{
@@ -1148,8 +1152,17 @@ void Render::drawDeferred()
 
 void Render::drawTile(Tile* tile, bool isFading)
 {
+ 
+	
+	if (tile->LOD == -2)
+ 
+ 
+ 	if (rand() & 15)
+		{
+			//std::cout << tile->id << " , " << tile->getMZData()->size() << "  , " << tile->getMZData()->getScans().size()<< "\n";
+			return;
 
-
+		}
 
 	GLMesh* glMesh = tile->getGLMesh();
 

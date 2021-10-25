@@ -94,6 +94,7 @@ struct Label {
 struct Annotation {
 	mzFloat mz = 0;
 	lcFloat lc = 0;
+	
 	signalFloat signal = 0;
 	float score = 0;
 	std::string text;
@@ -105,6 +106,8 @@ struct Annotation {
 	float height = 0;
 	short flags = 0;
 	bool isVisible = false;
+	mzFloat xsize = 0;
+	lcFloat ysize = 0;
 };
 
 inline bool operator <(const Annotation& lhs, const Annotation& rhs)

@@ -276,6 +276,7 @@ void Tile::setScreenSize(glm::mat4 matrix, glm::vec2 view)
 	if (min_z < 2)
 	{
  
+ /*
 		float z = (min_z*2)-1;
 		
 		float nearP = Settings::nearPlane;
@@ -284,24 +285,36 @@ void Tile::setScreenSize(glm::mat4 matrix, glm::vec2 view)
 		float linearDepth = (2.0f * nearP * farP) / (farP + nearP - z * (farP - nearP));
 		linearDepth /= (farP - nearP);
 
-		linearDepth = std::sqrt(linearDepth);
-		linearDepth = std::sqrt(linearDepth);
-
+	 	linearDepth = std::sqrt(linearDepth);
+	  linearDepth = std::sqrt(linearDepth)  ;
+ 
 		cameraDistance = std::max(1-(linearDepth*2.3f),0.0f);
 	
-	
+ 
+	*/	
+
 
 		float mx = mzRange.max - mzRange.min;
 		float ly = lcRange.max - lcRange.min;
 		mx *= owner->xScale;
+		mx *= Settings::scale.x * 4;
+
+//		if ((rand()&2047)==0)
+//			std::cout << Settings::scale.x << "\n";
 		ly *= owner->yScale;
 		float area = (mx * ly) * Settings::DetailConstant;
 		area = std::sqrt(area);
 
-		 //a coarse approach to adjust by size of model
-		area *= Settings::detail-0.9f;
-		area *= (float) Globals::windowScale;
+		area = std::max(mx, ly) * Settings::DetailConstant;;
+		auto detail = Settings::detail * Settings::detail * 0.3f;
+		detail = std::max(detail, 1.0f);
+
+
+		area *= detail -0.9f;
  
+
+		area *= (float) Globals::windowScale;
+		//a coarse approach to adjust by size of model
 
  		{
 		 
@@ -313,13 +326,15 @@ void Tile::setScreenSize(glm::mat4 matrix, glm::vec2 view)
 
 				area *= 2;
 		}
+ 
+ 
+		min_z = min_z * min_z   ;
+		screenArea = (1.0f - (min_z  )) * area;
 
-		screenArea = (1.0f - min_z) * area;
+ 
+	 	screenArea *= 1.4f;
+ 
 
- 
-	 	screenArea *=  .5f;
- 
- 
 
 		if ((screenArea < lastScreenArea ) && (screenArea > (lastScreenArea*7/8)) )
 			screenArea = lastScreenArea;

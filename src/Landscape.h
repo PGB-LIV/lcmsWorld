@@ -100,8 +100,11 @@ public:
 	GLMesh* makeBaseMesh(GLuint textureId);
 	GLMesh* makeBaseQuads(GLuint textureId);
 	DataPoint findDataPoint(mzFloat mz, lcFloat lc, signalFloat sig);
+	void Landscape::addMarker(float tx, float ty, float tz, int i, std::string text, float width, float height, float cubeSize, float cubeXSize, float cubeYSize);
+
 	void addMarker(float tx, float ty, float tz, int i, std::string text, float width, float height, float cubeSize = 0);
 	void add3dMarker(float tx, float ty, float tz, int i, std::string text, float width, float height, float cubeSize);
+	void add3dMarker(float tx, float ty, float tz, int i, std::string text, float width, float height,  float cubeXSize, float cubeYSize);
 	std::vector<std::string> getInfo() { 
 		std::vector<std::string> infoCopy(info);
 		info.clear();

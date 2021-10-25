@@ -48,12 +48,13 @@ int Builder::totalScans = 0;
 volatile std::atomic<int> Builder::num_threads = 0;
 std::mutex Builder::make_lock;
 
-static const int pointsPerTile = 3500  ;
+static const int pointsPerTile = 3000  ;
 static const 	int pointsPerTileWeb = 3500;
 
 //there are very few first-level tiles, they can afford to be bigger
 //and it's the first view that people see, so don't make it too rough
-static const int pointsPerTile0 = pointsPerTile *5 ;
+static const int pointsPerTile0 = pointsPerTile *2 ;
+static const int pointsPerTile1 = pointsPerTile * 3/2;
 
 Builder::errorType Builder::error = none;
 
@@ -66,7 +67,8 @@ Tile* Builder::makeTiles(MZData* data, int lod, int threadId)
 	//	auto thread_id = std::this_thread::get_id();
 
 
-
+	if (Globals::closing)
+		return NULL;
 
 	int lcSize = (int)data->getScans().size();
 	int mzSize = data->getMaxSize();
@@ -75,37 +77,82 @@ Tile* Builder::makeTiles(MZData* data, int lod, int threadId)
 	double size = pointsPerTile;
 	if (Cache::makeMetaFile)
 		size = pointsPerTileWeb;
-
 	if (lod == 0)
-	{
 		size = pointsPerTile0;
 
-	}
-
-
 	int newY = int(sqrt(size / ratio) + .5);
-	int newX = int((size / newY) + .5);
+ 
+	if (lod == 0)
+		newY = sqrt(lcSize);
 
 	if (newY < 8)
 		newY = 8;
-	if (newX < 8)
-		newX = 8;
+	int newX = int((size / newY) + .5);
 
-	if ((lcSize * mzSize > pointsPerTile))
+
+	if (newX < 2)
+		newX = 2;
+
+ 
+
+	if (newY > lcSize)
+		newY = lcSize;
+
+	if (newX > mzSize)
+		newX = mzSize;
+
+	if ((lcSize * mzSize > size))
 	{
+	 
+		 std::cout <<lod << " : " << size << " ~ " << newX * newY << "    : " << newX << " , " << newY << "   :  " << mzSize << " , " << lcSize << "\n";
+		
+	 
 
+		
 		MZData* smallData = data->reduce(newX, newY);
 		DataSource source = { 0,0 };
 		Tile* tile = new Tile(lod, source, System::primary);
 		tile->setMZData(smallData);
 
 		//  trying different splits - greater splits should mean fewer levels of detail needed
+#if TOC_VERSION
 
 		int splitX = 5;
 		int splitY = 5;
-		if (mzSize > lcSize * 6)
+
+		if (lod == 0)
 		{
 			splitX = 16;
+			splitY = 4;
+
+		}
+		
+		if (0)
+		if (4*mzSize < lcSize )
+		{
+			splitX = 1;
+			splitY = 4;
+			 
+		}
+	 
+		if (mzSize > lcSize * 6)
+		{
+			splitX = 6;
+			splitY = 3;
+			if (mzSize > 1000)
+				splitX = 12;
+ 
+		}
+
+		 
+		#else
+		int splitX = 3;
+		int splitY = 3;
+
+
+		if (mzSize > lcSize * 6)
+		{
+			splitX = 6;
 			splitY = 1;
 
 		}
@@ -116,32 +163,16 @@ Tile* Builder::makeTiles(MZData* data, int lod, int threadId)
 		{
 			if (mzSize > 1000)
 			{
-				splitX = 4;
+				splitX = 3;
 				splitY = 6;
 			 	if (mzSize > 50000)
-			 		splitX = 16;
+			 		splitX = 9;
 			}
-	 		std::cout << " lod 0 split " << splitX << "   " << mzSize << "\n";
-	 
 
 		}
 
-		//not sure about this, but reduces the very long y ranges you can get due to all splits being better in X
-		// for extremely wide data sets
-		// somewhat alleviated now by smaller block sizes
+#endif
  
-
-		if (lod == 1)
-		{
-			if (lcSize > 32)
-			{
-				splitX = 1;
-				splitY = 12;
-			}
- 			std::cout << " lod 1 split " << splitY << "    " << lcSize << "\n";
-		}
-
-
 
 		auto children = data->split(splitX, splitY);
 		//split should delete the scans, but not the MZData object itself
@@ -354,6 +385,11 @@ void Builder::makeLandscape(std::string filename)
 
 	while (true)
 	{
+		if (Globals::closing)
+		{
+			std::cout << "abort load1 \n" << std::flush;
+			return;
+		}
 
 		MZData* newData = loader->loadData();
 
@@ -394,7 +430,14 @@ void Builder::makeLandscape(std::string filename)
 
 	}
 
-	while (num_threads > 0);
+	while (num_threads > 0)
+	{
+		if (Globals::closing)
+		{
+			std::cout << "abort load2 \n" << std::flush;
+			return;
+		}
+	};
 
 
 
@@ -406,9 +449,13 @@ void Builder::makeLandscape(std::string filename)
 
 	if (error != none)
 	{
-		std::string error_string = "The mzml file was not sequential\nPlease try converting it with ProteoWizard.";
+#if TOC_VERSION
+		std::string error_string = "The data file was not sequential\n";
+#else
+		std::string error_string = "The data file was not sequential\nFor mzml, please try converting it with ProteoWizard.";
+#endif
 		if (error == exception)
-			error_string = "The mzml file could not be read.";
+			error_string = "The data file could not be read.";
 
 		new Error(Error::ErrorType::file, error_string);
 		delete loader;
@@ -417,6 +464,7 @@ void Builder::makeLandscape(std::string filename)
 		Globals::statusText = "";
 
 		Cache::closeCache();
+		std::cout << "abort load3 \n" << std::flush;
 		return;
 	}
 
@@ -425,17 +473,25 @@ void Builder::makeLandscape(std::string filename)
 
 	if (System::primary->getTiles().size() == 0)
 	{
-		std::string error = "No LC-MS data was found in the .mzml file.";
+		std::string error = "No data was found in the file.";
+		if (Settings::noiseRemoval)
+			error = "No data was found in the file (after small values removed).";
 
-		if (Settings::experimentalMzml == false)
+		if (endsWith(loadFile, ".mzml"))
 		{
-			error = "No LC-MS data was found in the .mzml file. ";
-			if (sax_error_type == 1)
-				error = "No LC-MS data was found in the .mzml file. For non-indexed files, \nplease try enabling the experimental mzml reader in the advanced settings\nor convert the file to indexed.";
-		}
 
+			error = "No LC-MS data was found in the .mzml file.";
+
+			if (Settings::experimentalMzml == false)
+			{
+				error = "No LC-MS data was found in the .mzml file. ";
+				if (sax_error_type == 1)
+					error = "No LC-MS data was found in the .mzml file. For non-indexed files, \nplease try enabling the experimental mzml reader in the advanced settings\nor convert the file to indexed.";
+			}
+		}
 		if (endsWith(loadFile, ".raw"))
 			error = "No LC-MS data was found in the .raw file.";
+		
 
 		new Error(Error::ErrorType::file, error);
 		delete loader;
@@ -445,7 +501,7 @@ void Builder::makeLandscape(std::string filename)
 
 		Cache::closeCache();
 
-
+		std::cout << "abort load4 \n" << std::flush;
 		return;
 	}
 
@@ -500,7 +556,7 @@ void Builder::makeLandscape(std::string filename)
 	delete loader;
 
 
-	std::cout << std::flush;
+	std::cout << "end load \n" << std::flush;
 	// Globals::statusText = "Loading complete ";
 	return;
 
