@@ -125,7 +125,8 @@ Splash::Splash()
 		return ;
 
 	instance = this;
-	 
+	
+ 
 
  
 
@@ -133,7 +134,7 @@ Splash::Splash()
 	
 	
 		glfwWindowHint(GLFW_FLOATING, true);
-		window = glfwCreateWindow(width, height, "tocmsWorld Starting", NULL, NULL);
+		window = glfwCreateWindow(width, height, (Globals::product_name + " Starting").c_str(), NULL, NULL);
 		if (window == NULL)
 			return;
 
@@ -142,6 +143,6 @@ Splash::Splash()
 
 
 
-	 
+ 
 	 
 }

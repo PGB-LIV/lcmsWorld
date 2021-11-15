@@ -47,7 +47,11 @@ std::fstream Cache::metaFile;
 std::string sanity_string = "lcms.file.0x34012c";
 
 std::streamoff  Cache::cachePosition = 0;
+#if TOC_VERSION
 std::string Cache::cacheFileEnding = ".tocms";
+#else
+std::string Cache::cacheFileEnding = ".lcms";
+#endif
 std::fstream Cache::cacheFile;
 std::streamoff  Cache::cacheFileSize = 0;
 bool Cache::cacheCacheFile = false;
@@ -152,7 +156,7 @@ inline std::vector<byte> Cache::getDataFromFile(DataSource d)
 	{
 		std::cout << "file read size mismatch \n";
  
-		new Error(Error::ErrorType::file, "There was a problem loading data from the .tocms file. \nIit may be invalid, or the disk may be full.\n");
+		new Error(Error::ErrorType::file, "There was a problem loading data from the "+ cacheFileEnding+" file. \nIit may be invalid, or the disk may be full.\n");
 
 		return empty;
 
@@ -603,7 +607,7 @@ Landscape* Cache::loadMetaData(std::string fileName)
 	if (ver.length() > 10)
 	{
  
-			reportError("This .tocms file is not valid\nPlease reload from original file.");
+			reportError("This "+ cacheFileEnding+" file is not valid\nPlease reload from original file.");
 			return NULL;
  
 
@@ -616,7 +620,7 @@ Landscape* Cache::loadMetaData(std::string fileName)
 	std::cout << " version " << ver << "\n";
 	if (!supported)
 	{
-		reportError("This .tocms file is no longer supported\nPlease reload from original file.");
+		reportError("This "+ cacheFileEnding+" file is no longer supported\nPlease reload from original file.");
 		return NULL;
 	}
 

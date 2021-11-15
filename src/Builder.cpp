@@ -153,21 +153,13 @@ Tile* Builder::makeTiles(MZData* data, int lod, int threadId)
 		if (mzSize > lcSize * 6)
 		{
 			splitX = 6;
-			splitY = 1;
+			splitY = 2;
 
 		}
-		//tocms data can be very wide
-
-		
 		if (lod == 0)
 		{
-			if (mzSize > 1000)
-			{
-				splitX = 3;
-				splitY = 6;
-			 	if (mzSize > 50000)
-			 		splitX = 9;
-			}
+			splitX = 12;
+			splitY = 4;
 
 		}
 

@@ -171,6 +171,15 @@ bool fileOpen(std::string filePathName)
 		return (getView() != NULL);
 	}
 
+	if (endsWith(loadFile, ".lcms"))
+	{
+		//	std::cout << " load .lcms " << filePathName << "\n";
+		Settings::lastAnnotationFilename = ".";
+		Builder::makeLandscapeFromCache(filePathName);
+		if (getView() != NULL)
+			Globals::setFileStatus(filePathName);
+		return (getView() != NULL);
+	}
 	if (endsWith(loadFile, ".mzml"))
 	{
 		Settings::lastAnnotationFilename = ".";
@@ -605,8 +614,11 @@ int cmain(int  argc, char ** argv)
 
 	if (argc > 0)
 		executable_name = argv[0];
+#if TOC_VERSION
 	if (argc < 2)
 		auto splash = new Splash();
+#endif
+
 #ifdef FINAL
 #ifdef _WIN32
 	AllocConsole();
@@ -654,10 +666,12 @@ int cmain(int  argc, char ** argv)
 	//creates glfw window etc
 	if (Render::setup() == false)
 	{
-		std::cerr << "Fatal Error setting up rendering system\n ToC-msWorld needs an OpenGL 3+ compatible graphics card.\n";
+		std::cerr << "Fatal Error setting up rendering system\n"<< Globals::product_name <<" needs an OpenGL 3+ compatible graphics card.\n";
 #ifdef _WIN32
-		MessageBox(nullptr, TEXT("Fatal Error setting up the rendering system.\nToC-msWorld needs an OpenGL 3+\
- compatible graphics card.\n\nThis may not be available on remote desktops or virtual machines."), TEXT("Error"), MB_OK);
+		std::string error  = "Fatal Error setting up the rendering system.\n" + Globals::product_name + " needs an OpenGL 3+\
+ compatible graphics card.\n\nThis may not be available on remote desktops or virtual machines.";
+		
+		MessageBox(nullptr, TEXT(error.c_str()), TEXT("Error"), MB_OK);
 #endif
 		// exitApp();
 		return 1;

@@ -1016,7 +1016,7 @@ void Input::showNearest(DataPoint cursorPoint)
 			getView()->addInfo("ptm: " + a.ptm);
 
 
-#ifdef TOC_VERSION
+#if TOC_VERSION
 		getView()->addInfo(Settings::xLabeld);
 		getView()->addInfo("<c>= " + std::to_string(a.mz));
 
@@ -1024,7 +1024,7 @@ void Input::showNearest(DataPoint cursorPoint)
 		getView()->addInfo("<c>= " + std::to_string(a.lc));
 
 #else
-		getView()->addInfo("<i>"+Globals::x_axis_desc);
+		getView()->addInfo("<i>"+Settings::xLabeld);
 		getView()->addInfo("<c>= " + std::to_string(a.mz));
 		std::ostringstream infolc;
 
@@ -1035,7 +1035,7 @@ void Input::showNearest(DataPoint cursorPoint)
 		float part = seconds - (int)seconds;
 		part = part * 10;
 
-		infolc << Globals::y_axis_desc<< " = " << (int)mins << " min " << std::setfill('0') << std::setw(2) << (int)(seconds) << "." << (int)part; "\"";
+		infolc << Settings::yLabeld << " = " << (int)mins << " min " << std::setfill('0') << std::setw(2) << (int)(seconds) << "." << (int)part; "\"";
 		getView()->addInfo(infolc.str());
 #endif
 

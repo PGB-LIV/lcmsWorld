@@ -17,7 +17,7 @@ std::string Settings::yLabels = "Prec.";
 std::string Settings::xLabels = "Frag.";;
 std::string Settings::yLabeld = "prec. m/z";
 std::string Settings::xLabeld = "frag. m/z";
-
+const std::string extension = ".tocms";
 #else
 std::string Settings::xLabel = "m/z";
 std::string Settings::yLabel = "Retention time";;
@@ -25,6 +25,7 @@ std::string Settings::xLabels = "m/z";
 std::string Settings::yLabels = "RT";;
 std::string Settings::xLabeld = "m/z";
 std::string Settings::yLabeld = "RT";
+const std::string extension = ".lcms";
 #endif
 
 bool Settings::flatLighting = false;
@@ -224,8 +225,8 @@ void Settings::loadSettings()
 	ImGuiFileDialog::Instance()->setCurrentPath(path);
 
 	if (lastFilename.length() > 1)
-		if (endsWith(lastFilename, ".tocms") == false)
-			lastFilename = lastFilename + ".tocms";
+		if (endsWith(lastFilename,  extension) == false)
+			lastFilename = lastFilename + extension;
 
 	settings >> numViewAnnotations;
 	settings >> mergeIdents;

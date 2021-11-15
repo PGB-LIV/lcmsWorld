@@ -100,7 +100,7 @@ void gui::setupReaders()
 	}
 	struct dirent* ent;
 
-	std::vector <std::string> newFileFilters = { ".tocms" };
+	std::vector <std::string> newFileFilters = { ".lcms" };
 
 
 	while ((ent = readdir(dir)) != NULL) {
@@ -850,7 +850,7 @@ void gui::fileOpenMenu()
 {
 
 	if (getView() == NULL)
-		if (ImGui::Button("Load ToC-MS File"))
+		if (ImGui::Button("Load LC-MS File"))
 		{
 			if (timesRun++ == 0)
 				ImGuiFileDialog::Instance()->clear(lcmsFilters);
@@ -891,7 +891,7 @@ void gui::fileOpenMenu()
 	{
 		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 		ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
-		if (ImGui::Button("Load ToC-MS File"))
+		if (ImGui::Button("Load LC-MS File"))
 		{
 
 		}

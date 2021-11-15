@@ -37,7 +37,7 @@ inline bool ends_with(std::string const& value, std::string const& ending)
 	return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
 }
 
-std::string aboutText[] = { "ToC-msWorld " CUR_VERSION_STRING ," 22/10","This version is for testing, it is not guaranteed to perform correctly","","(c) University of Liverpool 2021","",
+std::string aboutText[] = { "ToC-msWorld " CUR_VERSION_STRING ," 15/11","This version is for testing, it is not guaranteed to perform correctly","","(c) University of Liverpool 2021","",
 "For any issues, please go to the github page",
 "github.com/PGB-LIV/lcmsWorld"
 };

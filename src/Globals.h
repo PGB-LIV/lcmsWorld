@@ -20,9 +20,12 @@ public:
  
 
 	static inline bool neg_y = true;
+	static inline std::string product_name = "tocmsWorld";
+	static inline std::string data_name = "ToC-MS";
 
 #else
- 
+	static inline std::string product_name = "lcmsWorld";
+	static inline std::string data_name = "LC-MS";
 
 	static inline bool neg_y = false;
 

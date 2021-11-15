@@ -35,9 +35,9 @@ static int loadTilesPerFrame = 2500;
 static int loadTilesThisFrame = 0;
 //at what size to bother drawing child
 //if it's smaller than this, it will be just left empty
-const static double minSize = 0.005*2     *4 ;  
-const double minSizePreload = 0.002*2 *4;
-const double min_draw_size =  0.0001 * 1;
+const static double minSize = 0.005*2     *4 ;
+const double minSizePreload = 0.002*2  * 1.5;
+const double min_draw_size =  0.0001 * 1 ;
 const static double maxSize = 0.25 * 2 * 1;
 const static double maxSizePrepare = 0.24 * 2 *1;
 
@@ -46,7 +46,11 @@ const static double maxSizePrepare = 0.24 * 2 *1;
 Landscape::Landscape()
 {
 	//defines aspect ratio of default view
+#if TOC_VERSION
 	viewData = { 3500,40000*4,40000 };
+#else
+	viewData = { 3500,40000 * 16/9,40000 };
+#endif
  
 	int gb = std::min((int) (System::systemMemory+.5), maxGB);
 

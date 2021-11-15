@@ -478,6 +478,8 @@ bool ImGuiFileDialog::FileDialog(const char* vName,  const char* vFilters, std::
 					ImGui::Image((void*)(intptr_t)Render::CsvTexture, ImVec2(25, 25), ImVec2(0, 1), ImVec2(1, 0));
 				else if (infos.ext == ".tocms")
 					ImGui::Image((void*)(intptr_t)Render::LcmsTexture, ImVec2(25, 25), ImVec2(0, 1), ImVec2(1, 0));
+				else if (infos.ext == ".lcms")
+					ImGui::Image((void*)(intptr_t)Render::LcmsTexture, ImVec2(25, 25), ImVec2(0, 1), ImVec2(1, 0));
 					else
 					ImGui::Image((void*)(intptr_t)Render::LcmsBinTexture, ImVec2(25, 25), ImVec2(0, 1), ImVec2(1, 0));
 
