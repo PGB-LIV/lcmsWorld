@@ -8,7 +8,7 @@
 #include "gl3w/gl3w.h"  
 #include "glfw/include/GLFW/glfw3.h" // Include glfw3.h after our OpenGL definitions
 
-#define TOC_VERSION true
+#define TOC_VERSION false
 
 #define CUR_VERSION_STRING "1.12"
 

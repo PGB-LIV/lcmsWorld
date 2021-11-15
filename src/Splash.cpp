@@ -1,10 +1,17 @@
 #include "gl3w/gl3w.h" // Include glfw3.h after our OpenGL definitions
 
 #include "Globals.h"
+
+
 #include "Splash.h"
+
+
 #include <chrono>
 #include <thread>
+#if TOC_VERSION
 #include "../files/splash.h"
+#endif
+
 #include "texture.hpp"
 #include "Render.h"
 #include "Zip.h"
@@ -22,6 +29,8 @@ GLuint splashtexture = 0;
 GLuint framebuffer = 0;
 bool Splash::Render()
 {
+
+#if TOC_VERSION
 	if (finished)
 		return false;
 
@@ -31,6 +40,7 @@ bool Splash::Render()
 
 	glfwMakeContextCurrent(window);
 	
+
 	if (splashtexture == 0)
 	{
 		glGenFramebuffers(1, &framebuffer);
@@ -110,8 +120,10 @@ bool Splash::Render()
 		glfwDestroyWindow(window);
 		return false;
 	}
-
+#endif
 	return true;
+
+
 }
 
 
