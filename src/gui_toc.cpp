@@ -37,7 +37,7 @@ inline bool ends_with(std::string const& value, std::string const& ending)
 	return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
 }
 
-std::string aboutText[] = { "ToC-msWorld " CUR_VERSION_STRING ," 15/11","This version is for testing, it is not guaranteed to perform correctly","","(c) University of Liverpool 2021","",
+std::string aboutText[] = { "ToC-msWorld " CUR_VERSION_STRING ," 18/11","This version is for testing, it is not guaranteed to perform correctly","","(c) University of Liverpool 2021","",
 "For any issues, please go to the github page",
 "github.com/PGB-LIV/lcmsWorld"
 };
@@ -387,13 +387,20 @@ void gui::SlidersMenu()
 
 bool gui::numbersBox()
 {
-	auto buttonText = (Settings::xLabel+" m/z Lines").c_str();
-	if (ImGui::Checkbox(buttonText, &Settings::addGridLines))
+
+	
+	auto buttonTexty = (Settings::yLabel+" m/z Lines").c_str();
+	if (ImGui::Checkbox(buttonTexty, &Settings::preGridLines))
 	{
 	
 	}
+	ImGui::SameLine();
+	auto buttonText = (Settings::xLabel + " m/z Lines").c_str();
+	if (ImGui::Checkbox(buttonText, &Settings::addGridLines))
+	{
 
-	if (Settings::addGridLines)
+	}
+	 
 	{
 		ImGui::SameLine();
 		buttonText = "Rainbow colours";
@@ -976,6 +983,7 @@ void gui::fileOpenMenu()
 {
 
 	if (getView() == NULL)
+	{
 		if (ImGui::Button("Load ToC-MS File"))
 		{
 			if (timesRun++ == 0)
@@ -990,29 +998,31 @@ void gui::fileOpenMenu()
 			openFileDialog = true;
 		}
 
-
-	ImGui::Checkbox("Remove small values", &Settings::noiseRemoval);
-	if (Settings::noiseRemoval)
-	{
-		ImGui::Checkbox("Negative Threshold", &Settings::negativeNoiseRemoval);
-		if (!Settings::negativeNoiseRemoval)
+		ImGui::Checkbox("Remove small values", &Settings::noiseRemoval);
+		if (Settings::noiseRemoval)
 		{
-			char noiseString[128];
-			sprintf(noiseString, "%s", (char*)Settings::noiseValue.c_str());
-
-			if (ImGui::InputText("Threshold", noiseString, 10))
+			ImGui::Checkbox("Negative Threshold", &Settings::negativeNoiseRemoval);
+			if (!Settings::negativeNoiseRemoval)
 			{
-				std::string newString(noiseString);
-				Settings::noiseValue = newString;
+				char noiseString[128];
+				sprintf(noiseString, "%s", (char*)Settings::noiseValue.c_str());
 
+				if (ImGui::InputText("Threshold", noiseString, 10))
+				{
+					std::string newString(noiseString);
+					Settings::noiseValue = newString;
+
+				}
 			}
+
+
+
 		}
-
-
-		
+		ImGui::Separator();
 	}
 
-	ImGui::Separator();
+
+	
 	if (getView() != NULL)
 	{
 		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);

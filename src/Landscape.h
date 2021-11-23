@@ -289,8 +289,10 @@ private:
 		
 	void addSquare(float tx, float ty, float tz, float size, float sizey, int col);
 	void addDSquare(float tx, float ty, float tz, float size, float sizey);
-	void appendLine();
- 
+	void appendLine(int ax);
+	void appendLiney(int ax);
+
+	
 };
 
 

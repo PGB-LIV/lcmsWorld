@@ -111,5 +111,5 @@ public:
 	static std::string yLabels;
 	static std::string xLabeld;
 	static std::string yLabeld;
-	
+	static bool preGridLines;
 };

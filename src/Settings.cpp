@@ -35,7 +35,7 @@ int Settings::colourScheme = 0;
  float Settings::hlFilterSize = 3;
 bool Settings::highlightFilter = false;
 bool Settings::dragMode = false;
-
+bool Settings::preGridLines = false;
 bool Settings::showBaseWireframe = false;
  
 ImVec4 Settings::clearColour = ImVec4(120 / 255.0f, 131 / 255.0f, 144 / 255.0f, 1.00f);
@@ -259,6 +259,7 @@ void Settings::loadSettings()
 	settings >> negativeNoiseRemoval;
 	settings >> colouredGridLines;
 	settings >> peakScale;
+	settings >> preGridLines;
 
 	
 	setMouse();
@@ -369,7 +370,8 @@ void Settings::saveSettings()
 	settings << negativeNoiseRemoval << "\n";
 	settings << colouredGridLines << "\n";
 	settings << peakScale << "\n";
-
+	settings << preGridLines << "\n";
+	
 
 	
 	settings.close();

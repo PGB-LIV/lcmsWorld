@@ -104,8 +104,6 @@ Tile* Builder::makeTiles(MZData* data, int lod, int threadId)
 	if ((lcSize * mzSize > size))
 	{
 	 
-		 std::cout <<lod << " : " << size << " ~ " << newX * newY << "    : " << newX << " , " << newY << "   :  " << mzSize << " , " << lcSize << "\n";
-		
 	 
 
 		

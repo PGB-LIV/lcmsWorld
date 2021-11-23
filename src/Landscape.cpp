@@ -1004,8 +1004,7 @@ void Landscape::add3dMarker(float tx, float ty, float tz, int type, std::string 
 	}
 }
 
-
-void Landscape::appendLine()
+void Landscape::appendLine(int ax)
 {
 	int steps = 250;
 
@@ -1036,9 +1035,9 @@ void Landscape::appendLine()
 
 	auto camtarget = camera->currentTarget;
 	auto pos2d = get2d(camtarget.mz, camtarget.lc, 0);
-	
 
-	double ranges[] = {.00001, .0001, 0.01, 0.1, 1, 10,100,1000,10000 };
+
+	double ranges[] = { .00001, .0001, 0.01, 0.1, 1, 10,100,1000,10000 };
 	double range = 1000;
 	int cnt = 0;
 	int rangeIndex = 0;
@@ -1047,7 +1046,7 @@ void Landscape::appendLine()
 		auto pos2da = get2d(camtarget.mz + r, camtarget.lc, 0);
 		auto dist = glm::distance(pos2d, pos2da);
 
- 
+
 
 		if (dist > 30)
 		{
@@ -1057,7 +1056,7 @@ void Landscape::appendLine()
 		}
 		cnt++;
 	}
-	
+
 	{
 		static int lastRange = 0;
 		static int count = 0;
@@ -1081,44 +1080,44 @@ void Landscape::appendLine()
 	// goes to *2 just because can start below 0, and it's easier
 
 	double world_ratio = (worldMzRange.max - worldMzRange.min) / (worldLcRange.max - worldLcRange.min);
- 	yscale *= world_ratio;
+	yscale *= world_ratio;
 
-	
 
-	 float yoff = (worldMzRange.min - worldLcRange.min)  ;
- 
+
+	float yoff = (worldMzRange.min - worldLcRange.min);
+
 
 	if (Settings::autoCorrelate)
-	for (int i = -steps; i < steps * 2; i++)
-	{
-		float x1 = (float)worldMzRange.min + ((worldMzRange.max - worldMzRange.min) / steps) * i;
-		float y1 = (float) ((worldLcRange.max - worldLcRange.min) / steps) * i ;
+		for (int i = -steps; i < steps * 2; i++)
+		{
+			float x1 = (float)worldMzRange.min + ((worldMzRange.max - worldMzRange.min) / steps) * i;
+			float y1 = (float)((worldLcRange.max - worldLcRange.min) / steps) * i;
 
-		float pos = std::min(x1, y1);
+			float pos = std::min(x1, y1);
 
-		float x = x1 + xoff;
-	//	float y = (float)worldLcRange.min + ((worldLcRange.max - worldLcRange.min) / steps) * i * yscale;
-		float y = y1 * yscale  + worldLcRange.min + yoff;
-
-
-		if ((x < worldMzRange.min) || x > worldMzRange.max)
-			continue;
-
-		if (y > worldLcRange.max)
-			break;
-
-		addDSquare(x, y, 0, size * 1, sizey * yscale);
-		
+			float x = x1 + xoff;
+			//	float y = (float)worldLcRange.min + ((worldLcRange.max - worldLcRange.min) / steps) * i * yscale;
+			float y = y1 * yscale + worldLcRange.min + yoff;
 
 
-	}
+			if ((x < worldMzRange.min) || x > worldMzRange.max)
+				continue;
+
+			if (y > worldLcRange.max)
+				break;
+
+			addDSquare(x, y, 0, size * 1, sizey * yscale);
 
 
- 
+
+		}
+
+
+
 	if (Settings::addGridLines == false)
 		return;
- 
- 
+
+
 	for (int r = 0; r < 2; r++)
 	{
 		float x = (float)worldMzRange.min;
@@ -1127,7 +1126,8 @@ void Landscape::appendLine()
 		sizey = viewData.worldSizeLc / steps;
 
 		size = range;
-
+		if (size > 400)
+			size = 400;
 
 		//	auto pos2d = get2d(camtarget.mz, camtarget.lc, 0);
 
@@ -1141,23 +1141,23 @@ void Landscape::appendLine()
 		{
 			for (float i = 0; i < steps * 2; i++)
 			{
-				float y = (float)worldLcRange.min + ((worldLcRange.max - worldLcRange.min) / steps) * i ;
+				float y = (float)worldLcRange.min + ((worldLcRange.max - worldLcRange.min) / steps) * i;
 
 
 
-				auto draw_size_y = sizey ;
+				auto draw_size_y = sizey;
 				if ((y - draw_size_y / 2) >= worldLcRange.max)
 					continue;
-				if ((y + draw_size_y/2) >= worldLcRange.max)
+				if ((y + draw_size_y / 2) >= worldLcRange.max)
 				{
 
-			//		draw_size_y = (worldLcRange.max - y)  ;
+					//		draw_size_y = (worldLcRange.max - y)  ;
 				}
- 
-		//		y = worldLcRange.max;
-				//		 	draw_size_y = (worldLcRange.max - y)  *2;
 
-				addSquare(x, y, 0, size*.5, draw_size_y, rangeIndex);
+				//		y = worldLcRange.max;
+						//		 	draw_size_y = (worldLcRange.max - y)  *2;
+
+				addSquare(x, y, 0, size * .5, draw_size_y, rangeIndex);
 
 
 
@@ -1170,7 +1170,122 @@ void Landscape::appendLine()
 		range *= 10;
 		rangeIndex++;
 	}
+
+}
+
+
+
+
+
+
+void Landscape::appendLiney(int ax)
+{
+	int steps = 250;
+
+
+
+#if TOC_VERSION
+	if (camera == NULL)
+		return;
+#else
+	return;
+#endif
+
+
+	float sizex = viewData.worldSizeMz / steps;
+	float size = viewData.worldSizeLc / steps;
+
+
+
+	auto camtarget = camera->currentTarget;
+	auto pos2d = get2d(camtarget.mz, camtarget.lc, 0);
+
+
+	double ranges[] = { .00001, .0001, 0.01, 0.1, 1, 10,100,1000,10000 };
+	double range = 1000;
+	int cnt = 0;
+	int rangeIndex = 0;
+	for (auto r : ranges)
+	{
+		auto pos2da = get2d(camtarget.mz, camtarget.lc + r, 0);
+		auto dist = glm::distance(pos2d, pos2da);
+
+
+
+		if (dist > 30)
+		{
+			range = r;
+			rangeIndex = cnt;
+			break;
+		}
+		cnt++;
+	}
+
+
+	{
+		static int lastRange = 0;
+		static int count = 0;
+		count++;
+		if (count & 31)
+		{
+			rangeIndex = lastRange;
+			range = ranges[rangeIndex];
+
+
+		}
+		lastRange = rangeIndex;
+
+	}
+
+ 
+ 
+
+	for (int r = 0; r < 2; r++)
+	{
+		float x = (float)worldMzRange.min;
+		steps = 30;
+ 
 	 
+			sizex = viewData.worldSizeMz / steps;
+
+		size = range;
+		if (size > 200)
+			size = 200;
+
+
+		//	auto pos2d = get2d(camtarget.mz, camtarget.lc, 0);
+
+		float y = camtarget.lc - (range * 50);
+		y = (int)(y / range);
+		y *= range;
+
+
+		cnt = 0;
+		while (y < worldLcRange.max)
+		{
+			for (float i = 0; i < steps * 2; i++)
+			{
+				float x = (float)worldMzRange.min + ((worldMzRange.max - worldMzRange.min) / steps) * i;
+
+
+				auto draw_size_y = sizex;
+				if ((x - draw_size_y / 2) >= worldMzRange.max)
+					continue;
+
+			addSquare(x, y, 0, sizex, size * .5, rangeIndex);
+
+
+
+			}
+			y += range;
+			if (cnt++ > 100)
+				break;
+		}
+
+		range *= 10;
+		rangeIndex++;
+	}
+
 }
 
 
@@ -1204,7 +1319,9 @@ void Landscape::drawCubes()
 	}
 
 	
- 	appendLine();
+ 	appendLine(0);
+	if (Settings::preGridLines)
+		appendLiney(1);
 
 	if ((cubeMesh == NULL) && vertex_vec.size() > 0)
 	{

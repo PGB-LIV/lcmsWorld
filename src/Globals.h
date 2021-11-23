@@ -10,7 +10,7 @@
 
 #define TOC_VERSION false
 
-#define CUR_VERSION_STRING "1.12"
+#define CUR_VERSION_STRING "1.13"
 
 class Globals
 {
@@ -37,7 +37,7 @@ public:
 
 	static GLFWwindow* window;
 	
-	inline static std::string supported_versions[] = { "1.11", CUR_VERSION_STRING };
+	inline static std::string supported_versions[] = { "1.11", "1.12", CUR_VERSION_STRING };
 
 	static TimeStamp currentTime;
 	static std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
